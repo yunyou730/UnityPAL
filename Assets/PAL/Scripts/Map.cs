@@ -38,7 +38,7 @@ namespace ayy.pal
     {
         public uint[,,] Tiles = new uint[128, 64, 2];   // each element:unsigned int, 4 bytes,32 bits
         public int MapIndex;        // map index, 4 bytes,32 bits
-        public byte TileSprite;     // 8 bits
+        public byte[] TileSprite = null;     // 8 bits pointer
     }
 
     public unsafe class Map
@@ -56,7 +56,7 @@ namespace ayy.pal
             
             // tile data
             int size = mapMKF.GetChunkSize(mapIndex);
-            byte[] tileData = new byte[size];
+            //byte[] tileData = new byte[size];
             
             
             _palMap = new PALMap();
@@ -86,11 +86,47 @@ namespace ayy.pal
                         }
                     }
                 }
-
-
-                //Yj1Decompressor.Decompress(mapChunkData, pTilesDataBytes);
-                Debug.Log("test111");                
             }
+            
+            
+            
+            // Load Bitmap
+            // @miao @todo
+            size = gopMKF.GetChunkSize(mapIndex);
+            if (size <= 0)
+            {
+                return;
+            }
+
+            //_palMap.TileSprite = new byte[size];
+            // if (_palMap.TileSprite == null)
+            // {
+            //     return;
+            // }
+            _palMap.TileSprite = gopMKF.ReadChunk(mapIndex);
+            _palMap.MapIndex = mapIndex;
+
+            Debug.Log("test111");
+
+
+            //
+            // Load the tile bitmaps.
+            // map->pTileSprite = (LPSPRITE)malloc(size);
+            // if (map->pTileSprite == NULL)
+            // {
+            //     free(map);
+            //     return NULL;
+            // }
+            // if (PAL_MKFReadChunk(map->pTileSprite, size, iMapNum, fpGopMKF) < 0)
+            // {
+            //     free(map);
+            //     return NULL;
+            // }
+            //
+            // //
+            // // Done.
+            // //
+            // map->iMapNum = iMapNum;
 
 
         }
