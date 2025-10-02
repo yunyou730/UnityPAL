@@ -1,27 +1,46 @@
 using System.IO;
+using ayy.pal;
 using UnityEngine;
 
 public class Test : MonoBehaviour
 {
     MKFLoader _mkfLoader = null;
     
-    void Start()
+    //Material _material = null;
+    [SerializeField] private GameObject _spriteFramePrefab = null;
+    
+    unsafe void Start()
     {
         //int mapIndex = 12;
         //string fullPath = Path.Combine(Application.streamingAssetsPath, "MAP.MKF");
         //_mkfLoader = new MKFLoader(fullPath);
         //_mkfLoader.Load();
 
-
+        // 地图 tile数据, sprite 数据
         var mapMKF = new MKFLoader(Path.Combine(Application.streamingAssetsPath, "MAP.MKF"));
         var gopMKF = new MKFLoader(Path.Combine(Application.streamingAssetsPath, "GOP.MKF"));
         mapMKF.Load();
         gopMKF.Load();
         var map = new ayy.pal.Map();
         map.LoadMap(12,mapMKF,gopMKF);
-
-
-
+        
+        // 调色板数据
+        var palette = new ayy.pal.Palette();
+        PaletteColor[] paletteColors = palette.GetPalette(0,false);
+        
+        // 把地图里的 sprite, 存储为 texture
+        var renderer = new ayy.pal.Renderer();
+        byte[] sprite = map.GetPALMap().TileSprite;
+        int spriteFrameCount = renderer.GetSpriteFrameCount(sprite);
+        for (int frameIndex = 0; frameIndex < spriteFrameCount; frameIndex++)
+        {
+            Texture2D tex = renderer.CreateTexture(sprite, frameIndex,paletteColors);
+            var go = GameObject.Instantiate(_spriteFramePrefab);
+            go.name = "sprite[" + frameIndex + "]";
+            var mat = go.GetComponent<MeshRenderer>().material;
+            mat.SetTexture(Shader.PropertyToID("_Texture2D"), tex);
+            
+        }
     }
     
     void Update()

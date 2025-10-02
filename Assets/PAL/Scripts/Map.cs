@@ -88,47 +88,44 @@ namespace ayy.pal
                 }
             }
             
-            
-            
             // Load Bitmap
-            // @miao @todo
             size = gopMKF.GetChunkSize(mapIndex);
             if (size <= 0)
             {
                 return;
             }
 
-            //_palMap.TileSprite = new byte[size];
-            // if (_palMap.TileSprite == null)
-            // {
-            //     return;
-            // }
             _palMap.TileSprite = gopMKF.ReadChunk(mapIndex);
             _palMap.MapIndex = mapIndex;
+        }
+        
+        
+        // 参考 map.c PAL_MapGetTileBitmap
+        /* Purpose:
+         *  Get tile bitmap on the specified layer at the location (x,y,h)
+         * Parameters:
+         *  [IN] x - Column number of the tile
+         *  [IN] y- Row number in the map
+         *  [IN] h - Each line in the map has two lines of tiles, 0 and 1.(See map.h for details)
+         *  [IN] layer - The layer. 0 for bottom, 1 for top
+         * Return value:
+         *  Pointer to the bitmap. NULL if failed.
+         */
+        public void GetTileBitmap(byte x,byte y,byte h,byte layer)
+        {
+            if (_palMap == null) 
+                return;
+            if (x >= 64 || y >= 128 || h > 1) 
+                return;
+            
+            
+            
+            Debug.Log("test");
+        }
 
-            Debug.Log("test111");
-
-
-            //
-            // Load the tile bitmaps.
-            // map->pTileSprite = (LPSPRITE)malloc(size);
-            // if (map->pTileSprite == NULL)
-            // {
-            //     free(map);
-            //     return NULL;
-            // }
-            // if (PAL_MKFReadChunk(map->pTileSprite, size, iMapNum, fpGopMKF) < 0)
-            // {
-            //     free(map);
-            //     return NULL;
-            // }
-            //
-            // //
-            // // Done.
-            // //
-            // map->iMapNum = iMapNum;
-
-
+        public PALMap GetPALMap()
+        {
+            return _palMap;
         }
     }
     
