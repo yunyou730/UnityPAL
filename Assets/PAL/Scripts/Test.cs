@@ -36,7 +36,9 @@ public class Test : MonoBehaviour
         {
             Texture2D tex = renderer.CreateTexture(sprite, frameIndex,paletteColors);
             var go = GameObject.Instantiate(_spriteFramePrefab);
-            go.name = "sprite[" + frameIndex + "]";
+            go.name = "sprite_frame[" + frameIndex + "]";
+            go.transform.localPosition = new Vector3(0, frameIndex * 1.0f, 0);
+            go.transform.localScale = new Vector3(1.0f, (float)tex.height / (float)tex.width, 1.0f);
             var mat = go.GetComponent<MeshRenderer>().material;
             mat.SetTexture(Shader.PropertyToID("_Texture2D"), tex);
             

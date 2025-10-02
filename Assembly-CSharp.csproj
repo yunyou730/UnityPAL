@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets/PAL/Scripts/Map.cs" />
+    <Compile Include="Assets/PAL/Scripts/Palette.cs" />
     <Compile Include="Assets/PAL/Scripts/MKFLoader.cs" />
     <Compile Include="Assets/PAL/Scripts/YJ1.cs" />
     <Compile Include="Assets/PAL/Scripts/Renderer.cs" />

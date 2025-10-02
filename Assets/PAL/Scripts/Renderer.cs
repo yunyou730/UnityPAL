@@ -55,8 +55,18 @@ namespace ayy.pal
                 int bitmapLen = bitmapWidth * bitmapHeight;     // 一共有多少个像素
                 Debug.Log("[sprite]bitmapWidth:" + bitmapWidth + " bitmapHeight:" + bitmapHeight);
                 
+                // 初始化为全透明
                 texture = new Texture2D(bitmapWidth, bitmapHeight, TextureFormat.RGBA32, false);
                 texture.filterMode = FilterMode.Point;
+                for (int w = 0; w < bitmapWidth; w++)
+                {
+                    for (int h = 0; h < bitmapHeight; h++)
+                    {
+                        texture.SetPixel(w,h,new Color(0,0,0,0));
+                    }
+                }
+
+
                 bitmapOLE += 4;     // 此时,指针指向像素数据
 
                 
@@ -95,13 +105,8 @@ namespace ayy.pal
                             byte rawColor = *(bitmapOLE + j);
                             //byte rawColor = (byte)(*(bitmapOLE + j) & 0x0F);
                             
-                            // @miao @temp
-                            // float r = (rawColor & 0xC0)/ 255.0f;
-                            // float g = (rawColor & 0x30)/ 255.0f;
-                            // float b = (rawColor & 0x0C)/ 255.0f;
-                            // float a = (rawColor & 0x03)/ 255.0f;
-                            //texture.SetPixel(pixelX,pixelY,new Color(r,g,b,1.0f));
-
+                            
+                            // 根据调色板,查询颜色
                             Color color = new Color();
                             PaletteColor paletteColor = palette[rawColor];
                             color.r = paletteColor.r / 255.0f;
@@ -109,9 +114,7 @@ namespace ayy.pal
                             color.b = paletteColor.b / 255.0f;
                             color.a = 1.0f;
                             texture.SetPixel(pixelX, pixelY,color);
-                            //texture.SetPixel(pixelX,pixelY,new Color(1.0f,0.0f,0.0f,1.0f));
-                            Debug.Log($"[sprite]Pixel:({pixelX},{pixelY}) RawColor:{rawColor} ");
-                            
+                            //Debug.Log($"[sprite]Pixel:({pixelX},{pixelY}) RawColor:{rawColor} ");
 
                             pixelX++;
                             sx++;
