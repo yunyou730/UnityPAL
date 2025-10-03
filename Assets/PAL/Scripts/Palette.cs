@@ -7,6 +7,14 @@ namespace ayy.pal
     public class Palette
     {
         public static int PALETTE_COLOR_COUNT = 256;
+        private MKFLoader _patMKF = null;
+
+        public void Load()
+        {
+            _patMKF = new MKFLoader(Path.Combine(Application.streamingAssetsPath, "PAT.MKF"));
+            _patMKF.Load();   
+        }
+
         /*
          * Purpose:
          *  Get the specified palette in pat.mkf file.
@@ -17,13 +25,11 @@ namespace ayy.pal
          *
          * Return value:
          *  Pointer to the palette.NULL if failed
-         * 
+         *
          */
         public PaletteColor[] GetPalette(int paletteIndex,bool isNightColor)
         {
-            var palMKF = new MKFLoader(Path.Combine(Application.streamingAssetsPath, "PAT.MKF"));
-            palMKF.Load();
-            byte[] buf = palMKF.ReadChunk(paletteIndex);
+            byte[] buf = _patMKF.ReadChunk(paletteIndex);
             if (buf == null || buf.Length == 0)
             {
                 return null;
@@ -49,10 +55,22 @@ namespace ayy.pal
         
         public int GetPaletteCount()
         {
-            var palMKF = new MKFLoader(Path.Combine(Application.streamingAssetsPath, "PAT.MKF"));
-            palMKF.Load();
-            int ret = palMKF.GetChunkCount();
+            int ret = _patMKF.GetChunkCount();
             return ret;
+        }
+
+        public Texture2D CreateDebugTexture()
+        {
+            var tex = new Texture2D(16, 16);
+            tex.filterMode = FilterMode.Point;
+            for (int x = 0; x < 16; x++)
+            {
+                for (int y = 0; y < 16; y++)
+                {
+                    tex.SetPixel(x, y, new Color(0, 0, 0, 0));
+                }
+            }
+            return tex;
         }
     }
 

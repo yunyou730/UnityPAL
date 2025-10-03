@@ -23,15 +23,10 @@ namespace ayy.debugging
             _btnLoadPalette.onClick.AddListener(OnClickLoadPalette);
             _dropdownPalette.onValueChanged.AddListener(OnClickPalette);
             _dropdownPalette.options.Clear();
-            _paletteTexture = new Texture2D(16, 16);
-            _paletteTexture.filterMode = FilterMode.Point;
-            for (int x = 0; x < 16; x++)
-            {
-                for (int y = 0; y < 16; y++)
-                {
-                    _paletteTexture.SetPixel(x, y, new Color(0, 0, 0, 0));
-                }
-            }
+            
+            _palette = new ayy.pal.Palette();
+            _palette.Load();
+            _paletteTexture = _palette.CreateDebugTexture();
             var mat = _paletteTextureHolder.GetComponent<MeshRenderer>().material;
             mat.SetTexture(Shader.PropertyToID("_Texture2D"), _paletteTexture);
         }
@@ -39,13 +34,15 @@ namespace ayy.debugging
         private void OnClickLoadPalette()
         {
             Debug.Log("Load Palette");
-            _palette = new ayy.pal.Palette();
             _dropdownPalette.options.Clear();
             int paletteCount = _palette.GetPaletteCount();
             for (int i = 0;i < paletteCount;i++)
             {
                 _dropdownPalette.options.Add(new TMP_Dropdown.OptionData($"palette_[{i}]"));
             }
+
+            _dropdownPalette.value = 0;
+            _dropdownPalette.onValueChanged.Invoke(0);
         }
 
         private void OnClickPalette(int index)

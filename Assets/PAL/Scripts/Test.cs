@@ -23,6 +23,7 @@ public class Test : MonoBehaviour
         
         // 调色板数据
         var palette = new ayy.pal.Palette();
+        palette.Load();
         PaletteColor[] paletteColors = palette.GetPalette(0,false);
         
         // 把地图里的 sprite, 存储为 texture
