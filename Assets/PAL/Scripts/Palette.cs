@@ -6,6 +6,7 @@ namespace ayy.pal
 {
     public class Palette
     {
+        public static int PALETTE_COLOR_COUNT = 256;
         /*
          * Purpose:
          *  Get the specified palette in pat.mkf file.
@@ -28,14 +29,14 @@ namespace ayy.pal
                 return null;
             }
 
-            PaletteColor[] paletteColors = new PaletteColor[256];
+            PaletteColor[] paletteColors = new PaletteColor[PALETTE_COLOR_COUNT];
             bool hasNight = !(buf.Length <= 256 * 3); // is palette has night colors
             if (!hasNight)
             {
                 isNightColor = false;
             }
             
-            for (int i = 0; i < 256; i++)
+            for (int i = 0; i < PALETTE_COLOR_COUNT; i++)
             {
                 var col = new PaletteColor();
                 col.r = buf[isNightColor ? 256 * 3 : 0 + i * 3] << 2;
@@ -45,11 +46,24 @@ namespace ayy.pal
             }
             return paletteColors;
         }
+        
+        public int GetPaletteCount()
+        {
+            var palMKF = new MKFLoader(Path.Combine(Application.streamingAssetsPath, "PAT.MKF"));
+            palMKF.Load();
+            int ret = palMKF.GetChunkCount();
+            return ret;
+        }
     }
 
     public class PaletteColor
     {
-        public int r, g, b, a;
+        public int r, g, b;
+
+        public Color ConvertToColor()
+        {
+            return new Color(r/255.0f, g/255.0f, b/255.0f,1.0f);
+        }
     }
 
 }
