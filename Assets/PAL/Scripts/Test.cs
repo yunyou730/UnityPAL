@@ -9,12 +9,9 @@ public class Test : MonoBehaviour
     //Material _material = null;
     [SerializeField] private GameObject _spriteFramePrefab = null;
     
-    unsafe void Start()
+    void Start()
     {
-        //int mapIndex = 12;
-        //string fullPath = Path.Combine(Application.streamingAssetsPath, "MAP.MKF");
-        //_mkfLoader = new MKFLoader(fullPath);
-        //_mkfLoader.Load();
+        int mapIndex = 12;
 
         // 地图 tile数据, sprite 数据
         var mapMKF = new MKFLoader(Path.Combine(Application.streamingAssetsPath, "MAP.MKF"));
@@ -22,7 +19,7 @@ public class Test : MonoBehaviour
         mapMKF.Load();
         gopMKF.Load();
         var map = new ayy.pal.Map();
-        map.LoadMap(12,mapMKF,gopMKF);
+        map.LoadMap(mapIndex,mapMKF,gopMKF);
         
         // 调色板数据
         var palette = new ayy.pal.Palette();
@@ -32,16 +29,19 @@ public class Test : MonoBehaviour
         var renderer = new ayy.pal.Renderer();
         byte[] sprite = map.GetPALMap().TileSprite;
         int spriteFrameCount = renderer.GetSpriteFrameCount(sprite);
+        float baseY = 0.0f;
         for (int frameIndex = 0; frameIndex < spriteFrameCount; frameIndex++)
         {
             Texture2D tex = renderer.CreateTexture(sprite, frameIndex,paletteColors);
             var go = GameObject.Instantiate(_spriteFramePrefab);
             go.name = "sprite_frame[" + frameIndex + "]";
-            go.transform.localPosition = new Vector3(0, frameIndex * 1.0f, 0);
-            go.transform.localScale = new Vector3(1.0f, (float)tex.height / (float)tex.width, 1.0f);
+            go.transform.SetParent(transform);
+            float sizeX = go.transform.localScale.x;
+            float sizeY = tex.height / (float)tex.width * sizeX;
+            go.transform.localPosition = new Vector3(0, baseY + frameIndex * sizeY, 0);
+            go.transform.localScale = new Vector3(sizeX, sizeY, 1.0f);
             var mat = go.GetComponent<MeshRenderer>().material;
             mat.SetTexture(Shader.PropertyToID("_Texture2D"), tex);
-            
         }
     }
     
