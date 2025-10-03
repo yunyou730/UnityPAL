@@ -5,21 +5,14 @@ using UnityEngine;
 public class Test : MonoBehaviour
 {
     MKFLoader _mkfLoader = null;
-    
-    //Material _material = null;
     [SerializeField] private GameObject _spriteFramePrefab = null;
     
     void Start()
     {
         int mapIndex = 12;
-
-        // 地图 tile数据, sprite 数据
-        var mapMKF = new MKFLoader(Path.Combine(Application.streamingAssetsPath, "MAP.MKF"));
-        var gopMKF = new MKFLoader(Path.Combine(Application.streamingAssetsPath, "GOP.MKF"));
-        mapMKF.Load();
-        gopMKF.Load();
         var map = new ayy.pal.Map();
-        map.LoadMap(mapIndex,mapMKF,gopMKF);
+        map.Load();
+        map.LoadMapWithIndex(mapIndex);
         
         // 调色板数据
         var palette = new ayy.pal.Palette();

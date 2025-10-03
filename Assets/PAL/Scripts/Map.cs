@@ -1,3 +1,4 @@
+using System.IO;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -43,25 +44,35 @@ namespace ayy.pal
 
     public unsafe class Map
     {
-        private PALMap _palMap = null;
-        public void LoadMap(int mapIndex,MKFLoader mapMKF,MKFLoader gopMKF)
+        private MKFLoader _mapMKF = null;   // 地图tile数据
+        private MKFLoader _gopMKF = null;   // 地图sprite数据
+        private PALMap _palMap = null;      // current loaded PALMap
+        
+        public void Load()
         {
-            int mkfCount = mapMKF.GetChunkCount();
-            int gopCount = gopMKF.GetChunkCount();
+            _mapMKF = new MKFLoader(Path.Combine(Application.streamingAssetsPath, "MAP.MKF"));
+            _gopMKF = new MKFLoader(Path.Combine(Application.streamingAssetsPath, "GOP.MKF"));
+            _mapMKF.Load();
+            _gopMKF.Load();
+        }
+
+        public void LoadMapWithIndex(int mapIndex)
+        {
+            int mkfCount = _mapMKF.GetChunkCount();
+            int gopCount = _gopMKF.GetChunkCount();
             Debug.Log(mkfCount + " : " + gopCount);
             if (mapIndex >= mkfCount || mapIndex >= gopCount || mapIndex <= 0)
             {
+                _palMap = null;
                 return;
             }
             
             // tile data
-            int size = mapMKF.GetChunkSize(mapIndex);
-            //byte[] tileData = new byte[size];
-            
+            int size = _mapMKF.GetChunkSize(mapIndex);
             
             _palMap = new PALMap();
 
-            byte[] mapChunkData = mapMKF.ReadChunk(mapIndex);
+            byte[] mapChunkData = _mapMKF.ReadChunk(mapIndex);
             
             //byte[] mapDecompressedData = new byte
             fixed (uint* pTilesData = _palMap.Tiles)
@@ -89,13 +100,13 @@ namespace ayy.pal
             }
             
             // Load Bitmap
-            size = gopMKF.GetChunkSize(mapIndex);
+            size = _gopMKF.GetChunkSize(mapIndex);
             if (size <= 0)
             {
                 return;
             }
 
-            _palMap.TileSprite = gopMKF.ReadChunk(mapIndex);
+            _palMap.TileSprite = _gopMKF.ReadChunk(mapIndex);
             _palMap.MapIndex = mapIndex;
         }
         
@@ -117,15 +128,19 @@ namespace ayy.pal
                 return;
             if (x >= 64 || y >= 128 || h > 1) 
                 return;
-            
-            
-            
+            // @miao @temp
             Debug.Log("test");
         }
 
         public PALMap GetPALMap()
         {
             return _palMap;
+        }
+
+        public int GetMapCount()
+        {
+            int ret = _mapMKF.GetChunkCount();
+            return ret;
         }
     }
     
