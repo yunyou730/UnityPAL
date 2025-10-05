@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace ayy.pal
 {
-    //
+    // 参考 map.h, PALMAP
     // Map format:
     //
     // +----------------------------------------------> x
@@ -37,9 +37,26 @@ namespace ayy.pal
     //
     public class PALMap
     {
+        public static int kMaxX = 128;
+        public static int kMaxY = 64;
+        public static int kMaxH = 2;
+        
         public uint[,,] Tiles = new uint[128, 64, 2];   // each element:unsigned int, 4 bytes,32 bits
         public int MapIndex;        // map index, 4 bytes,32 bits
         public byte[] TileSprite = null;     // 8 bits pointer
+
+        public int GetSpriteIndexBottomLayer(int x,int y,int h)
+        {
+            int d = (int)Tiles[x,y,h];
+            return (d & 0xFF) | ((d >> 4) & 0x100);
+        }
+
+        public int GetSpriteIndexTopLayer(int x, int y, int h)
+        {
+            int d = (int)Tiles[x,y,h];
+            d >>= 16;
+            return (d & 0xFF) | (((d >> 4) & 0x100) - 1);
+        }
     }
 
     public unsafe class Map
@@ -129,6 +146,8 @@ namespace ayy.pal
             if (x >= 64 || y >= 128 || h > 1) 
                 return;
             // @miao @temp
+            
+            
             Debug.Log("test");
         }
 

@@ -119,6 +119,51 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &282318460
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 282318462}
+  - component: {fileID: 282318461}
+  m_Layer: 0
+  m_Name: GameObject_TileMap_Top_Root
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &282318461
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 282318460}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0265bdf4c95f34bbfb4af33122a90281, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _spriteFramePrefab: {fileID: 4225638059735335567, guid: aeac92c1c2af641f78348f00671176c0, type: 3}
+--- !u!4 &282318462
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 282318460}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
@@ -535,6 +580,51 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1356160356
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1356160358}
+  - component: {fileID: 1356160357}
+  m_Layer: 0
+  m_Name: GameObject_TileMap_Bottom_Root
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1356160357
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1356160356}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0265bdf4c95f34bbfb4af33122a90281, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _spriteFramePrefab: {fileID: 4225638059735335567, guid: aeac92c1c2af641f78348f00671176c0, type: 3}
+--- !u!4 &1356160358
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1356160356}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &1667256531012230826
 Transform:
   m_ObjectHideFlags: 0
@@ -561,7 +651,7 @@ GameObject:
   - component: {fileID: 1667256531012230826}
   - component: {fileID: 2359863658299582280}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: GameObject_SpriteFrameRoot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -639,7 +729,15 @@ PrefabInstance:
     - target: {fileID: 4578419798808432466, guid: f653a9ef6a76143799c6f9788db0839a, type: 3}
       propertyPath: _mapHolder
       value: 
-      objectReference: {fileID: 2359863658299582279}
+      objectReference: {fileID: 1356160356}
+    - target: {fileID: 4578419798808432466, guid: f653a9ef6a76143799c6f9788db0839a, type: 3}
+      propertyPath: _mapHolderTop
+      value: 
+      objectReference: {fileID: 282318460}
+    - target: {fileID: 4578419798808432466, guid: f653a9ef6a76143799c6f9788db0839a, type: 3}
+      propertyPath: _mapHolderBottom
+      value: 
+      objectReference: {fileID: 1356160356}
     - target: {fileID: 4578419798808432466, guid: f653a9ef6a76143799c6f9788db0839a, type: 3}
       propertyPath: _mapSpriteFramePrefab
       value: 
@@ -801,5 +899,7 @@ SceneRoots:
   - {fileID: 410087041}
   - {fileID: 832575519}
   - {fileID: 1667256531012230826}
+  - {fileID: 1356160358}
+  - {fileID: 282318462}
   - {fileID: 9002992422694372389}
   - {fileID: 1172231195}

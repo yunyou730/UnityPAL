@@ -1,3 +1,4 @@
+using System;
 using System.Security;
 using ayy.pal;
 using TMPro;
@@ -17,7 +18,8 @@ namespace ayy.debugging
         [SerializeField] private Button _btnLoadMap;
         [SerializeField] private TMP_Dropdown _dropdownMap;
         [SerializeField] private GameObject _mapSpriteFramesHolder;
-        [SerializeField] private GameObject _mapHolder;
+        [SerializeField] private GameObject _mapHolderBottom;
+        [SerializeField] private GameObject _mapHolderTop;
         [SerializeField] private GameObject _mapSpriteFramePrefab;
         
         private ayy.pal.Palette _palette;
@@ -25,6 +27,11 @@ namespace ayy.debugging
         private int _paletteIndex = -1;
         
         private ayy.pal.Map _map;
+        private Texture2D[] _spriteFrames;
+
+        // map tile 是 32x15 的 rect, 中间菱形部分有图像
+        private float _mapTileWidth = 1.0f;
+        private float _mapTileHeight = 15 / 32.0f;
         
         void Start()
         {
@@ -98,13 +105,14 @@ namespace ayy.debugging
 
         private void OnClickSwitchMap(int mapIndex)
         {
+            // Clear previous map's sprite frames
             for (int i = _mapSpriteFramesHolder.transform.childCount - 1; i >= 0; i--)
             {
                 var child = _mapSpriteFramesHolder.transform.GetChild(i);
                 Destroy(child.gameObject);
             }
-
-            PaletteColor[] paletteColors = _palette.GetPalette(_paletteIndex,false);
+            
+            // Load Map
             _map.LoadMapWithIndex(mapIndex);
             PALMap palMap = _map.GetPALMap();
             if (palMap == null)
@@ -112,10 +120,32 @@ namespace ayy.debugging
                 Debug.LogWarning($"there's no map with index {mapIndex}");
                 return;
             }
+            
+            // Load palette
+            PaletteColor[] paletteColors = _palette.GetPalette(_paletteIndex,false);
+            
+            // Draw Sprite Frames
+            ShowMapSpriteFrames(palMap,paletteColors);
+            // Draw map tiles
+            ShowMapTiles(palMap,false,_mapHolderBottom);
+            ShowMapTiles(palMap,true,_mapHolderTop);
+        }
 
+        private void ShowMapSpriteFrames(PALMap palMap,PaletteColor[] paletteColors)
+        {
+            if (_spriteFrames != null)
+            {
+                foreach (var spriteFrame in _spriteFrames)
+                {
+                    Destroy(spriteFrame);
+                }
+            }
+            
+            
             var renderer = new ayy.pal.Renderer();
             byte[] sprite = palMap.TileSprite;
             int spriteFrameCount = renderer.GetSpriteFrameCount(sprite);
+            _spriteFrames = new Texture2D[spriteFrameCount];
             float baseY = 0.0f;
             for (int frameIndex = 0; frameIndex < spriteFrameCount; frameIndex++)
             {
@@ -129,7 +159,73 @@ namespace ayy.debugging
                 go.transform.localScale = new Vector3(sizeX, sizeY, 1.0f);
                 var mat = go.GetComponent<MeshRenderer>().material;
                 mat.SetTexture(Shader.PropertyToID("_Texture2D"), tex);
+                _spriteFrames[frameIndex] = tex;
             }
+        }
+
+        private void ShowMapTiles(PALMap palMap,bool bottomOrTop,GameObject parent)
+        {
+            for (int y = 0;y < 64;y++)
+            {
+                for (int h = 0; h < 2; h++)
+                {
+                    for (int x = 0; x < 128; x++)
+                    {
+                        //Vector3 tilePos = GetMapTilePos(x,y,h);
+                        Vector3 tilePos = GetMapTilePos(y,x,h);
+                        
+                        
+                        // data
+                        int frameIndex = palMap.GetSpriteIndexBottomLayer(x,y,h);
+                        if (bottomOrTop)
+                        {
+                            frameIndex = palMap.GetSpriteIndexTopLayer(x,y,h);
+                        }
+                        
+                        
+                        // Create tile ,set position
+                        if (frameIndex >= 0 && frameIndex < _spriteFrames.Length)
+                        {
+                            var tile = GameObject.Instantiate(_mapSpriteFramePrefab,parent.transform);
+                            tile.name = $"tile-({x}, {y}, {h})";
+                            tile.transform.localScale = new Vector3(1, _mapTileHeight / _mapTileWidth, 1);
+                            tile.transform.localPosition = tilePos;
+                            var mat = tile.GetComponent<MeshRenderer>().material;
+                            var tex = _spriteFrames[frameIndex]; // @miao @temp 临时使用一个 sprite frame index 
+                            mat.SetTexture(Shader.PropertyToID("_Texture2D"), tex);                            
+                        }
+
+                    }
+                }
+            }
+        }
+
+        private Vector3 GetMapTilePos(int x,int y,int h)
+        {
+            //x = 128 - x;
+            float W = _mapTileWidth;
+            float H = _mapTileHeight;
+            //float H = 16.0f / 32.0f;
+            //float baseY = -y * H - h * H / 2;
+            //float yCoord = -(y * H + h * H);
+            //float yCoord = (y * H * 2);
+            float yCoord = -(y * H);
+            float baseX = 0;
+            if (h == 1)
+            //if (h == 0)
+            {
+                baseX = baseX + W / 2;
+                yCoord = yCoord - H / 2;
+                //yCoord = yCoord + H;
+            }
+
+            // {
+            //     baseX = baseX + W / 2;
+            //     baseY = baseY - H / 2;
+            // }
+            float xCoord = baseX + ( x * W);
+            return new Vector3(xCoord,yCoord,0);
+            //return new Vector3(yCoord,xCoord,0);
         }
     }
 }

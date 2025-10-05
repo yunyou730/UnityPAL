@@ -10,7 +10,7 @@ namespace ayy.pal
             return frameCount;
         }
 
-        public int GetSpriteFrameOffset(byte[] sprite,int frameIndex)
+        private int GetSpriteFrameOffset(byte[] sprite,int frameIndex)
         {
             int frameCount = GetSpriteFrameCount(sprite);
             if (frameIndex < 0 || frameIndex >= frameCount)
