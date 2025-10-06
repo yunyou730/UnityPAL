@@ -41,6 +41,30 @@ namespace ayy.debugging
             InitDebugMap();
         }
 
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.RightArrow))
+            {
+                int next = _dropdownMap.value + 1;
+                if (next > _dropdownMap.options.Count - 1)
+                {
+                    next = 0;
+                }
+                _dropdownMap.value = next;
+                _dropdownMap.onValueChanged.Invoke(next);
+            }
+            else if (Input.GetKeyDown(KeyCode.LeftArrow))
+            {
+                int next = _dropdownMap.value - 1;
+                if (next < 0)
+                {
+                    next = _dropdownMap.options.Count - 1;
+                }
+                _dropdownMap.value = next;
+                _dropdownMap.onValueChanged.Invoke(next);
+            }
+        }
+
         private void InitDebugPalette()
         {
             _btnLoadPalette.onClick.AddListener(OnClickLoadPalette);
@@ -114,6 +138,17 @@ namespace ayy.debugging
                 Destroy(child.gameObject);
             }
             
+            // Clear tiles
+            for(int i = 0;i < _mapHolderBottom.transform.childCount;i++)
+            {
+                Destroy(_mapHolderBottom.transform.GetChild(i).gameObject);
+            }
+            for (int i = 0; i < _mapHolderTop.transform.childCount; i++)
+            {
+                Destroy(_mapHolderTop.transform.GetChild(i).gameObject);
+            }
+
+
             // Load Map
             _map.LoadMapWithIndex(mapIndex);
             PALMap palMap = _map.GetPALMap();
@@ -220,11 +255,7 @@ namespace ayy.debugging
                 yCoord = yCoord - H / 2;
             }
             float xCoord = baseX + ( x * W);
-
-            // float baseZ = -128.0f;
-            // float zCoord = baseZ + x;
             float zCoord = 0.0f;
-            
             return new Vector3(xCoord,yCoord,zCoord);
         }
     }

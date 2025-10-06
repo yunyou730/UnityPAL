@@ -48,20 +48,15 @@ namespace ayy.pal
         public int GetSpriteIndexBottomLayer(int x,int y,int h)
         {
             int d = (int)Tiles[x,y,h];
-            //int d = (int)Tiles[y,x,h];
             return (d & 0xFF) | ((d >> 4) & 0x100);
         }
 
         public int GetSpriteIndexTopLayer(int x, int y, int h)
         {
             int d = (int)Tiles[x,y,h];
-            //int d = (int)Tiles[y,x,h];
             d = d >> 16;
-            
-            //return PAL_SpriteGetFrame(lpMap->pTileSprite, ((d & 0xFF) | ((d >> 4) & 0x100)) - 1);
             d = ((d & 0xFF) | ((d >> 4) & 0x100)) - 1;
             return d;
-            //return (d & 0xFF) | (((d >> 4) & 0x100) - 1);
         }
     }
 
@@ -133,29 +128,28 @@ namespace ayy.pal
             _palMap.MapIndex = mapIndex;
         }
         
-        
-        // 参考 map.c PAL_MapGetTileBitmap
-        /* Purpose:
-         *  Get tile bitmap on the specified layer at the location (x,y,h)
-         * Parameters:
-         *  [IN] x - Column number of the tile
-         *  [IN] y- Row number in the map
-         *  [IN] h - Each line in the map has two lines of tiles, 0 and 1.(See map.h for details)
-         *  [IN] layer - The layer. 0 for bottom, 1 for top
-         * Return value:
-         *  Pointer to the bitmap. NULL if failed.
-         */
-        public void GetTileBitmap(byte x,byte y,byte h,byte layer)
-        {
-            if (_palMap == null) 
-                return;
-            if (x >= 64 || y >= 128 || h > 1) 
-                return;
-            // @miao @temp
-            
-            
-            Debug.Log("test");
-        }
+        // // 参考 map.c PAL_MapGetTileBitmap
+        // /* Purpose:
+        //  *  Get tile bitmap on the specified layer at the location (x,y,h)
+        //  * Parameters:
+        //  *  [IN] x - Column number of the tile
+        //  *  [IN] y- Row number in the map
+        //  *  [IN] h - Each line in the map has two lines of tiles, 0 and 1.(See map.h for details)
+        //  *  [IN] layer - The layer. 0 for bottom, 1 for top
+        //  * Return value:
+        //  *  Pointer to the bitmap. NULL if failed.
+        //  */
+        // public void GetTileBitmap(byte x,byte y,byte h,byte layer)
+        // {
+        //     if (_palMap == null) 
+        //         return;
+        //     if (x >= 64 || y >= 128 || h > 1) 
+        //         return;
+        //     // @miao @temp
+        //     
+        //     
+        //     Debug.Log("test");
+        // }
 
         public PALMap GetPALMap()
         {
