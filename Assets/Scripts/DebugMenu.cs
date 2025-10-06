@@ -21,6 +21,8 @@ namespace ayy.debugging
         [SerializeField] private GameObject _mapHolderBottom;
         [SerializeField] private GameObject _mapHolderTop;
         [SerializeField] private GameObject _mapSpriteFramePrefab;
+        [SerializeField] private bool _showMapBottomLayer = true;
+        [SerializeField] private bool _showMapTopLayer = true;
         
         private ayy.pal.Palette _palette;
         private Texture2D _paletteTexture;
@@ -127,8 +129,14 @@ namespace ayy.debugging
             // Draw Sprite Frames
             ShowMapSpriteFrames(palMap,paletteColors);
             // Draw map tiles
-            ShowMapTiles(palMap,false,_mapHolderBottom);
-            ShowMapTiles(palMap,true,_mapHolderTop);
+            if (_showMapBottomLayer)
+            {
+                ShowMapTiles(palMap,false,_mapHolderBottom);                
+            }
+            if (_showMapTopLayer)
+            {
+                ShowMapTiles(palMap,true,_mapHolderTop);                
+            }
         }
 
         private void ShowMapSpriteFrames(PALMap palMap,PaletteColor[] paletteColors)
@@ -202,30 +210,22 @@ namespace ayy.debugging
 
         private Vector3 GetMapTilePos(int x,int y,int h)
         {
-            //x = 128 - x;
             float W = _mapTileWidth;
             float H = _mapTileHeight;
-            //float H = 16.0f / 32.0f;
-            //float baseY = -y * H - h * H / 2;
-            //float yCoord = -(y * H + h * H);
-            //float yCoord = (y * H * 2);
             float yCoord = -(y * H);
             float baseX = 0;
             if (h == 1)
-            //if (h == 0)
             {
                 baseX = baseX + W / 2;
                 yCoord = yCoord - H / 2;
-                //yCoord = yCoord + H;
             }
-
-            // {
-            //     baseX = baseX + W / 2;
-            //     baseY = baseY - H / 2;
-            // }
             float xCoord = baseX + ( x * W);
-            return new Vector3(xCoord,yCoord,0);
-            //return new Vector3(yCoord,xCoord,0);
+
+            // float baseZ = -128.0f;
+            // float zCoord = baseZ + x;
+            float zCoord = 0.0f;
+            
+            return new Vector3(xCoord,yCoord,zCoord);
         }
     }
 }

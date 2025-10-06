@@ -48,14 +48,20 @@ namespace ayy.pal
         public int GetSpriteIndexBottomLayer(int x,int y,int h)
         {
             int d = (int)Tiles[x,y,h];
+            //int d = (int)Tiles[y,x,h];
             return (d & 0xFF) | ((d >> 4) & 0x100);
         }
 
         public int GetSpriteIndexTopLayer(int x, int y, int h)
         {
             int d = (int)Tiles[x,y,h];
-            d >>= 16;
-            return (d & 0xFF) | (((d >> 4) & 0x100) - 1);
+            //int d = (int)Tiles[y,x,h];
+            d = d >> 16;
+            
+            //return PAL_SpriteGetFrame(lpMap->pTileSprite, ((d & 0xFF) | ((d >> 4) & 0x100)) - 1);
+            d = ((d & 0xFF) | ((d >> 4) & 0x100)) - 1;
+            return d;
+            //return (d & 0xFF) | (((d >> 4) & 0x100) - 1);
         }
     }
 
