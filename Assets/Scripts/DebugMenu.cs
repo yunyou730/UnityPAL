@@ -195,7 +195,7 @@ namespace ayy.debugging
                         if (frameIndex >= 0 && frameIndex < _spriteFrames.Length)
                         {
                             var tile = GameObject.Instantiate(_mapSpriteFramePrefab,parent.transform);
-                            tile.name = $"tile-({x}, {y}, {h})";
+                            tile.name = $"tile:({x}, {y}, {h}),frame:{frameIndex},layer:{bottomOrTop}";
                             tile.transform.localScale = new Vector3(1, _mapTileHeight / _mapTileWidth, 1);
                             tile.transform.localPosition = tilePos;
                             var mat = tile.GetComponent<MeshRenderer>().material;
