@@ -1,9 +1,9 @@
-using System;
-using System.Security;
 using ayy.pal;
+using ayy.pal.core;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Renderer = ayy.pal.core.Renderer;
 
 namespace ayy.debugging
 {
@@ -24,19 +24,25 @@ namespace ayy.debugging
         [SerializeField] private bool _showMapBottomLayer = true;
         [SerializeField] private bool _showMapTopLayer = true;
         
-        private ayy.pal.Palette _palette;
-        private Texture2D _paletteTexture;
-        private int _paletteIndex = -1;
+        [Header("map-spritesheet")]
+        [SerializeField] private GameObject _mapSpriteSheetHolder;
         
-        private ayy.pal.Map _map;
         private Texture2D[] _spriteFrames;
 
         // map tile 是 32x15 的 rect, 中间菱形部分有图像
         private float _mapTileWidth = 1.0f;
         private float _mapTileHeight = 15 / 32.0f;
+
+        private MapServices _mapService = null;
+        private PaletteService _paletteService = null;
+        private Map _mapManager = null;
         
         void Start()
         {
+            _mapService = PalGame.GetInstance().GetService<MapServices>();
+            _paletteService = PalGame.GetInstance().GetService<PaletteService>();
+            _mapManager = _mapService.GetMapManager();
+            
             InitDebugPalette();
             InitDebugMap();
         }
@@ -71,11 +77,8 @@ namespace ayy.debugging
             _dropdownPalette.onValueChanged.AddListener(OnClickPalette);
             _dropdownPalette.options.Clear();
             
-            _palette = new ayy.pal.Palette();
-            _palette.Load();
-            _paletteTexture = _palette.CreateDebugTexture();
             var mat = _paletteTextureHolder.GetComponent<MeshRenderer>().material;
-            mat.SetTexture(Shader.PropertyToID("_Texture2D"), _paletteTexture);
+            mat.SetTexture(Shader.PropertyToID("_Texture2D"), _paletteService.GetPaletteTexture());
         }
 
         private void InitDebugMap()
@@ -83,21 +86,17 @@ namespace ayy.debugging
             _btnLoadMap.onClick.AddListener(OnClickLoadAllMaps);
             _dropdownMap.onValueChanged.AddListener(OnClickSwitchMap);
             _dropdownMap.options.Clear();
-            
-            _map = new ayy.pal.Map();
-            _map.Load();
         }
 
         private void OnClickLoadPalette()
         {
             Debug.Log("Load All Palettes");
             _dropdownPalette.options.Clear();
-            int paletteCount = _palette.GetPaletteCount();
-            for (int i = 0;i < paletteCount;i++)
+            int cnt = _paletteService.GetPaletteCount();
+            for (int i = 0;i < cnt;i++)
             {
                 _dropdownPalette.options.Add(new TMP_Dropdown.OptionData($"palette_[{i}]"));
             }
-
             _dropdownPalette.value = 0;
             _dropdownPalette.onValueChanged.Invoke(0);
         }
@@ -105,21 +104,13 @@ namespace ayy.debugging
         private void OnClickPalette(int index)
         {
             Debug.Log($"Load Palette {index}");
-            ayy.pal.PaletteColor[] colors = _palette.GetPalette(index,false);
-            for (int i = 0;i < ayy.pal.Palette.PALETTE_COLOR_COUNT;i++)
-            {
-                int x = i % 16;
-                int y = i / 16;
-                _paletteTexture.SetPixel(x,y,colors[i].ConvertToColor());
-            }
-            _paletteTexture.Apply();
-            _paletteIndex = index;
+            _paletteService.LoadPalette(index,false);
         }
 
         private void OnClickLoadAllMaps()
         {
             Debug.Log("Load All Maps");
-            int mapCnt = _map.GetMapCount();
+            int mapCnt = _mapManager.GetMapCount();
             _dropdownMap.options.Clear();
             for (int i = 0; i < mapCnt; i++)
             {
@@ -131,6 +122,17 @@ namespace ayy.debugging
 
         private void OnClickSwitchMap(int mapIndex)
         {
+            // @miao @test
+            _mapService.LoadMap(mapIndex);
+            Texture2D spriteSheetTex = _mapService.GetCurrentMap().GetTileMapTexture();
+            if (spriteSheetTex != null && _mapSpriteSheetHolder != null)
+            {
+                //Color[] colors = _paletteService.GetPaletteColorsInUnity();
+                var mat = _mapSpriteSheetHolder.GetComponent<MeshRenderer>().material;
+                mat.SetTexture(Shader.PropertyToID("_SpriteSheetTex"), spriteSheetTex);
+                mat.SetTexture(Shader.PropertyToID("_PaletteTex"), _paletteService.GetPaletteTexture());
+            }
+
             // Clear previous map's sprite frames
             for (int i = _mapSpriteFramesHolder.transform.childCount - 1; i >= 0; i--)
             {
@@ -150,8 +152,7 @@ namespace ayy.debugging
 
 
             // Load Map
-            _map.LoadMapWithIndex(mapIndex);
-            PALMap palMap = _map.GetPALMap();
+            PALMap palMap = _mapManager.LoadMapWithIndex(mapIndex);
             if (palMap == null)
             {
                 Debug.LogWarning($"there's no map with index {mapIndex}");
@@ -159,7 +160,7 @@ namespace ayy.debugging
             }
             
             // Load palette
-            PaletteColor[] paletteColors = _palette.GetPalette(_paletteIndex,false);
+            PaletteColor[] paletteColors = _paletteService.GetPaletteColors();
             
             // Draw Sprite Frames
             ShowMapSpriteFrames(palMap,paletteColors);
@@ -184,15 +185,13 @@ namespace ayy.debugging
                 }
             }
             
-            
-            var renderer = new ayy.pal.Renderer();
             byte[] sprite = palMap.TileSprite;
-            int spriteFrameCount = renderer.GetSpriteFrameCount(sprite);
+            int spriteFrameCount = Renderer.GetSpriteFrameCount(sprite);
             _spriteFrames = new Texture2D[spriteFrameCount];
             float baseY = 0.0f;
             for (int frameIndex = 0; frameIndex < spriteFrameCount; frameIndex++)
             {
-                Texture2D tex = renderer.CreateTexture(sprite, frameIndex,paletteColors);
+                Texture2D tex = Renderer.CreateTexture(sprite, frameIndex,paletteColors);
                 var go = GameObject.Instantiate(_mapSpriteFramePrefab);
                 go.name = "sprite_frame[" + frameIndex + "]";
                 go.transform.SetParent(_mapSpriteFramesHolder.transform);

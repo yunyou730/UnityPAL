@@ -1,6 +1,8 @@
 using System.IO;
 using ayy.pal;
+using ayy.pal.core;
 using UnityEngine;
+using Renderer = ayy.pal.core.Renderer;
 
 public class Test : MonoBehaviour
 {
@@ -10,23 +12,22 @@ public class Test : MonoBehaviour
     void Start()
     {
         int mapIndex = 12;
-        var map = new ayy.pal.Map();
+        var map = new ayy.pal.core.Map();
         map.Load();
-        map.LoadMapWithIndex(mapIndex);
         
         // 调色板数据
-        var palette = new ayy.pal.Palette();
+        var palette = new Palette();
         palette.Load();
         PaletteColor[] paletteColors = palette.GetPalette(0,false);
         
         // 把地图里的 sprite, 存储为 texture
-        var renderer = new ayy.pal.Renderer();
-        byte[] sprite = map.GetPALMap().TileSprite;
-        int spriteFrameCount = renderer.GetSpriteFrameCount(sprite);
+        var palMap = map.LoadMapWithIndex(mapIndex);
+        byte[] sprite = palMap.TileSprite;
+        int spriteFrameCount = Renderer.GetSpriteFrameCount(sprite);
         float baseY = 0.0f;
         for (int frameIndex = 0; frameIndex < spriteFrameCount; frameIndex++)
         {
-            Texture2D tex = renderer.CreateTexture(sprite, frameIndex,paletteColors);
+            Texture2D tex = Renderer.CreateTexture(sprite, frameIndex,paletteColors);
             var go = GameObject.Instantiate(_spriteFramePrefab);
             go.name = "sprite_frame[" + frameIndex + "]";
             go.transform.SetParent(transform);
@@ -37,10 +38,5 @@ public class Test : MonoBehaviour
             var mat = go.GetComponent<MeshRenderer>().material;
             mat.SetTexture(Shader.PropertyToID("_Texture2D"), tex);
         }
-    }
-    
-    void Update()
-    {
-        
     }
 }

@@ -46,21 +46,27 @@
     <Analyzer Include="/Applications/Unity/Hub/Editor/6000.0.38f1/Unity.app/Contents/Tools/Unity.SourceGenerators/Unity.UIToolkit.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets/PAL/Scripts/Map.cs" />
-    <Compile Include="Assets/PAL/Scripts/Palette.cs" />
-    <Compile Include="Assets/PAL/Scripts/MKFLoader.cs" />
-    <Compile Include="Assets/PAL/Scripts/YJ1.cs" />
-    <Compile Include="Assets/PAL/Scripts/Renderer.cs" />
+    <Compile Include="Assets/PAL/Scripts/Core/Palette.cs" />
+    <Compile Include="Assets/PAL/Scripts/Services/MapService.cs" />
+    <Compile Include="Assets/PAL/Scripts/MapWrapper.cs" />
+    <Compile Include="Assets/PAL/Scripts/Core/Map.cs" />
+    <Compile Include="Assets/PAL/Scripts/Core/Renderer.cs" />
+    <Compile Include="Assets/PAL/Scripts/Services/ServiceType.cs" />
+    <Compile Include="Assets/PAL/Scripts/Core/MKFLoader.cs" />
     <Compile Include="Assets/TutorialInfo/Scripts/Readme.cs" />
-    <Compile Include="Assets/PAL/Scripts/Test.cs" />
     <Compile Include="Assets/Scripts/DebugMenu.cs" />
-    <Compile Include="Assets/PAL/Scripts/Decompress.cs" />
+    <Compile Include="Assets/PAL/Scripts/Core/YJ1.cs" />
+    <Compile Include="Assets/PAL/Scripts/Services/PaletteService.cs" />
+    <Compile Include="Assets/PAL/Scripts/Entry/Test.cs" />
+    <Compile Include="Assets/PAL/Scripts/Entry/PalGame.cs" />
+    <Compile Include="Assets/PAL/Scripts/Services/Service.cs" />
     <None Include="Assets/TextMesh Pro/Shaders/TMPro.cginc" />
     <None Include="Assets/TextMesh Pro/Shaders/TMP_SDF-Mobile Overlay.shader" />
     <None Include="Assets/TextMesh Pro/Shaders/TMP_SDF-Mobile-2-Pass.shader" />
     <None Include="Assets/TextMesh Pro/Shaders/TMP_Bitmap.shader" />
     <None Include="Assets/TextMesh Pro/Shaders/TMPro_Mobile.cginc" />
     <None Include="Assets/TextMesh Pro/Shaders/TMP_SDF SSD.shader" />
+    <None Include="Assets/PAL/Materials/MapSpriteSheetWithPalette.shader" />
     <None Include="Assets/TextMesh Pro/Shaders/TMP_SDF-Surface-Mobile.shader" />
     <None Include="Assets/TextMesh Pro/Shaders/SDFFunctions.hlsl" />
     <None Include="Assets/TextMesh Pro/Shaders/TMP_SDF-Surface.shader" />

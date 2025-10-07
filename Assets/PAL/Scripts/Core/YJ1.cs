@@ -3,7 +3,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using UnityEngine;
 
-namespace ayy.pal
+namespace ayy.pal.core
 {
     // 结构体定义（对应C中的结构体）
     [StructLayout(LayoutKind.Sequential)]

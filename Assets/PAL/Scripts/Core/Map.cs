@@ -1,8 +1,7 @@
 using System.IO;
-using Unity.VisualScripting;
 using UnityEngine;
 
-namespace ayy.pal
+namespace ayy.pal.core
 {
     // 参考 map.h, PALMAP
     // Map format:
@@ -64,7 +63,7 @@ namespace ayy.pal
     {
         private MKFLoader _mapMKF = null;   // 地图tile数据
         private MKFLoader _gopMKF = null;   // 地图sprite数据
-        private PALMap _palMap = null;      // current loaded PALMap
+        //private PALMap _palMap = null;      // current loaded PALMap
         
         public void Load()
         {
@@ -74,58 +73,60 @@ namespace ayy.pal
             _gopMKF.Load();
         }
 
-        public void LoadMapWithIndex(int mapIndex)
+        public PALMap LoadMapWithIndex(int mapIndex)
         {
             int mkfCount = _mapMKF.GetChunkCount();
             int gopCount = _gopMKF.GetChunkCount();
             Debug.Log(mkfCount + " : " + gopCount);
             if (mapIndex >= mkfCount || mapIndex >= gopCount || mapIndex <= 0)
             {
-                _palMap = null;
-                return;
+                //_palMap = null;
+                return null;
             }
             
             // tile data
             int size = _mapMKF.GetChunkSize(mapIndex);
             
-            _palMap = new PALMap();
+            var palMap = new PALMap();
 
             byte[] mapChunkData = _mapMKF.ReadChunk(mapIndex);
             
             //byte[] mapDecompressedData = new byte
-            fixed (uint* pTilesData = _palMap.Tiles)
+            fixed (uint* pTilesData = palMap.Tiles)
             {
                 //Decompress.Do(mapChunkData, pTilesData);
                 byte* pTilesDataBytes = (byte*)pTilesData;
 
 
-                int sizeInByte = _palMap.Tiles.Length * sizeof(uint) / sizeof(byte);
+                int sizeInByte = palMap.Tiles.Length * sizeof(uint) / sizeof(byte);
                 fixed (byte* pMapChunkData = mapChunkData)
                 {
                     Yj1Decompressor.YJ1_Decompress(pMapChunkData, pTilesDataBytes, sizeInByte);
                 }
 
-                for (int i = 0;i < 128;i++)
-                {
-                    for (int j = 0; j < 64; j++)
-                    {
-                        if (_palMap.Tiles[i,j,0] > 0 || _palMap.Tiles[i,j,1] > 0)
-                        {
-                            Debug.Log($"map->Tiles:{i},{j}");
-                        }
-                    }
-                }
+                // for (int i = 0;i < 128;i++)
+                // {
+                //     for (int j = 0; j < 64; j++)
+                //     {
+                //         if (_palMap.Tiles[i,j,0] > 0 || _palMap.Tiles[i,j,1] > 0)
+                //         {
+                //             Debug.Log($"map->Tiles:{i},{j}");
+                //         }
+                //     }
+                // }
             }
             
             // Load Bitmap
             size = _gopMKF.GetChunkSize(mapIndex);
             if (size <= 0)
             {
-                return;
+                return null;
             }
 
-            _palMap.TileSprite = _gopMKF.ReadChunk(mapIndex);
-            _palMap.MapIndex = mapIndex;
+            palMap.TileSprite = _gopMKF.ReadChunk(mapIndex);
+            palMap.MapIndex = mapIndex;
+            
+            return palMap;
         }
         
         // // 参考 map.c PAL_MapGetTileBitmap
@@ -151,10 +152,10 @@ namespace ayy.pal
         //     Debug.Log("test");
         // }
 
-        public PALMap GetPALMap()
-        {
-            return _palMap;
-        }
+        // public PALMap GetPALMap()
+        // {
+        //     return _palMap;
+        // }
 
         public int GetMapCount()
         {

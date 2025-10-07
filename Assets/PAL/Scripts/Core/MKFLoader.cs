@@ -4,7 +4,9 @@ using UnityEditor.TextCore.Text;
 using UnityEngine;
 using UnityEngine.Windows;
 
-public class MKFLoader
+namespace ayy.pal.core
+{
+    public class MKFLoader
 {
     private string _filePath;
     private byte[] _bytes;
@@ -136,3 +138,6 @@ public class MKFLoader
         return 0;
     }
 }
+
+}
+

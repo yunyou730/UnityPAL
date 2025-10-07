@@ -2,7 +2,7 @@ using System.IO;
 using UnityEditor.ShaderGraph;
 using UnityEngine;
 
-namespace ayy.pal
+namespace ayy.pal.core
 {
     public class Palette
     {
@@ -59,19 +59,19 @@ namespace ayy.pal
             return ret;
         }
 
-        public Texture2D CreateDebugTexture()
-        {
-            var tex = new Texture2D(16, 16);
-            tex.filterMode = FilterMode.Point;
-            for (int x = 0; x < 16; x++)
-            {
-                for (int y = 0; y < 16; y++)
-                {
-                    tex.SetPixel(x, y, new Color(0, 0, 0, 0));
-                }
-            }
-            return tex;
-        }
+        // public Texture2D CreateDebugTexture()
+        // {
+        //     var tex = new Texture2D(16, 16);
+        //     tex.filterMode = FilterMode.Point;
+        //     for (int x = 0; x < 16; x++)
+        //     {
+        //         for (int y = 0; y < 16; y++)
+        //         {
+        //             tex.SetPixel(x, y, new Color(0, 0, 0, 0));
+        //         }
+        //     }
+        //     return tex;
+        // }
     }
 
     public class PaletteColor
