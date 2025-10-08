@@ -5,6 +5,7 @@ Shader "ayy/PAL/MapSpriteSheetWithPalette"
         _MainTex ("Texture", 2D) = "white" {}
         _SpriteSheetTex("SpriteSheet",2D) = "white" {}
         _PaletteTex("PaletteTex",2D) = "white" {}
+        _UsePaletteLUT("UsePaletteLUT",Range(0,1)) = 0
     }
     SubShader
     {
@@ -40,6 +41,8 @@ Shader "ayy/PAL/MapSpriteSheetWithPalette"
             sampler2D _SpriteSheetTex;
             sampler2D _PaletteTex;
 
+            float _UsePaletteLUT;
+
             v2f vert (appdata v)
             {
                 v2f o;
@@ -51,12 +54,20 @@ Shader "ayy/PAL/MapSpriteSheetWithPalette"
             fixed4 frag (v2f i) : SV_Target
             {
                 float4 col = tex2D(_SpriteSheetTex, i.uv);
+                if (_UsePaletteLUT < 0.5)
+                {
+                    return col;
+                }
+                
                 float hasData = col.a;
-                float index = col.r * 255.0f;
-                //index = floor(index);
-                int y = index / 16;
-                int x = index % 16;
-                float2 lutUV = float2(x/16.0f,y/16.0f);
+                int index = floor(col.r * 255.0f);
+                int y = index / 16.0;
+                int x = index % 16.0;
+                // float ox = 0.5/16.0;
+                // float oy = 0.5/16.0;
+                float ox = 0.0;
+                float oy = 0.0;
+                float2 lutUV = float2(x/16.0f + ox,y/16.0f + oy);
                 fixed4 lut = tex2D(_PaletteTex,lutUV);
                 return float4(lut.rgb,step(0.5,hasData));
             }

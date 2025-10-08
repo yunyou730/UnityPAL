@@ -161,7 +161,7 @@ namespace ayy.pal.core
         // 返回值颜色数组,
         //  R通道的 int值为 0-255 的颜色索引,
         //  A通道0表示原本无色,1表示有色 
-        public static Color32[,] GetSpriteFrameColorData(byte[] sprite,int frameIndex)
+        public static Color32[,] GetSpriteFrameColorData(byte[] sprite,int frameIndex,PaletteColor[] palette = null)
         {
             int offset = GetSpriteFrameOffset(sprite,frameIndex);
             if (offset < 0)
@@ -223,22 +223,22 @@ namespace ayy.pal.core
                         {
                             // 提取原始颜色数据
                             byte rawColor = *(bitmapRLE + j);
-                            
-                            // @miao @todo
                             if (pixelX >= ret.GetLength(0) || pixelY >= ret.GetLength(1) || pixelX < 0 || pixelY < 0)
                             {
+                                // 非法的像素下标
                                 Debug.LogWarning($"pixelX:{pixelX},pixelY:{pixelY},lenD0:{ret.GetLength(0)},lenD1:{ret.GetLength(1)}");
+                            }
+                            else if(palette == null)
+                            {
+                                // 存储索引数据
+                                ret[pixelX, pixelY] = new Color32(rawColor,0,0,255);
                             }
                             else
                             {
-                                ret[pixelX, pixelY] = new Color32(rawColor,0,0,255);                                
+                                // 存储 经过 Palette LUT 转换后的像素颜色
+                                PaletteColor paletteColor = palette[rawColor];
+                                ret[pixelX, pixelY] = paletteColor.ConvertToColor32();
                             }
-
-                            //float data = (float)rawColor / 255.0f;
-                            //Color color = new Color(data,0.0f,0.0f,1.0f);
-                            //texture.SetPixel(pixelX, pixelY,color);
-                            //ret[pixelX, pixelY] = color;
-                            
                             
                             
                             //Debug.Log($"[sprite]Pixel:({pixelX},{pixelY}) RawColor:{rawColor} ");

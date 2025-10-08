@@ -11,6 +11,7 @@ namespace ayy.pal
             _map = new Map();
             _map.Load();
         }
+        
         public void Destroy()
         {
             
@@ -29,7 +30,7 @@ namespace ayy.pal
                 _currentMap = null;
             }
             _currentMap = new MapWrapper(_map,mapIndex);
-            _currentMap.Load();
+            _currentMap.Load(EColorMode.PaletteLUT);
         }
 
         public MapWrapper GetCurrentMap()

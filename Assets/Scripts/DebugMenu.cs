@@ -129,6 +129,8 @@ namespace ayy.debugging
             {
                 //Color[] colors = _paletteService.GetPaletteColorsInUnity();
                 var mat = _mapSpriteSheetHolder.GetComponent<MeshRenderer>().material;
+                
+                mat.SetFloat(Shader.PropertyToID("_UsePaletteLUT"), 0.0f);
                 mat.SetTexture(Shader.PropertyToID("_SpriteSheetTex"), spriteSheetTex);
                 mat.SetTexture(Shader.PropertyToID("_PaletteTex"), _paletteService.GetPaletteTexture());
             }

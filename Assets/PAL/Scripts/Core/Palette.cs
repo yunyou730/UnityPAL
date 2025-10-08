@@ -82,6 +82,11 @@ namespace ayy.pal.core
         {
             return new Color(r/255.0f, g/255.0f, b/255.0f,1.0f);
         }
+
+        public Color32 ConvertToColor32()
+        {
+            return new Color32((byte)r, (byte)g, (byte)b, 255);
+        }
     }
 
 }
