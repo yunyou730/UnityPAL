@@ -269,7 +269,7 @@ Camera:
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
-  orthographic: 0
+  orthographic: 1
   orthographic size: 5
   m_Depth: -1
   m_CullingMask:
@@ -1029,6 +1029,10 @@ PrefabInstance:
       value: -59
       objectReference: {fileID: 0}
     - target: {fileID: 4578419798808432466, guid: f653a9ef6a76143799c6f9788db0839a, type: 3}
+      propertyPath: _cameraGO
+      value: 
+      objectReference: {fileID: 330585543}
+    - target: {fileID: 4578419798808432466, guid: f653a9ef6a76143799c6f9788db0839a, type: 3}
       propertyPath: _mapHolder
       value: 
       objectReference: {fileID: 1356160356}
@@ -1040,6 +1044,10 @@ PrefabInstance:
       propertyPath: _palMapHolder
       value: 
       objectReference: {fileID: 798948369}
+    - target: {fileID: 4578419798808432466, guid: f653a9ef6a76143799c6f9788db0839a, type: 3}
+      propertyPath: _cameraMoveSpeed
+      value: 20
+      objectReference: {fileID: 0}
     - target: {fileID: 4578419798808432466, guid: f653a9ef6a76143799c6f9788db0839a, type: 3}
       propertyPath: _mapHolderBottom
       value: 
@@ -1076,6 +1084,10 @@ PrefabInstance:
       propertyPath: _mapSpriteFramesHolder
       value: 
       objectReference: {fileID: 2359863658299582279}
+    - target: {fileID: 4578419798808432466, guid: f653a9ef6a76143799c6f9788db0839a, type: 3}
+      propertyPath: _cameraOrthoChangeSpeed
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 5787439911258265063, guid: f653a9ef6a76143799c6f9788db0839a, type: 3}
       propertyPath: m_Name
       value: Canvas_Debug

@@ -28,6 +28,10 @@ namespace ayy.debugging
         [SerializeField] private GameObject _mapSpriteSheetHolder;
         [SerializeField] private GameObject _palMapBottomHolder;
         [SerializeField] private GameObject _palMapTopHolder;
+        [SerializeField] private GameObject _cameraGO;
+        [SerializeField,Range(0,20)] private float _cameraMoveSpeed = 5.0f;
+        [SerializeField,Range(1,50)] private float _cameraOrthoSize = 5.0f;
+        [SerializeField,Range(1,20)] private float _cameraOrthoChangeSpeed = 10.0f;
         
         private Texture2D[] _spriteFrames;
 
@@ -50,6 +54,55 @@ namespace ayy.debugging
         }
 
         private void Update()
+        {
+            UpdateForMoveCamera();
+            UpdateForSwitchMap();
+        }
+
+        private void UpdateForMoveCamera()
+        {
+            if (_cameraGO == null)
+            {
+                return;
+            }
+            
+            //_cameraOrthoSize
+            if (Input.mouseScrollDelta.y != 0)
+            {
+                _cameraOrthoSize -= (Input.mouseScrollDelta.y * Time.deltaTime * _cameraOrthoChangeSpeed);
+            }
+            float othoSize = Mathf.Clamp(_cameraOrthoSize, 1.0f, 50.0f);
+            _cameraGO.GetComponent<Camera>().orthographicSize = othoSize;
+            
+
+            Vector2 dir = Vector2.zero;
+            if (Input.GetKey(KeyCode.W))
+            {
+                dir += Vector2.up;
+            }
+            if (Input.GetKey(KeyCode.S))
+            {
+                dir += Vector2.down;
+            }
+            if (Input.GetKey(KeyCode.A))
+            {
+                dir += Vector2.left;
+            }
+            if (Input.GetKey(KeyCode.D))
+            {
+                dir += Vector2.right;
+            }
+            if (dir.magnitude > 0.0f)
+            {
+                dir = dir.normalized * Time.deltaTime * _cameraMoveSpeed;
+                Vector3 pos = _cameraGO.transform.localPosition;
+                pos.x += dir.x;
+                pos.y += dir.y;
+                _cameraGO.transform.localPosition = pos;
+            }
+        }
+
+        private void UpdateForSwitchMap()
         {
             if (Input.GetKeyDown(KeyCode.RightArrow))
             {
