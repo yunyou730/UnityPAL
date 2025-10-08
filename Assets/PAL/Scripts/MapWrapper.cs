@@ -1,14 +1,29 @@
 using System;
+using System.Collections.Generic;
 using ayy.pal.core;
 using UnityEngine;
 using Renderer = ayy.pal.core.Renderer;
 
 namespace ayy.pal
 {
+    /*
+     * 1. 如果使用 RawData 模式, 则从 原始 Sprite 数据里,每个像素读取的图像像素值是 palette index.
+     * 在 shader 里把 palette index 和 Palette Texture 做影射,得到最终显示的像素值
+     *
+     * 2. 如果使用 PaletteLUT 模式, 则在C#代码里做完上面的事。即,读取时读取的是 palette index.
+     * 这个 index 配合 PaletteColor[]数组, 换算成真正的像素颜色值.
+     * 写入 Texture 像素的时候, 直接写入查询 palette 完毕之后的最终像素值
+     */
     public enum EColorMode
     {
         RawData,
         PaletteLUT,
+    }
+
+    public enum ELayer
+    {
+        Bottom,
+        Top,
     }
 
     public class MapWrapper : IDisposable
@@ -35,7 +50,8 @@ namespace ayy.pal
         // 用一个 512x512的 texture 来当作 SpriteSheet 的 Texture
         private static int kSpriteSheetTextureSize = 512;
 
-        private Mesh _mesh = null;
+        private Mesh _meshBottom = null;
+        private Mesh _meshTop = null;
         private Texture2D _tilemapTexture = null;
         
         private Map _map = null;
@@ -60,37 +76,39 @@ namespace ayy.pal
 
         public void Load(EColorMode mode)
         {
-            CreateTileMapTexture(mode);
-            CreateTileMapMesh();
+            _tilemapTexture = CreateTileMapTexture(mode);
+            _meshBottom = CreateTileMapMesh(false);
+            _meshTop = CreateTileMapMesh(true);
         }
 
-        private void CreateTileMapTexture(EColorMode mode)
+        private Texture2D CreateTileMapTexture(EColorMode mode)
         {
             if (_palMap == null)
             {
-                return;
+                return null;
             }
-
-
+            
+            // 当使用 rawdata 作为 texture 像素,在 shader里索引 paletteLUT 的时候,就不应该开启sRGB;
+            // 如果不使用 rawdata, 而是在 C# 里索引 paletteLUT 的时候, 就姚开启 sRGB
             bool isSRGB = true;
             if (mode == EColorMode.RawData)
             {
                 isSRGB = false;
             }
 
-            _tilemapTexture = new Texture2D(
+            var ret = new Texture2D(
                 kSpriteSheetTextureSize, 
                 kSpriteSheetTextureSize,
                 //TextureFormat.RG16,
                 TextureFormat.ARGB32,
                 false,
                 !isSRGB);
-            _tilemapTexture.filterMode = FilterMode.Point;
+            ret.filterMode = FilterMode.Point;
             for (int x = 0;x < kSpriteSheetTextureSize;x++)
             {
                 for (int y = 0;y < kSpriteSheetTextureSize;y++)
                 {
-                    _tilemapTexture.SetPixel(x,y,new Color(0, 0, 0, 0));
+                    ret.SetPixel(x,y,new Color(0, 0, 0, 0));
                 }
             }
             
@@ -127,22 +145,24 @@ namespace ayy.pal
                 {
                     for (int oy = 0;oy < h;oy++)
                     {
-                        Color32 data = tileColorData[ox, oy];
+                        Color32 data = tileColorData[ox,oy];
                         if (mode == EColorMode.RawData)
                         {
                             byte r = (byte)data.r;
                             byte a = (byte)data.a;
                             Color32 c = new Color32(r,0,0,a);
-                            _tilemapTexture.SetPixel(x + ox, y + oy,c);
+                            ret.SetPixel(x + ox, y + oy,c);
                         }
                         else if (mode == EColorMode.PaletteLUT)
                         {
-                            _tilemapTexture.SetPixel(x + ox, y + oy,data);
+                            //ret.SetPixel(x + ox, y + oy,data);
+                            ret.SetPixel(x + ox, y + ((kTileH - 1) - oy),data); // flip y here
                         }
                     }
                 }
             }
-            _tilemapTexture.Apply();
+            ret.Apply();
+            return ret;
         }
 
         
@@ -159,18 +179,107 @@ namespace ayy.pal
             return _tilemapTexture;
         }
         
-        private void CreateTileMapMesh()
+        private Mesh CreateTileMapMesh(bool topOrBottom)
         {
-            Mesh mesh = new Mesh();
+            if (_palMap == null)
+            {
+                return null;
+            }
             
-            //mesh.SetVertices();
+            Mesh mesh = new Mesh();
+            List<Vector3> vertices = new List<Vector3>();
+            List<int> triangles = new List<int>();
+            List<Vector2> uvs = new List<Vector2>();
+            
+            for (int y = 0; y < 64; y++)
+            {
+                for (int h = 0; h < 2; h++)
+                {
+                    for (int x = 0; x < 128; x++)
+                    {
+                        AddMeshData(vertices, triangles, uvs, x, y, h,topOrBottom);
+                    }
+                }
+            }
+            mesh.SetVertices(vertices);
+            mesh.SetUVs(0,uvs);
+            mesh.SetIndices(triangles,MeshTopology.Triangles, 0,false);
+            return mesh;
         }
         
-        public Mesh GetTileMapMesh()
+        private void AddMeshData(
+            List<Vector3> vertices, 
+            List<int> triangles,
+            List<Vector2> uvs,
+            int x,int y,int h,bool topOrBottom)
         {
-            return _mesh;
+            int frameIndex = -1;
+            if (!topOrBottom)
+            {
+                frameIndex = _palMap.GetSpriteIndexBottomLayer(x,y,h);
+            }
+            else
+            {
+                frameIndex = _palMap.GetSpriteIndexTopLayer(x,y,h);
+            }
+
+            if (frameIndex >= 0 && frameIndex < _spriteFrameCount)
+            {
+                float zBottom = 0.0f;
+                float zTop = -0.01f;
+                float z = topOrBottom ? zTop : zBottom;
+                
+                Vector3 center = GetMapTilePos(y,x,h,ELayer.Bottom);
+                vertices.Add(new Vector3(center.x - kTileWidth * 0.5f,center.y - kTileHeight * 0.5f,z));
+                vertices.Add(new Vector3(center.x + kTileWidth * 0.5f,center.y - kTileHeight * 0.5f,z));
+                vertices.Add(new Vector3(center.x - kTileWidth * 0.5f,center.y + kTileHeight * 0.5f,z));
+                vertices.Add(new Vector3(center.x + kTileWidth * 0.5f,center.y + kTileHeight * 0.5f,z));
+                
+                int ox, oy;
+                GetFrameIndexPixelCoord(frameIndex,out ox,out oy);
+                float ux = (float)ox / (float)kSpriteSheetTextureSize;
+                float uy = (float)oy / (float)kSpriteSheetTextureSize;
+
+                uvs.Add(new Vector2(ux,uy));
+                uvs.Add(new Vector2(ux + 32.0f/512.0f,uy));
+                uvs.Add(new Vector2(ux,uy + 15.0f/512.0f));
+                uvs.Add(new Vector2(ux + 32.0f/512.0f,uy + 15.0f/512.0f));
+                        
+                int cnt = vertices.Count;
+                triangles.Add(cnt-4);
+                triangles.Add(cnt-3);
+                triangles.Add(cnt-2);
+                triangles.Add(cnt-3);
+                triangles.Add(cnt-1);
+                triangles.Add(cnt-2);
+            }
         }
 
+        public Mesh GetTileMapMeshBottom()
+        {
+            return _meshBottom;
+        }
+
+        public Mesh GetTileMapMeshTop()
+        {
+            return _meshTop;
+        }
+
+        private Vector3 GetMapTilePos(int x,int y,int h,ELayer layer)
+        {
+            float W = kTileWidth;
+            float H = kTileHeight;
+            float yCoord = -(y * H);
+            float baseX = 0;
+            if (h == 1)
+            {
+                baseX = baseX + W / 2;
+                yCoord = yCoord - H / 2;
+            }
+            float xCoord = baseX + ( x * W);
+            float zCoord = 0.0f;
+            return new Vector3(xCoord,yCoord,zCoord);
+        }
     }    
 }
 

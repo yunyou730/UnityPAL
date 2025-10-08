@@ -26,6 +26,8 @@ namespace ayy.debugging
         
         [Header("map-spritesheet")]
         [SerializeField] private GameObject _mapSpriteSheetHolder;
+        [SerializeField] private GameObject _palMapBottomHolder;
+        [SerializeField] private GameObject _palMapTopHolder;
         
         private Texture2D[] _spriteFrames;
 
@@ -122,19 +124,39 @@ namespace ayy.debugging
 
         private void OnClickSwitchMap(int mapIndex)
         {
-            // @miao @test
+            LoadMapWithSingleDrawCall(mapIndex);
+            //LoadMapWithSeveralGameObjects(mapIndex);
+        }
+        
+        private void LoadMapWithSingleDrawCall(int mapIndex)
+        {
             _mapService.LoadMap(mapIndex);
             Texture2D spriteSheetTex = _mapService.GetCurrentMap().GetTileMapTexture();
             if (spriteSheetTex != null && _mapSpriteSheetHolder != null)
             {
-                //Color[] colors = _paletteService.GetPaletteColorsInUnity();
                 var mat = _mapSpriteSheetHolder.GetComponent<MeshRenderer>().material;
-                
                 mat.SetFloat(Shader.PropertyToID("_UsePaletteLUT"), 0.0f);
                 mat.SetTexture(Shader.PropertyToID("_SpriteSheetTex"), spriteSheetTex);
                 mat.SetTexture(Shader.PropertyToID("_PaletteTex"), _paletteService.GetPaletteTexture());
             }
+            if (spriteSheetTex != null && _palMapBottomHolder != null)
+            {
+                var meshFilter = _palMapBottomHolder.GetComponent<MeshFilter>();
+                meshFilter.mesh = _mapService.GetCurrentMap().GetTileMapMeshBottom();
+                var mat = meshFilter.GetComponent<MeshRenderer>().material;
+                mat.SetTexture(Shader.PropertyToID("_SpriteSheetTex"), spriteSheetTex);
+            }
+            if (spriteSheetTex != null && _palMapTopHolder != null)
+            {
+                var meshFilter = _palMapTopHolder.GetComponent<MeshFilter>();
+                meshFilter.mesh = _mapService.GetCurrentMap().GetTileMapMeshTop();
+                var mat = meshFilter.GetComponent<MeshRenderer>().material;
+                mat.SetTexture(Shader.PropertyToID("_SpriteSheetTex"), spriteSheetTex);
+            }
+        }
 
+        private void LoadMapWithSeveralGameObjects(int mapIndex)
+        {
             // Clear previous map's sprite frames
             for (int i = _mapSpriteFramesHolder.transform.childCount - 1; i >= 0; i--)
             {
@@ -151,8 +173,6 @@ namespace ayy.debugging
             {
                 Destroy(_mapHolderTop.transform.GetChild(i).gameObject);
             }
-
-
             // Load Map
             PALMap palMap = _mapManager.LoadMapWithIndex(mapIndex);
             if (palMap == null)
