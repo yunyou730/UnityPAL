@@ -370,15 +370,9 @@ namespace ayy.debugging
                 }
             }
             
-            // 拿到 sprite 数据,去创建 texture
-            int spriteFrameCount = Renderer.GetSpriteFrameCount(decompressedSprite);
-            Debug.Log("frame cnt:" + spriteFrameCount);
+            // 拿到 sprite 数据,去创建 texture,并展示出来
             PaletteColor[] paletteColors = _paletteService.GetPaletteColors();
-            for (int i = 0;i < spriteFrameCount;i++)
-            {
-                Texture2D tex = Renderer.CreateTexture(decompressedSprite, i, paletteColors);
-                Debug.Log($"frame:{i} tex:{tex.width}x{tex.height}");
-            }
+            DebugHelper.CreateSpriteFramesGameObjects(decompressedSprite, paletteColors,_mapSpriteFramePrefab,_mapSpriteFramesHolder.transform);
         }
     }
 }
