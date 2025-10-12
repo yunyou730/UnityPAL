@@ -96,24 +96,11 @@ namespace ayy.pal.core
             {
                 //Decompress.Do(mapChunkData, pTilesData);
                 byte* pTilesDataBytes = (byte*)pTilesData;
-
-
                 int sizeInByte = palMap.Tiles.Length * sizeof(uint) / sizeof(byte);
                 fixed (byte* pMapChunkData = mapChunkData)
                 {
                     Yj1Decompressor.YJ1_Decompress(pMapChunkData, pTilesDataBytes, sizeInByte);
                 }
-
-                // for (int i = 0;i < 128;i++)
-                // {
-                //     for (int j = 0; j < 64; j++)
-                //     {
-                //         if (_palMap.Tiles[i,j,0] > 0 || _palMap.Tiles[i,j,1] > 0)
-                //         {
-                //             Debug.Log($"map->Tiles:{i},{j}");
-                //         }
-                //     }
-                // }
             }
             
             // Load Bitmap

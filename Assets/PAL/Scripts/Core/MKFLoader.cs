@@ -23,12 +23,12 @@ namespace ayy.pal.core
     {
         _bytes = File.ReadAllBytes(_filePath);
         int chunkCount = GetChunkCount();
-        Debug.Log($"chunkCount:{chunkCount}");
+        Debug.Log($"filePath:{_filePath} chunkCount:{chunkCount}");
         for (int i = 0;i < chunkCount;i++)
         {
             int chunkSize = GetChunkSize(i);
             int decompSize = GetDecompressedSize(i);
-            Debug.Log($"index:{i},size:{chunkSize},decom_Size:{decompSize}");
+            Debug.Log($"filePath:{_filePath} index:{i},size:{chunkSize},decom_Size:{decompSize}");
         }
     }
     
@@ -101,7 +101,7 @@ namespace ayy.pal.core
         Integer value which indicates the size of the chunk.
         -1 if the chunk does not exist.
     --*/
-    int GetDecompressedSize(int chunkIndex)
+    public int GetDecompressedSize(int chunkIndex)
     {
         int chunkCount = GetChunkCount();
         if (chunkIndex >= chunkCount)

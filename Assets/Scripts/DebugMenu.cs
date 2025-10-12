@@ -1,3 +1,4 @@
+using System.IO;
 using ayy.pal;
 using ayy.pal.core;
 using TMPro;
@@ -23,6 +24,9 @@ namespace ayy.debugging
         [SerializeField] private GameObject _mapSpriteFramePrefab;
         [SerializeField] private bool _showMapBottomLayer = true;
         [SerializeField] private bool _showMapTopLayer = true;
+        
+        [Header("sprite")]
+        [SerializeField] private Button _btnLoadSprite;
         
         [Header("map-spritesheet")]
         [SerializeField] private GameObject _mapSpriteSheetHolder;
@@ -51,6 +55,7 @@ namespace ayy.debugging
             
             InitDebugPalette();
             InitDebugMap();
+            InitDebugPlayerSprite();
         }
 
         private void Update()
@@ -143,6 +148,11 @@ namespace ayy.debugging
             _dropdownMap.options.Clear();
         }
 
+        private void InitDebugPlayerSprite()
+        {
+            _btnLoadSprite.onClick.AddListener(LoadPlayerSprite);
+        }
+
         private void OnClickLoadPalette()
         {
             Debug.Log("Load All Palettes");
@@ -180,7 +190,12 @@ namespace ayy.debugging
             LoadMapWithSingleDrawCall(mapIndex);
             //LoadMapWithSeveralGameObjects(mapIndex);
         }
-        
+
+        private void OnClickLoadSprite()
+        {
+            
+        }
+
         private void LoadMapWithSingleDrawCall(int mapIndex)
         {
             _mapService.LoadMap(mapIndex);
@@ -331,6 +346,39 @@ namespace ayy.debugging
             float xCoord = baseX + ( x * W);
             float zCoord = 0.0f;
             return new Vector3(xCoord,yCoord,zCoord);
+        }
+        
+        unsafe private void LoadPlayerSprite()
+        {
+            // @miao @test
+            MKFLoader mgoMKF = new MKFLoader(Path.Combine(Application.streamingAssetsPath, "MGO.MKF"));
+            mgoMKF.Load();
+
+            int playerID = 0;       // 0:李逍遥
+            int spriteIndex = 2;      // sprite index:2
+            
+            // 获取原始 sprite 数据 ,并解压缩
+            byte[] sprite = mgoMKF.ReadChunk(spriteIndex);
+            int decompressedSize = mgoMKF.GetDecompressedSize(spriteIndex);
+            byte[] decompressedSprite = new byte[decompressedSize];
+            fixed (byte* pChunkData = sprite)
+            {
+                fixed (byte* pDestData = decompressedSprite)
+                {
+                    Yj1Decompressor.YJ1_Decompress(pChunkData, pDestData,decompressedSize);
+                    
+                }
+            }
+            
+            // 拿到 sprite 数据,去创建 texture
+            int spriteFrameCount = Renderer.GetSpriteFrameCount(decompressedSprite);
+            Debug.Log("frame cnt:" + spriteFrameCount);
+            PaletteColor[] paletteColors = _paletteService.GetPaletteColors();
+            for (int i = 0;i < spriteFrameCount;i++)
+            {
+                Texture2D tex = Renderer.CreateTexture(decompressedSprite, i, paletteColors);
+                Debug.Log($"frame:{i} tex:{tex.width}x{tex.height}");
+            }
         }
     }
 }
