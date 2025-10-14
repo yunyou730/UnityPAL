@@ -56,6 +56,7 @@
     <Compile Include="Assets/TutorialInfo/Scripts/Readme.cs" />
     <Compile Include="Assets/Scripts/DebugMenu.cs" />
     <Compile Include="Assets/PAL/Scripts/Core/YJ1.cs" />
+    <Compile Include="Assets/Scripts/DebugHelper.cs" />
     <Compile Include="Assets/PAL/Scripts/Services/PaletteService.cs" />
     <Compile Include="Assets/PAL/Scripts/Entry/Test.cs" />
     <Compile Include="Assets/PAL/Scripts/Entry/PalGame.cs" />

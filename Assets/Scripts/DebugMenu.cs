@@ -27,6 +27,8 @@ namespace ayy.debugging
         
         [Header("sprite")]
         [SerializeField] private Button _btnLoadSprite;
+        [SerializeField] private TMP_Dropdown _dropdownSprite;
+        private MKFLoader _mgoMKF = null;
         
         [Header("map-spritesheet")]
         [SerializeField] private GameObject _mapSpriteSheetHolder;
@@ -62,6 +64,7 @@ namespace ayy.debugging
         {
             UpdateForMoveCamera();
             UpdateForSwitchMap();
+            UpdateForSwitchSprite();
         }
 
         private void UpdateForMoveCamera()
@@ -131,6 +134,30 @@ namespace ayy.debugging
             }
         }
 
+        private void UpdateForSwitchSprite()
+        {
+            if (Input.GetKeyDown(KeyCode.DownArrow))
+            {
+                int next = _dropdownSprite.value + 1;
+                if (next > _dropdownSprite.options.Count - 1)
+                {
+                    next = 0;
+                }
+                _dropdownSprite.value = next;
+                _dropdownSprite.onValueChanged.Invoke(next);
+            }
+            else if (Input.GetKeyDown(KeyCode.UpArrow))
+            {
+                int next = _dropdownSprite.value - 1;
+                if (next < 0)
+                {
+                    next = _dropdownSprite.options.Count - 1;
+                }
+                _dropdownSprite.value = next;
+                _dropdownSprite.onValueChanged.Invoke(next);
+            }
+        }
+
         private void InitDebugPalette()
         {
             _btnLoadPalette.onClick.AddListener(OnClickLoadPalette);
@@ -150,7 +177,8 @@ namespace ayy.debugging
 
         private void InitDebugPlayerSprite()
         {
-            _btnLoadSprite.onClick.AddListener(LoadPlayerSprite);
+            _btnLoadSprite.onClick.AddListener(LoadAllSprites);
+            _dropdownSprite.onValueChanged.AddListener(OnClickSwitchSprite);
         }
 
         private void OnClickLoadPalette()
@@ -189,11 +217,6 @@ namespace ayy.debugging
         {
             LoadMapWithSingleDrawCall(mapIndex);
             //LoadMapWithSeveralGameObjects(mapIndex);
-        }
-
-        private void OnClickLoadSprite()
-        {
-            
         }
 
         private void LoadMapWithSingleDrawCall(int mapIndex)
@@ -347,26 +370,40 @@ namespace ayy.debugging
             float zCoord = 0.0f;
             return new Vector3(xCoord,yCoord,zCoord);
         }
-        
-        unsafe private void LoadPlayerSprite()
-        {
-            // @miao @test
-            MKFLoader mgoMKF = new MKFLoader(Path.Combine(Application.streamingAssetsPath, "MGO.MKF"));
-            mgoMKF.Load();
 
-            int playerID = 0;       // 0:李逍遥
-            int spriteIndex = 2;      // sprite index:2
-            
+
+        private void LoadAllSprites()
+        {
+            _mgoMKF = new MKFLoader(Path.Combine(Application.streamingAssetsPath, "MGO.MKF"));
+            _mgoMKF.Load();
+            int cnt = _mgoMKF.GetChunkCount();
+            _dropdownSprite.ClearOptions();
+            for (int i = 0;i < cnt;i++)
+            {
+                _dropdownSprite.options.Add(new TMP_Dropdown.OptionData($"sprite[{i}]"));
+            }
+        }
+        
+        private void OnClickSwitchSprite(int spriteIndex)
+        {
+            foreach (Transform child in _mapSpriteFramesHolder.transform)
+            {
+                GameObject.Destroy(child.gameObject);
+            }
+            LoadSprite(spriteIndex);
+        }
+
+        unsafe private void LoadSprite(int spriteIndex)
+        {
             // 获取原始 sprite 数据 ,并解压缩
-            byte[] sprite = mgoMKF.ReadChunk(spriteIndex);
-            int decompressedSize = mgoMKF.GetDecompressedSize(spriteIndex);
+            byte[] sprite = _mgoMKF.ReadChunk(spriteIndex);
+            int decompressedSize = _mgoMKF.GetDecompressedSize(spriteIndex);
             byte[] decompressedSprite = new byte[decompressedSize];
             fixed (byte* pChunkData = sprite)
             {
                 fixed (byte* pDestData = decompressedSprite)
                 {
                     Yj1Decompressor.YJ1_Decompress(pChunkData, pDestData,decompressedSize);
-                    
                 }
             }
             

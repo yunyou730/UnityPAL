@@ -59,19 +59,25 @@ namespace ayy.pal.core
                 int bitmapHeight = *(bitmapRLE + 2) | *(bitmapRLE + 3) << 8;
                 int bitmapLen = bitmapWidth * bitmapHeight;     // 一共有多少个像素
                 Debug.Log("[sprite]bitmapWidth:" + bitmapWidth + " bitmapHeight:" + bitmapHeight);
-                
-                // 初始化为全透明
-                texture = new Texture2D(bitmapWidth, bitmapHeight, TextureFormat.RGBA32, false);
-                texture.filterMode = FilterMode.Point;
-                for (int w = 0; w < bitmapWidth; w++)
+
+                if (bitmapWidth > 0 && bitmapHeight > 0)
                 {
-                    for (int h = 0; h < bitmapHeight; h++)
+                    // 初始化为全透明
+                    texture = new Texture2D(bitmapWidth, bitmapHeight, TextureFormat.RGBA32, false);
+                    texture.filterMode = FilterMode.Point;
+                    for (int w = 0; w < bitmapWidth; w++)
                     {
-                        texture.SetPixel(w,h,new Color(0,0,0,0));
+                        for (int h = 0; h < bitmapHeight; h++)
+                        {
+                            texture.SetPixel(w,h,new Color(0,0,0,0));
+                        }
                     }
                 }
-
-
+                else
+                {
+                    Debug.LogWarning("[sprite] w or h = 0");
+                }
+                
                 bitmapRLE += 4;     // 此时,指针指向像素数据
 
                 
