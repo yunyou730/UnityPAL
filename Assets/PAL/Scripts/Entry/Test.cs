@@ -12,7 +12,7 @@ public class Test : MonoBehaviour
     void Start()
     {
         int mapIndex = 12;
-        var map = new ayy.pal.core.Map();
+        var map = new ayy.pal.core.PALMapWrapper();
         map.Load();
         
         // 调色板数据

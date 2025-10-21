@@ -4,11 +4,11 @@ namespace ayy.pal
 {
     public class MapServices : Service,IInitializable,IDestroyable
     {
-        private Map _map = null;
+        private PALMapWrapper _map = null;
         private MapWrapper _currentMap = null;
         public void Init()
         {
-            _map = new Map();
+            _map = new PALMapWrapper();
             _map.Load();
         }
         
@@ -17,7 +17,7 @@ namespace ayy.pal
             
         }
 
-        public Map GetMapManager()
+        public PALMapWrapper GetMapManager()
         {
             return _map;
         }

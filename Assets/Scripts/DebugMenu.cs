@@ -10,27 +10,24 @@ namespace ayy.debugging
 {
     public class DebugMenu : MonoBehaviour
     {
-        [Header("palette")]
+        [Header("Palette")]
         [SerializeField] private Button _btnLoadPalette;
         [SerializeField] private TMP_Dropdown _dropdownPalette;
         [SerializeField] private GameObject _paletteTextureHolder;
         
-        [Header("map")]
+        [Header("Map")]
         [SerializeField] private Button _btnLoadMap;
         [SerializeField] private TMP_Dropdown _dropdownMap;
-        [SerializeField] private GameObject _mapSpriteFramesHolder;
-        [SerializeField] private GameObject _mapHolderBottom;
-        [SerializeField] private GameObject _mapHolderTop;
         [SerializeField] private GameObject _mapSpriteFramePrefab;
         [SerializeField] private bool _showMapBottomLayer = true;
         [SerializeField] private bool _showMapTopLayer = true;
         
-        [Header("sprite")]
+        [Header("Sprite")]
         [SerializeField] private Button _btnLoadSprite;
         [SerializeField] private TMP_Dropdown _dropdownSprite;
-        private MKFLoader _mgoMKF = null;
+        [SerializeField] private GameObject _spriteFramesHolder;
         
-        [Header("map-spritesheet")]
+        [Header("Map-SpriteSheet")]
         [SerializeField] private GameObject _mapSpriteSheetHolder;
         [SerializeField] private GameObject _palMapBottomHolder;
         [SerializeField] private GameObject _palMapTopHolder;
@@ -38,6 +35,9 @@ namespace ayy.debugging
         [SerializeField,Range(0,20)] private float _cameraMoveSpeed = 5.0f;
         [SerializeField,Range(1,50)] private float _cameraOrthoSize = 5.0f;
         [SerializeField,Range(1,20)] private float _cameraOrthoChangeSpeed = 10.0f;
+        
+        [Header("GamePlay")]
+        [SerializeField] private Button _btnStartGame;
         
         private Texture2D[] _spriteFrames;
 
@@ -47,17 +47,20 @@ namespace ayy.debugging
 
         private MapServices _mapService = null;
         private PaletteService _paletteService = null;
-        private Map _mapManager = null;
+        private SpriteService _spriteService = null;
+        private PALMapWrapper _mapManager = null;
         
         void Start()
         {
             _mapService = PalGame.GetInstance().GetService<MapServices>();
             _paletteService = PalGame.GetInstance().GetService<PaletteService>();
+            _spriteService = PalGame.GetInstance().GetService<SpriteService>();
             _mapManager = _mapService.GetMapManager();
             
             InitDebugPalette();
             InitDebugMap();
             InitDebugPlayerSprite();
+            InitForSpawnSprite();
         }
 
         private void Update()
@@ -82,7 +85,6 @@ namespace ayy.debugging
             float othoSize = Mathf.Clamp(_cameraOrthoSize, 1.0f, 50.0f);
             _cameraGO.GetComponent<Camera>().orthographicSize = othoSize;
             
-
             Vector2 dir = Vector2.zero;
             if (Input.GetKey(KeyCode.W))
             {
@@ -181,6 +183,11 @@ namespace ayy.debugging
             _dropdownSprite.onValueChanged.AddListener(OnClickSwitchSprite);
         }
 
+        private void InitForSpawnSprite()
+        {
+            
+        }
+
         private void OnClickLoadPalette()
         {
             Debug.Log("Load All Palettes");
@@ -216,7 +223,6 @@ namespace ayy.debugging
         private void OnClickSwitchMap(int mapIndex)
         {
             LoadMapWithSingleDrawCall(mapIndex);
-            //LoadMapWithSeveralGameObjects(mapIndex);
         }
 
         private void LoadMapWithSingleDrawCall(int mapIndex)
@@ -245,138 +251,11 @@ namespace ayy.debugging
                 mat.SetTexture(Shader.PropertyToID("_SpriteSheetTex"), spriteSheetTex);
             }
         }
-
-        private void LoadMapWithSeveralGameObjects(int mapIndex)
-        {
-            // Clear previous map's sprite frames
-            for (int i = _mapSpriteFramesHolder.transform.childCount - 1; i >= 0; i--)
-            {
-                var child = _mapSpriteFramesHolder.transform.GetChild(i);
-                Destroy(child.gameObject);
-            }
-            
-            // Clear tiles
-            for(int i = 0;i < _mapHolderBottom.transform.childCount;i++)
-            {
-                Destroy(_mapHolderBottom.transform.GetChild(i).gameObject);
-            }
-            for (int i = 0; i < _mapHolderTop.transform.childCount; i++)
-            {
-                Destroy(_mapHolderTop.transform.GetChild(i).gameObject);
-            }
-            // Load Map
-            PALMap palMap = _mapManager.LoadMapWithIndex(mapIndex);
-            if (palMap == null)
-            {
-                Debug.LogWarning($"there's no map with index {mapIndex}");
-                return;
-            }
-            
-            // Load palette
-            PaletteColor[] paletteColors = _paletteService.GetPaletteColors();
-            
-            // Draw Sprite Frames
-            ShowMapSpriteFrames(palMap,paletteColors);
-            // Draw map tiles
-            if (_showMapBottomLayer)
-            {
-                ShowMapTiles(palMap,false,_mapHolderBottom);                
-            }
-            if (_showMapTopLayer)
-            {
-                ShowMapTiles(palMap,true,_mapHolderTop);                
-            }
-        }
-
-        private void ShowMapSpriteFrames(PALMap palMap,PaletteColor[] paletteColors)
-        {
-            if (_spriteFrames != null)
-            {
-                foreach (var spriteFrame in _spriteFrames)
-                {
-                    Destroy(spriteFrame);
-                }
-            }
-            
-            byte[] sprite = palMap.TileSprite;
-            int spriteFrameCount = Renderer.GetSpriteFrameCount(sprite);
-            _spriteFrames = new Texture2D[spriteFrameCount];
-            float baseY = 0.0f;
-            for (int frameIndex = 0; frameIndex < spriteFrameCount; frameIndex++)
-            {
-                Texture2D tex = Renderer.CreateTexture(sprite, frameIndex,paletteColors);
-                var go = GameObject.Instantiate(_mapSpriteFramePrefab);
-                go.name = "sprite_frame[" + frameIndex + "]";
-                go.transform.SetParent(_mapSpriteFramesHolder.transform);
-                float sizeX = go.transform.localScale.x;
-                float sizeY = tex.height / (float)tex.width * sizeX;
-                go.transform.localPosition = new Vector3(0, baseY + frameIndex * sizeY, 0);
-                go.transform.localScale = new Vector3(sizeX, sizeY, 1.0f);
-                var mat = go.GetComponent<MeshRenderer>().material;
-                mat.SetTexture(Shader.PropertyToID("_Texture2D"), tex);
-                _spriteFrames[frameIndex] = tex;
-            }
-        }
-
-        private void ShowMapTiles(PALMap palMap,bool bottomOrTop,GameObject parent)
-        {
-            for (int y = 0;y < 64;y++)
-            {
-                for (int h = 0; h < 2; h++)
-                {
-                    for (int x = 0; x < 128; x++)
-                    {
-                        //Vector3 tilePos = GetMapTilePos(x,y,h);
-                        Vector3 tilePos = GetMapTilePos(y,x,h);
-                        
-                        
-                        // data
-                        int frameIndex = palMap.GetSpriteIndexBottomLayer(x,y,h);
-                        if (bottomOrTop)
-                        {
-                            frameIndex = palMap.GetSpriteIndexTopLayer(x,y,h);
-                        }
-                        
-                        
-                        // Create tile ,set position
-                        if (frameIndex >= 0 && frameIndex < _spriteFrames.Length)
-                        {
-                            var tile = GameObject.Instantiate(_mapSpriteFramePrefab,parent.transform);
-                            tile.name = $"tile:({x}, {y}, {h}),frame:{frameIndex},layer:{bottomOrTop}";
-                            tile.transform.localScale = new Vector3(1, _mapTileHeight / _mapTileWidth, 1);
-                            tile.transform.localPosition = tilePos;
-                            var mat = tile.GetComponent<MeshRenderer>().material;
-                            var tex = _spriteFrames[frameIndex]; // @miao @temp 临时使用一个 sprite frame index 
-                            mat.SetTexture(Shader.PropertyToID("_Texture2D"), tex);                            
-                        }
-
-                    }
-                }
-            }
-        }
-
-        private Vector3 GetMapTilePos(int x,int y,int h)
-        {
-            float W = _mapTileWidth;
-            float H = _mapTileHeight;
-            float yCoord = -(y * H);
-            float baseX = 0;
-            if (h == 1)
-            {
-                baseX = baseX + W / 2;
-                yCoord = yCoord - H / 2;
-            }
-            float xCoord = baseX + ( x * W);
-            float zCoord = 0.0f;
-            return new Vector3(xCoord,yCoord,zCoord);
-        }
-
+        
 
         private void LoadAllSprites()
         {
-            _mgoMKF = new MKFLoader(Path.Combine(Application.streamingAssetsPath, "MGO.MKF"));
-            _mgoMKF.Load();
-            int cnt = _mgoMKF.GetChunkCount();
+            int cnt = _spriteService.GetSpriteCount();
             _dropdownSprite.ClearOptions();
             for (int i = 0;i < cnt;i++)
             {
@@ -386,7 +265,7 @@ namespace ayy.debugging
         
         private void OnClickSwitchSprite(int spriteIndex)
         {
-            foreach (Transform child in _mapSpriteFramesHolder.transform)
+            foreach (Transform child in _spriteFramesHolder.transform)
             {
                 GameObject.Destroy(child.gameObject);
             }
@@ -396,8 +275,8 @@ namespace ayy.debugging
         unsafe private void LoadSprite(int spriteIndex)
         {
             // 获取原始 sprite 数据 ,并解压缩
-            byte[] sprite = _mgoMKF.ReadChunk(spriteIndex);
-            int decompressedSize = _mgoMKF.GetDecompressedSize(spriteIndex);
+            byte[] sprite = _spriteService.GetMgoMKF().ReadChunk(spriteIndex);
+            int decompressedSize = _spriteService.GetMgoMKF().GetDecompressedSize(spriteIndex);
             byte[] decompressedSprite = new byte[decompressedSize];
             fixed (byte* pChunkData = sprite)
             {
@@ -409,7 +288,7 @@ namespace ayy.debugging
             
             // 拿到 sprite 数据,去创建 texture,并展示出来
             PaletteColor[] paletteColors = _paletteService.GetPaletteColors();
-            DebugHelper.CreateSpriteFramesGameObjects(decompressedSprite, paletteColors,_mapSpriteFramePrefab,_mapSpriteFramesHolder.transform);
+            DebugHelper.CreateSpriteFramesGameObjects(decompressedSprite, paletteColors,_mapSpriteFramePrefab,_spriteFramesHolder.transform);
         }
     }
 }

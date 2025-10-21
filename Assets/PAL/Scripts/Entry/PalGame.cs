@@ -16,8 +16,11 @@ namespace ayy.pal
         void Awake()
         {
             sInstance = this;
-            AddService<MapServices>(new MapServices());
             AddService<PaletteService>(new PaletteService());
+            AddService<MapServices>(new MapServices());
+            AddService<SpriteService>(new SpriteService());
+            AddService<GameStateDataService>(new GameStateDataService());
+            AddService<TestStateDataService>(new TestStateDataService());
             
             foreach (var service in _initializables)
             {

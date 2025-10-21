@@ -54,13 +54,13 @@ namespace ayy.pal
         private Mesh _meshTop = null;
         private Texture2D _tilemapTexture = null;
         
-        private Map _map = null;
+        private PALMapWrapper _map = null;
         private PALMap _palMap = null;
         private int _spriteFrameCount = 0;
         
         private PaletteService _paletteService = null;
         
-        public MapWrapper(Map map,int mapIndex)
+        public MapWrapper(PALMapWrapper map,int mapIndex)
         {
             _map = map;
             _palMap = _map.LoadMapWithIndex(mapIndex);

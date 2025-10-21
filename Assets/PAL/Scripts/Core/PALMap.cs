@@ -59,7 +59,7 @@ namespace ayy.pal.core
         }
     }
 
-    public unsafe class Map
+    public unsafe class PALMapWrapper
     {
         private MKFLoader _mapMKF = null;   // 地图tile数据
         private MKFLoader _gopMKF = null;   // 地图sprite数据

@@ -1,4 +1,6 @@
 
+using System.Collections.Generic;
+using ayy.pal;
 using UnityEngine;
 using ayy.pal.core;
 using Renderer = ayy.pal.core.Renderer;
@@ -30,5 +32,13 @@ public class DebugHelper
                 Debug.LogWarning("null sprite frame");
             }
         }
+    }
+
+    // 根据 sprite的 二进制数据, 返回一个大的包含每个frame的  Texture2D, 以及每个 frame 的UV 坐标
+    public static void CreateSprite(byte[] spriteData,out Texture2D texture,out List<SpriteFrameUV> uvList)
+    {
+        // @miao @todo
+        uvList = new List<SpriteFrameUV>();
+        texture = new Texture2D(1, 1);
     }
 }
