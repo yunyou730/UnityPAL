@@ -166,7 +166,9 @@ namespace ayy.pal.core
         
         // 返回值颜色数组,
         //  R通道的 int值为 0-255 的颜色索引,
-        //  A通道0表示原本无色,1表示有色 
+        //  A通道0表示原本无色,1表示有色
+        //  返回结果的 x维度是宽度, y维度是高度
+        //  函数用于,拿到图像像素数据,返回之后运行时创建 Sprite 的 Sheet Texture,大图集合
         public static Color32[,] GetSpriteFrameColorData(byte[] sprite,int frameIndex,PaletteColor[] palette = null)
         {
             int offset = GetSpriteFrameOffset(sprite,frameIndex);

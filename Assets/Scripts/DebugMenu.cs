@@ -26,6 +26,7 @@ namespace ayy.debugging
         [SerializeField] private Button _btnLoadSprite;
         [SerializeField] private TMP_Dropdown _dropdownSprite;
         [SerializeField] private GameObject _spriteFramesHolder;
+        [SerializeField] private GameObject _spriteSheetHolder;
         
         [Header("Map-SpriteSheet")]
         [SerializeField] private GameObject _mapSpriteSheetHolder;
@@ -270,6 +271,7 @@ namespace ayy.debugging
                 GameObject.Destroy(child.gameObject);
             }
             LoadSprite(spriteIndex);
+            LoadSprite2(spriteIndex);
         }
 
         unsafe private void LoadSprite(int spriteIndex)
@@ -289,6 +291,18 @@ namespace ayy.debugging
             // 拿到 sprite 数据,去创建 texture,并展示出来
             PaletteColor[] paletteColors = _paletteService.GetPaletteColors();
             DebugHelper.CreateSpriteFramesGameObjects(decompressedSprite, paletteColors,_mapSpriteFramePrefab,_spriteFramesHolder.transform);
+        }
+        
+        private void LoadSprite2(int spriteIndex)
+        {
+            PALSprite sprite = _spriteService.GetSprite(spriteIndex);
+            var tex = sprite.GetTexture();
+            var mat = _spriteSheetHolder.GetComponent<MeshRenderer>().material;
+            mat.SetTexture(Shader.PropertyToID("_MainTex"),sprite.GetTexture());
+            
+            float sy = _spriteSheetHolder.transform.localScale.y;
+            float sx = sy * tex.width / tex.height;
+            _spriteSheetHolder.transform.localScale = new Vector3(sx,sy,1);
         }
     }
 }

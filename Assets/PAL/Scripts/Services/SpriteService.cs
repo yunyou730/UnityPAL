@@ -17,6 +17,10 @@ namespace ayy.pal
             _mgoMKF.Load();
             _spriteCount = _mgoMKF.GetChunkCount();
             _sprites = new List<PALSprite>(_spriteCount);
+            for (int i = 0; i < _spriteCount; i++)
+            {
+                _sprites.Add(null);
+            }
         }
 
         public void Destroy()
@@ -40,8 +44,13 @@ namespace ayy.pal
             {
                 return null;
             }
-            
-            var sprite = _sprites[id];
+
+            PALSprite sprite = null;
+            if (id < _sprites.Count)
+            {
+                sprite = _sprites[id];                
+            }
+
             if (sprite == null)
             {
                 sprite = LoadSprite(id);

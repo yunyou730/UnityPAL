@@ -137,6 +137,30 @@ namespace ayy.pal.core
     {
         return 0;
     }
+    
+    
+    public unsafe byte[] GetDecompressedChunkData(int chunkIndex)
+    {
+        int chunkCount = GetChunkCount();
+        if (chunkIndex >= chunkCount)
+        {
+            return null;
+        }
+        
+        // 获取原始 sprite 数据 ,并解压缩
+        //byte[] sprite = _spriteService.GetMgoMKF().ReadChunk(spriteIndex);
+        byte[] compressedData = ReadChunk(chunkIndex);
+        int decompressedSize = GetDecompressedSize(chunkIndex);
+        byte[] decompressedData = new byte[decompressedSize];
+        fixed (byte* pChunkData = compressedData)
+        {
+            fixed (byte* pDestData = decompressedData)
+            {
+                Yj1Decompressor.YJ1_Decompress(pChunkData, pDestData,decompressedSize);
+            }
+        }
+        return decompressedData;
+    }
 }
 
 }

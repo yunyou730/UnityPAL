@@ -12,6 +12,9 @@ namespace ayy.pal
      */
     public class PALSprite : IDisposable
     {
+        private SpriteService _spriteService = null;
+        private PaletteService _paletteService = null;
+        
         private Texture2D _sheetTexture = null;
         private int _spriteId = 0;
         private int _frameCount = 0;
@@ -21,16 +24,22 @@ namespace ayy.pal
         private int _textureHeight = 0;
         
         // 每个 frame 的 uv 坐标
-        
+        private List<SpriteFrameUV> _atlas = null;
         
         public PALSprite(int spriteId)
         {
             _spriteId = spriteId;
+            _spriteService = PalGame.GetInstance().GetService<SpriteService>();
+            _paletteService = PalGame.GetInstance().GetService<PaletteService>();
         }
 
         public void Load()
         {
-            
+            //_sheetTexture = DebugHelper.CreateSprite(_spriteId);
+            // @miao @todo
+            MKFLoader mkf = _spriteService.GetMgoMKF();
+            byte[] spriteBytes = mkf.GetDecompressedChunkData(_spriteId);
+            DebugHelper.CreateSprite(spriteBytes,out _sheetTexture,out _atlas,_paletteService.GetPaletteColors());
         }
 
         public Texture2D GetTexture()
@@ -55,7 +64,7 @@ namespace ayy.pal
     }
 
 
-    class SpriteFrameUV
+    public class SpriteFrameUV
     {
         public int U;
         public int V;
