@@ -270,7 +270,9 @@ namespace ayy.debugging
             {
                 GameObject.Destroy(child.gameObject);
             }
-            LoadSprite(spriteIndex);
+            
+            // @miao @test
+            //LoadSprite(spriteIndex);
             LoadSprite2(spriteIndex);
         }
 
@@ -296,6 +298,11 @@ namespace ayy.debugging
         private void LoadSprite2(int spriteIndex)
         {
             PALSprite sprite = _spriteService.GetSprite(spriteIndex);
+            if (sprite.GetTexture() == null)
+            {
+                return;
+            }
+
             var tex = sprite.GetTexture();
             var mat = _spriteSheetHolder.GetComponent<MeshRenderer>().material;
             mat.SetTexture(Shader.PropertyToID("_MainTex"),sprite.GetTexture());

@@ -24,7 +24,7 @@ namespace ayy.pal
         private int _textureHeight = 0;
         
         // 每个 frame 的 uv 坐标
-        private List<SpriteFrameUV> _atlas = null;
+        private List<PALSpriteFrame> _atlas = null;
         
         public PALSprite(int spriteId)
         {
@@ -35,11 +35,12 @@ namespace ayy.pal
 
         public void Load()
         {
-            //_sheetTexture = DebugHelper.CreateSprite(_spriteId);
             // @miao @todo
             MKFLoader mkf = _spriteService.GetMgoMKF();
             byte[] spriteBytes = mkf.GetDecompressedChunkData(_spriteId);
-            DebugHelper.CreateSprite(spriteBytes,out _sheetTexture,out _atlas,_paletteService.GetPaletteColors());
+            //DebugHelper.CreateSprite(spriteBytes,out _sheetTexture,out _atlas,_paletteService.GetPaletteColors());
+            
+            DebugHelper.CreateSpriteV2(spriteBytes,_paletteService.GetPaletteColors(),out _sheetTexture,out _atlas);
         }
 
         public Texture2D GetTexture()
@@ -64,10 +65,24 @@ namespace ayy.pal
     }
 
 
-    public class SpriteFrameUV
+    public class PALSpriteFrame
     {
-        public int U;
-        public int V;
+        public int U = 0;
+        public int V = 0;
+        public int W = 0;
+        public int H = 0;
+        
+        public void SetFrameOffset(int ox,int oy)
+        {
+            U = ox;
+            V = oy;
+        }
+
+        public void SetFrameSize(int width,int height)
+        {
+            W = width;
+            H = height;
+        }
     }
     
 }

@@ -162,8 +162,38 @@ namespace ayy.pal.core
 
             return texture;
         }
-        
-        
+
+        // 获取 第n帧的 size
+        public static void GetSpriteFrameSize(byte[] sprite, int frameIndex,out int frameWidth,out int frameHeight)
+        {
+            frameWidth = 0;
+            frameHeight = 0;
+            
+            // @miao @todo
+            int offset = GetSpriteFrameOffset(sprite,frameIndex);
+            if (offset < 0)
+            {
+                return;
+            }
+            
+            Color32[,] ret = null;
+            fixed (byte* ptr = sprite)
+            {
+                byte* bitmapRLE = ptr + offset;
+                // skip the 0x00000002 in the file header
+                if (*bitmapRLE == 0x02
+                    && *(bitmapRLE + 1) == 0x00
+                    && *(bitmapRLE + 2) == 0x00
+                    && *(bitmapRLE + 3) == 0x00)
+                {
+                    bitmapRLE += 4;
+                }
+
+                frameWidth = *(bitmapRLE) | *(bitmapRLE + 1) << 8;
+                frameHeight = *(bitmapRLE + 2) | *(bitmapRLE + 3) << 8;
+            }
+        }
+
         // 返回值颜色数组,
         //  R通道的 int值为 0-255 的颜色索引,
         //  A通道0表示原本无色,1表示有色
