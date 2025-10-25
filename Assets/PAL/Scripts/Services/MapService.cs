@@ -2,7 +2,7 @@ using ayy.pal.core;
 
 namespace ayy.pal
 {
-    public class MapServices : Service,IInitializable,IDestroyable
+    public class MapService : Service,IInitializable,IDestroyable
     {
         private PALMapWrapper _map = null;
         private MapWrapper _currentMap = null;
@@ -17,20 +17,25 @@ namespace ayy.pal
             
         }
 
-        public PALMapWrapper GetMapManager()
+        public PALMapWrapper GetMapWrapper()
         {
             return _map;
         }
 
         public void LoadMap(int mapIndex)
         {
+            UnloadCurrentMap();
+            _currentMap = new MapWrapper(_map,mapIndex);
+            _currentMap.Load(EColorMode.PaletteLUT);
+        }
+
+        public void UnloadCurrentMap()
+        {
             if (_currentMap != null)
             {
                 _currentMap.Dispose();
                 _currentMap = null;
             }
-            _currentMap = new MapWrapper(_map,mapIndex);
-            _currentMap.Load(EColorMode.PaletteLUT);
         }
 
         public MapWrapper GetCurrentMap()

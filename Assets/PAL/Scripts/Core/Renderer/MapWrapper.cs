@@ -13,6 +13,11 @@ namespace ayy.pal
      * 2. 如果使用 PaletteLUT 模式, 则在C#代码里做完上面的事。即,读取时读取的是 palette index.
      * 这个 index 配合 PaletteColor[]数组, 换算成真正的像素颜色值.
      * 写入 Texture 像素的时候, 直接写入查询 palette 完毕之后的最终像素值
+     *
+     * 3. 地图里面 每个tile图像 固定是 32 x 15.
+     * map tile 是 32x15 的 rect, 中间菱形部分有图像
+     *
+     * 4. MapWrapper 会按照规则, 构建一个 mesh, mesh 大小取决于 kTileWidth 和 kTileHeight
      */
     public enum EColorMode
     {
@@ -28,26 +33,37 @@ namespace ayy.pal
 
     public class MapWrapper : IDisposable
     {
-        // 横向、纵向,各有多少个 tile
+        /*
+         * 横向、纵向,各有多少个 tile
+         * 这里的值是固定的, 即: x方向 128个tile, y方向64个tile, h方向2个,
+         * 即, 地图固定是由 128x128 个 tile 构成
+         */
         private static int kTileCountX = 128;
         private static int kTileCountY = 64;
         private static int kTileCountH = 2;
 
-        // 每个 tile 的 texture size
+        // 每个 tile 的 texture size, 这里是固定的
         private static int kTileW = 32;
         private static int kTileH = 15;
 
         // 每个tile 在 unity 里的 mesh tile 的 size
-        private static float kTileWidth = 1.0f;
-        private static float kTileHeight = 15.0f / 32.0f;
+        // 在初始化的时候, 需要根据 Metrics 的 size转换功能, 做一次转换
+        private float _tileMeshWidth = 1.0f;
+        private float _tileMeshHeight = 15.0f / 32.0f;
 
         // 调色盘 能提供多少种颜色
-        private static int kPaletteSize = 256;
+        //private static int kPaletteSize = 256;
         
         // 地图编号
         private int _mapIndex = 0;
         
-        // 用一个 512x512的 texture 来当作 SpriteSheet 的 Texture
+        /*
+         * 用一个 512x512的 texture 来当作 SpriteSheet 的 Texture
+         * 因为每个 tile 的 texture size 是固定的 32x15,
+         * 并且 通常 tile 的数量 也不会太多,
+         * 因此用一个 512x512 的 texture 来装载所有 tile 的纹理,
+         * 是够用的
+         */
         private static int kSpriteSheetTextureSize = 512;
 
         private Mesh _meshBottom = null;
@@ -67,11 +83,30 @@ namespace ayy.pal
             _mapIndex = mapIndex;
 
             _paletteService = PalGame.GetInstance().GetService<PaletteService>();
+            
+            _tileMeshWidth = Metrics.ConvertPixelsToUnit(kTileW);
+            _tileMeshHeight = Metrics.ConvertPixelsToUnit(kTileH);
         }
         
         public void Dispose()
         {
+            if (_tilemapTexture != null)
+            {
+                GameObject.Destroy(_tilemapTexture);
+                _tilemapTexture = null;
+            }
             
+            if (_meshBottom != null)
+            {
+                GameObject.Destroy(_meshBottom);
+                _meshBottom = null;
+            }
+
+            if (_meshTop != null)
+            {
+                GameObject.Destroy(_meshTop);
+                _meshTop = null;
+            }
         }
 
         public void Load(EColorMode mode)
@@ -191,11 +226,14 @@ namespace ayy.pal
             List<int> triangles = new List<int>();
             List<Vector2> uvs = new List<Vector2>();
             
-            for (int y = 0; y < 64; y++)
+            // private static int kTileCountX = 128;
+            // private static int kTileCountY = 64;
+            // private static int kTileCountH = 2;
+            for (int y = 0; y < kTileCountY; y++)
             {
-                for (int h = 0; h < 2; h++)
+                for (int h = 0; h < kTileCountH; h++)
                 {
-                    for (int x = 0; x < 128; x++)
+                    for (int x = 0; x < kTileCountX; x++)
                     {
                         AddMeshData(vertices, triangles, uvs, x, y, h,topOrBottom);
                     }
@@ -230,10 +268,10 @@ namespace ayy.pal
                 float z = topOrBottom ? zTop : zBottom;
                 
                 Vector3 center = GetMapTilePos(y,x,h,ELayer.Bottom);
-                vertices.Add(new Vector3(center.x - kTileWidth * 0.5f,center.y - kTileHeight * 0.5f,z));
-                vertices.Add(new Vector3(center.x + kTileWidth * 0.5f,center.y - kTileHeight * 0.5f,z));
-                vertices.Add(new Vector3(center.x - kTileWidth * 0.5f,center.y + kTileHeight * 0.5f,z));
-                vertices.Add(new Vector3(center.x + kTileWidth * 0.5f,center.y + kTileHeight * 0.5f,z));
+                vertices.Add(new Vector3(center.x - _tileMeshWidth * 0.5f,center.y - _tileMeshHeight * 0.5f,z));
+                vertices.Add(new Vector3(center.x + _tileMeshWidth * 0.5f,center.y - _tileMeshHeight * 0.5f,z));
+                vertices.Add(new Vector3(center.x - _tileMeshWidth * 0.5f,center.y + _tileMeshHeight * 0.5f,z));
+                vertices.Add(new Vector3(center.x + _tileMeshWidth * 0.5f,center.y + _tileMeshHeight * 0.5f,z));
                 
                 int ox, oy;
                 GetFrameIndexPixelCoord(frameIndex,out ox,out oy);
@@ -267,8 +305,8 @@ namespace ayy.pal
 
         private Vector3 GetMapTilePos(int x,int y,int h,ELayer layer)
         {
-            float W = kTileWidth;
-            float H = kTileHeight;
+            float W = _tileMeshWidth;
+            float H = _tileMeshHeight;
             float yCoord = -(y * H);
             float baseX = 0;
             if (h == 1)

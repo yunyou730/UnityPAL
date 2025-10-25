@@ -1,10 +1,8 @@
-using System.IO;
 using ayy.pal;
 using ayy.pal.core;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using Renderer = ayy.pal.core.Renderer;
 
 namespace ayy.debugging
 {
@@ -27,11 +25,14 @@ namespace ayy.debugging
         [SerializeField] private TMP_Dropdown _dropdownSprite;
         [SerializeField] private GameObject _spriteFramesHolder;
         [SerializeField] private GameObject _spriteSheetHolder;
+        [SerializeField] private GameObject _spritePresenterPrefab = null;
+        private SpritePresenter _spritePresenter = null;
         
-        [Header("Map-SpriteSheet")]
-        [SerializeField] private GameObject _mapSpriteSheetHolder;
-        [SerializeField] private GameObject _palMapBottomHolder;
-        [SerializeField] private GameObject _palMapTopHolder;
+        [Header("Map")]
+        [SerializeField] private GameObject _mapPresenterPrefab;
+        private MapPresenter _mapPresenter = null;
+        
+        [Header("Camera")]
         [SerializeField] private GameObject _cameraGO;
         [SerializeField,Range(0,20)] private float _cameraMoveSpeed = 5.0f;
         [SerializeField,Range(1,50)] private float _cameraOrthoSize = 5.0f;
@@ -41,22 +42,17 @@ namespace ayy.debugging
         [SerializeField] private Button _btnStartGame;
         
         private Texture2D[] _spriteFrames;
-
-        // map tile 是 32x15 的 rect, 中间菱形部分有图像
-        private float _mapTileWidth = 1.0f;
-        private float _mapTileHeight = 15 / 32.0f;
-
-        private MapServices _mapService = null;
+        
+        private MapService _mapService = null;
         private PaletteService _paletteService = null;
         private SpriteService _spriteService = null;
-        private PALMapWrapper _mapManager = null;
+        
         
         void Start()
         {
-            _mapService = PalGame.GetInstance().GetService<MapServices>();
+            _mapService = PalGame.GetInstance().GetService<MapService>();
             _paletteService = PalGame.GetInstance().GetService<PaletteService>();
             _spriteService = PalGame.GetInstance().GetService<SpriteService>();
-            _mapManager = _mapService.GetMapManager();
             
             InitDebugPalette();
             InitDebugMap();
@@ -69,6 +65,7 @@ namespace ayy.debugging
             UpdateForMoveCamera();
             UpdateForSwitchMap();
             UpdateForSwitchSprite();
+            UpdateForSwitchSpriteFrame();
         }
 
         private void UpdateForMoveCamera()
@@ -161,6 +158,14 @@ namespace ayy.debugging
             }
         }
 
+        private void UpdateForSwitchSpriteFrame()
+        {
+            if (Input.GetKeyDown(KeyCode.P) && _spritePresenter != null)
+            {
+                _spritePresenter.SwitchNextFrame();
+            }
+        }
+
         private void InitDebugPalette()
         {
             _btnLoadPalette.onClick.AddListener(OnClickLoadPalette);
@@ -211,7 +216,7 @@ namespace ayy.debugging
         private void OnClickLoadAllMaps()
         {
             Debug.Log("Load All Maps");
-            int mapCnt = _mapManager.GetMapCount();
+            int mapCnt = _mapService.GetMapWrapper().GetMapCount();
             _dropdownMap.options.Clear();
             for (int i = 0; i < mapCnt; i++)
             {
@@ -228,29 +233,16 @@ namespace ayy.debugging
 
         private void LoadMapWithSingleDrawCall(int mapIndex)
         {
-            _mapService.LoadMap(mapIndex);
-            Texture2D spriteSheetTex = _mapService.GetCurrentMap().GetTileMapTexture();
-            if (spriteSheetTex != null && _mapSpriteSheetHolder != null)
+            if (_mapPresenter == null)
             {
-                var mat = _mapSpriteSheetHolder.GetComponent<MeshRenderer>().material;
-                mat.SetFloat(Shader.PropertyToID("_UsePaletteLUT"), 0.0f);
-                mat.SetTexture(Shader.PropertyToID("_SpriteSheetTex"), spriteSheetTex);
-                mat.SetTexture(Shader.PropertyToID("_PaletteTex"), _paletteService.GetPaletteTexture());
+                _mapPresenter = GameObject.Instantiate(_mapPresenterPrefab).GetComponent<MapPresenter>();
             }
-            if (spriteSheetTex != null && _palMapBottomHolder != null)
+            else
             {
-                var meshFilter = _palMapBottomHolder.GetComponent<MeshFilter>();
-                meshFilter.mesh = _mapService.GetCurrentMap().GetTileMapMeshBottom();
-                var mat = meshFilter.GetComponent<MeshRenderer>().material;
-                mat.SetTexture(Shader.PropertyToID("_SpriteSheetTex"), spriteSheetTex);
+                _mapPresenter.Unload();
             }
-            if (spriteSheetTex != null && _palMapTopHolder != null)
-            {
-                var meshFilter = _palMapTopHolder.GetComponent<MeshFilter>();
-                meshFilter.mesh = _mapService.GetCurrentMap().GetTileMapMeshTop();
-                var mat = meshFilter.GetComponent<MeshRenderer>().material;
-                mat.SetTexture(Shader.PropertyToID("_SpriteSheetTex"), spriteSheetTex);
-            }
+
+            _mapPresenter.Load(mapIndex);
         }
         
 
@@ -274,6 +266,7 @@ namespace ayy.debugging
             // @miao @test
             //LoadSprite(spriteIndex);
             LoadSprite2(spriteIndex);
+            RefreshSpritePresenter(spriteIndex);
         }
 
         unsafe private void LoadSprite(int spriteIndex)
@@ -292,7 +285,7 @@ namespace ayy.debugging
             
             // 拿到 sprite 数据,去创建 texture,并展示出来
             PaletteColor[] paletteColors = _paletteService.GetPaletteColors();
-            DebugHelper.CreateSpriteFramesGameObjects(decompressedSprite, paletteColors,_mapSpriteFramePrefab,_spriteFramesHolder.transform);
+            SpriteTextureHelper.CreateSpriteFramesGameObjects(decompressedSprite, paletteColors,_mapSpriteFramePrefab,_spriteFramesHolder.transform);
         }
         
         private void LoadSprite2(int spriteIndex)
@@ -310,6 +303,15 @@ namespace ayy.debugging
             float sy = _spriteSheetHolder.transform.localScale.y;
             float sx = sy * tex.width / tex.height;
             _spriteSheetHolder.transform.localScale = new Vector3(sx,sy,1);
+        }
+
+        private void RefreshSpritePresenter(int spriteIndex)
+        {
+            if (_spritePresenter == null)
+            {
+                _spritePresenter = GameObject.Instantiate(_spritePresenterPrefab).GetComponent<SpritePresenter>();
+            }
+            _spritePresenter.SwitchSpriteFrame(spriteIndex,0);
         }
     }
 }

@@ -17,7 +17,7 @@ namespace ayy.pal
         {
             sInstance = this;
             AddService<PaletteService>(new PaletteService());
-            AddService<MapServices>(new MapServices());
+            AddService<MapService>(new MapService());
             AddService<SpriteService>(new SpriteService());
             AddService<GameStateDataService>(new GameStateDataService());
             AddService<TestStateDataService>(new TestStateDataService());

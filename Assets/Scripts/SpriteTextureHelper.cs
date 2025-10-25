@@ -5,7 +5,9 @@ using UnityEngine;
 using ayy.pal.core;
 using Renderer = ayy.pal.core.Renderer;
 
-public class DebugHelper
+namespace ayy.pal
+{
+public class SpriteTextureHelper
 {
     public static void CreateSpriteFramesGameObjects(byte[] sprite,PaletteColor[] paletteColors,GameObject prefab,Transform root)
     {
@@ -118,10 +120,6 @@ public class DebugHelper
         for (int frameIndex = 0;frameIndex < validFramesCount;frameIndex++)
         {
             PALSpriteFrame frame = spriteFrameList[frameIndex];
-            
-            // @miao @todo
-            // 这里给 frame 补充 UV 数据
-            
             // 这里要把 frameData的图像数据, copy 到 texture 里
             Color32[,] frameColorData = framesColorData[frameIndex];
             int frameWidth = frame.W;
@@ -132,9 +130,15 @@ public class DebugHelper
                 for (int oy = 0;oy < frameHeight;oy++)
                 {
                     int coordX = curX + ox;
-                    int coordY = curY + oy;
-                    coordY = texHeight - 1 - curY - oy;
+                    //int coordY = curY + oy;
+                    int coordY = texHeight - 1 - curY - oy;
                     texture.SetPixel(coordX,coordY,frameColorData[ox,oy]);
+                    
+                    // 左下角像素, 在 texture 里的坐标位置, 填充到 frame 的 uv偏移数据里
+                    if (ox == 0 && oy == frameHeight - 1)
+                    {
+                        frame.SetFrameOffset(coordX, coordY);
+                    }
                 }
             }
             curX = curX + frameWidth + frameMargin;
@@ -152,6 +156,7 @@ public class DebugHelper
     {
         Texture2D texture = new Texture2D(texWidth, texHeight, TextureFormat.ARGB32, false);
         texture.filterMode = FilterMode.Point;
+        //texture.wrapMode = TextureWrapMode.Clamp;   // @miao @test
         for (int x = 0;x < texWidth;x++)
         {
             for (int y = 0;y < texHeight;y++)
@@ -161,4 +166,6 @@ public class DebugHelper
         }
         return texture;
     }
+}
+    
 }

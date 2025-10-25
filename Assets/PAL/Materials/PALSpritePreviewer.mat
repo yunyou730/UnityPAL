@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Sprite
+  m_Name: PALSpritePreviewer
   m_Shader: {fileID: -6465566751694194690, guid: 6e8be5609b0cd4c53aa8566b3cd4dc3e, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
