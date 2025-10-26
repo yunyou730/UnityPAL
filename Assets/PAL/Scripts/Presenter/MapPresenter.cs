@@ -14,10 +14,17 @@ namespace ayy.pal
         private MapService _mapService = null;
         //private PaletteService _paletteService = null;
         
+        private bool _enableDebugTileInfo = false;
+        private Material _bottomLayerMaterial = null;
+        private Material _topLayerMaterial = null;
+        
         void Awake()
         {
             _mapService = PalGame.GetInstance().GetService<MapService>();
             //_paletteService = PalGame.GetInstance().GetService<PaletteService>();
+            
+            _bottomLayerMaterial = _bottomLayer.GetComponent<MeshRenderer>().material;
+            _topLayerMaterial = _topLayer.GetComponent<MeshRenderer>().material;
         }
 
         void Start()
@@ -70,6 +77,13 @@ namespace ayy.pal
         {
             _mapIndex = 0;
             _mapService.UnloadCurrentMap();
+        }
+
+        public void ToggleDebugTileInfo()
+        {
+            _enableDebugTileInfo = !_enableDebugTileInfo;
+            _bottomLayerMaterial.SetFloat(Shader.PropertyToID("_EnableTileInfo"),_enableDebugTileInfo ? 1.0f : 0.0f);
+            _topLayerMaterial.SetFloat(Shader.PropertyToID("_EnableTileInfo"),_enableDebugTileInfo ? 1.0f : 0.0f);
         }
     }
     

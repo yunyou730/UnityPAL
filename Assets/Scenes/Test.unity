@@ -501,17 +501,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &923237351 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2297178038697429838, guid: f653a9ef6a76143799c6f9788db0839a, type: 3}
-  m_PrefabInstance: {fileID: 9002992422694372389}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1172231191
 GameObject:
   m_ObjectHideFlags: 0
@@ -621,6 +610,17 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1784045221 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 146260905085093379, guid: f653a9ef6a76143799c6f9788db0839a, type: 3}
+  m_PrefabInstance: {fileID: 9002992422694372389}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2069446167
 GameObject:
   m_ObjectHideFlags: 0
@@ -765,53 +765,21 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 330585543}
     - target: {fileID: 4578419798808432466, guid: f653a9ef6a76143799c6f9788db0839a, type: 3}
-      propertyPath: _btnStartGame
-      value: 
-      objectReference: {fileID: 923237351}
-    - target: {fileID: 4578419798808432466, guid: f653a9ef6a76143799c6f9788db0839a, type: 3}
-      propertyPath: _mapHolderTop
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 4578419798808432466, guid: f653a9ef6a76143799c6f9788db0839a, type: 3}
-      propertyPath: _mapHolderBottom
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 4578419798808432466, guid: f653a9ef6a76143799c6f9788db0839a, type: 3}
-      propertyPath: _palMapTopHolder
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 4578419798808432466, guid: f653a9ef6a76143799c6f9788db0839a, type: 3}
       propertyPath: _spriteSheetHolder
       value: 
       objectReference: {fileID: 2069446167}
-    - target: {fileID: 4578419798808432466, guid: f653a9ef6a76143799c6f9788db0839a, type: 3}
-      propertyPath: _mapPresenterPrefab
-      value: 
-      objectReference: {fileID: 3685476695924142169, guid: 945cf864db191455c87e9ca2e84a5521, type: 3}
-    - target: {fileID: 4578419798808432466, guid: f653a9ef6a76143799c6f9788db0839a, type: 3}
-      propertyPath: _palMapBottomHolder
-      value: 
-      objectReference: {fileID: 0}
     - target: {fileID: 4578419798808432466, guid: f653a9ef6a76143799c6f9788db0839a, type: 3}
       propertyPath: _spriteFramesHolder
       value: 
       objectReference: {fileID: 885995360}
     - target: {fileID: 4578419798808432466, guid: f653a9ef6a76143799c6f9788db0839a, type: 3}
-      propertyPath: _mapSpriteSheetHolder
+      propertyPath: _btnToggleMapTileInfo
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1784045221}
     - target: {fileID: 4578419798808432466, guid: f653a9ef6a76143799c6f9788db0839a, type: 3}
       propertyPath: _paletteTextureHolder
       value: 
       objectReference: {fileID: 1172231191}
-    - target: {fileID: 4578419798808432466, guid: f653a9ef6a76143799c6f9788db0839a, type: 3}
-      propertyPath: _mapSpriteFramesHolder
-      value: 
-      objectReference: {fileID: 2359863658299582279}
-    - target: {fileID: 4578419798808432466, guid: f653a9ef6a76143799c6f9788db0839a, type: 3}
-      propertyPath: _spritePresenterPrefab
-      value: 
-      objectReference: {fileID: 5436830784805705322, guid: 4d7ab906a0ecd4dd28c11cc9462c2c17, type: 3}
     - target: {fileID: 5787439911258265063, guid: f653a9ef6a76143799c6f9788db0839a, type: 3}
       propertyPath: m_Name
       value: Canvas_Debug

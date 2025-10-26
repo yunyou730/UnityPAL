@@ -45,14 +45,12 @@ namespace ayy.pal
         // 每个 tile 的 texture size, 这里是固定的
         private static int kTileW = 32;
         private static int kTileH = 15;
+        //private static int kTileH = 16;
 
         // 每个tile 在 unity 里的 mesh tile 的 size
         // 在初始化的时候, 需要根据 Metrics 的 size转换功能, 做一次转换
-        private float _tileMeshWidth = 1.0f;
-        private float _tileMeshHeight = 15.0f / 32.0f;
-
-        // 调色盘 能提供多少种颜色
-        //private static int kPaletteSize = 256;
+        private float _tileMeshWidth;
+        private float _tileMeshHeight;
         
         // 地图编号
         private int _mapIndex = 0;
@@ -70,7 +68,7 @@ namespace ayy.pal
         private Mesh _meshTop = null;
         private Texture2D _tilemapTexture = null;
         
-        private PALMapWrapper _map = null;
+        
         private PALMap _palMap = null;
         private int _spriteFrameCount = 0;
         
@@ -78,8 +76,7 @@ namespace ayy.pal
         
         public MapWrapper(PALMapWrapper map,int mapIndex)
         {
-            _map = map;
-            _palMap = _map.LoadMapWithIndex(mapIndex);
+            _palMap = map.LoadMapWithIndex(mapIndex);
             _mapIndex = mapIndex;
 
             _paletteService = PalGame.GetInstance().GetService<PaletteService>();
@@ -225,6 +222,7 @@ namespace ayy.pal
             List<Vector3> vertices = new List<Vector3>();
             List<int> triangles = new List<int>();
             List<Vector2> uvs = new List<Vector2>();
+            List<Color> colors = new List<Color>();
             
             // private static int kTileCountX = 128;
             // private static int kTileCountY = 64;
@@ -235,12 +233,13 @@ namespace ayy.pal
                 {
                     for (int x = 0; x < kTileCountX; x++)
                     {
-                        AddMeshData(vertices, triangles, uvs, x, y, h,topOrBottom);
+                        AddMeshData(vertices, triangles, uvs, colors,x, y, h,topOrBottom);
                     }
                 }
             }
             mesh.SetVertices(vertices);
             mesh.SetUVs(0,uvs);
+            mesh.SetColors(colors);
             mesh.SetIndices(triangles,MeshTopology.Triangles, 0,false);
             return mesh;
         }
@@ -249,7 +248,9 @@ namespace ayy.pal
             List<Vector3> vertices, 
             List<int> triangles,
             List<Vector2> uvs,
-            int x,int y,int h,bool topOrBottom)
+            List<Color> colors,
+            int x,int y,int h,
+            bool topOrBottom)
         {
             int frameIndex = -1;
             if (!topOrBottom)
@@ -278,10 +279,23 @@ namespace ayy.pal
                 float ux = (float)ox / (float)kSpriteSheetTextureSize;
                 float uy = (float)oy / (float)kSpriteSheetTextureSize;
 
+                //private static int kTileW = 32;
+                //private static int kTileH = 15;
                 uvs.Add(new Vector2(ux,uy));
-                uvs.Add(new Vector2(ux + 32.0f/512.0f,uy));
-                uvs.Add(new Vector2(ux,uy + 15.0f/512.0f));
-                uvs.Add(new Vector2(ux + 32.0f/512.0f,uy + 15.0f/512.0f));
+                uvs.Add(new Vector2(ux + (float)(kTileW)/512.0f,uy));
+                uvs.Add(new Vector2(ux,uy + (float)(kTileH)/512.0f));
+                uvs.Add(new Vector2(ux + (float)(kTileW)/512.0f,uy + (float)(kTileH)/512.0f));
+                
+                // 用顶点色,承载更多数据, 比如 tile 是否能走. 用顶点色形式存储在mesh里,给shader 用 
+                Color color = Color.white;
+                if (_palMap.IsTileBlocked(x, y, h))
+                {
+                    color = Color.red;
+                }
+                colors.Add(color);
+                colors.Add(color);
+                colors.Add(color);
+                colors.Add(color);
                         
                 int cnt = vertices.Count;
                 triangles.Add(cnt-4);

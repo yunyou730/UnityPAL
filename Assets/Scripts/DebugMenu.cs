@@ -16,6 +16,7 @@ namespace ayy.debugging
         [Header("Map")]
         [SerializeField] private Button _btnLoadMap;
         [SerializeField] private TMP_Dropdown _dropdownMap;
+        [SerializeField] private Button _btnToggleMapTileInfo;
         [SerializeField] private GameObject _mapSpriteFramePrefab;
         [SerializeField] private bool _showMapBottomLayer = true;
         [SerializeField] private bool _showMapTopLayer = true;
@@ -164,6 +165,11 @@ namespace ayy.debugging
             {
                 _spritePresenter.SwitchNextFrame();
             }
+
+            if (Input.GetKeyDown(KeyCode.L) && _spritePresenter != null)
+            {
+                _spritePresenter.SetPixelPos(1152,832);
+            }
         }
 
         private void InitDebugPalette()
@@ -179,6 +185,7 @@ namespace ayy.debugging
         private void InitDebugMap()
         {
             _btnLoadMap.onClick.AddListener(OnClickLoadAllMaps);
+            _btnToggleMapTileInfo.onClick.AddListener(OnClickToggleMapTileInfo);
             _dropdownMap.onValueChanged.AddListener(OnClickSwitchMap);
             _dropdownMap.options.Clear();
         }
@@ -224,6 +231,14 @@ namespace ayy.debugging
             }
             _dropdownMap.value = 0;
             _dropdownMap.onValueChanged.Invoke(0);
+        }
+
+        private void OnClickToggleMapTileInfo()
+        {
+            if (_mapPresenter != null)
+            {
+                _mapPresenter.ToggleDebugTileInfo();
+            }
         }
 
         private void OnClickSwitchMap(int mapIndex)

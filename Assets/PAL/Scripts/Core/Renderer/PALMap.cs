@@ -57,6 +57,19 @@ namespace ayy.pal.core
             d = ((d & 0xFF) | ((d >> 4) & 0x100)) - 1;
             return d;
         }
+
+        public bool IsTileBlocked(int x, int y, int h)
+        {
+            // @miao @todo
+            if(x >= 128 || y >= 64 || h > 1)
+            {
+                return false;
+            }
+
+            int d = (int)Tiles[x, y, h];
+            d = (d & 0x2000) >> 13;
+            return d > 0;
+        }
     }
 
     public unsafe class PALMapWrapper
@@ -79,7 +92,6 @@ namespace ayy.pal.core
             Debug.Log(mkfCount + " : " + gopCount);
             if (mapIndex >= mkfCount || mapIndex >= gopCount || mapIndex <= 0)
             {
-                //_palMap = null;
                 return null;
             }
             
@@ -87,13 +99,10 @@ namespace ayy.pal.core
             int size = _mapMKF.GetChunkSize(mapIndex);
             
             var palMap = new PALMap();
-
-            byte[] mapChunkData = _mapMKF.ReadChunk(mapIndex);
             
-            //byte[] mapDecompressedData = new byte
+            byte[] mapChunkData = _mapMKF.ReadChunk(mapIndex);
             fixed (uint* pTilesData = palMap.Tiles)
             {
-                //Decompress.Do(mapChunkData, pTilesData);
                 byte* pTilesDataBytes = (byte*)pTilesData;
                 int sizeInByte = palMap.Tiles.Length * sizeof(uint) / sizeof(byte);
                 fixed (byte* pMapChunkData = mapChunkData)
@@ -115,34 +124,6 @@ namespace ayy.pal.core
             return palMap;
         }
         
-        // // 参考 map.c PAL_MapGetTileBitmap
-        // /* Purpose:
-        //  *  Get tile bitmap on the specified layer at the location (x,y,h)
-        //  * Parameters:
-        //  *  [IN] x - Column number of the tile
-        //  *  [IN] y- Row number in the map
-        //  *  [IN] h - Each line in the map has two lines of tiles, 0 and 1.(See map.h for details)
-        //  *  [IN] layer - The layer. 0 for bottom, 1 for top
-        //  * Return value:
-        //  *  Pointer to the bitmap. NULL if failed.
-        //  */
-        // public void GetTileBitmap(byte x,byte y,byte h,byte layer)
-        // {
-        //     if (_palMap == null) 
-        //         return;
-        //     if (x >= 64 || y >= 128 || h > 1) 
-        //         return;
-        //     // @miao @temp
-        //     
-        //     
-        //     Debug.Log("test");
-        // }
-
-        // public PALMap GetPALMap()
-        // {
-        //     return _palMap;
-        // }
-
         public int GetMapCount()
         {
             int ret = _mapMKF.GetChunkCount();
