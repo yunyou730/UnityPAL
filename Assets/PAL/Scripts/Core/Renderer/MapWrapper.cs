@@ -81,8 +81,9 @@ namespace ayy.pal
 
             _paletteService = PalGame.GetInstance().GetService<PaletteService>();
             
+            // 顶点位置, 应该按照 32x16来计算, 而不是 32x15. 因此,这里需要在 kTileH (15)的基础上 + 1
             _tileMeshWidth = Metrics.ConvertPixelsToUnit(kTileW);
-            _tileMeshHeight = Metrics.ConvertPixelsToUnit(kTileH);
+            _tileMeshHeight = Metrics.ConvertPixelsToUnit(kTileH + 1);
         }
         
         public void Dispose()
@@ -268,6 +269,7 @@ namespace ayy.pal
                 float zTop = -0.01f;
                 float z = topOrBottom ? zTop : zBottom;
                 
+                // 顶点位置, 应该按照 32x16来计算, 而不是 32x15
                 Vector3 center = GetMapTilePos(y,x,h,ELayer.Bottom);
                 vertices.Add(new Vector3(center.x - _tileMeshWidth * 0.5f,center.y - _tileMeshHeight * 0.5f,z));
                 vertices.Add(new Vector3(center.x + _tileMeshWidth * 0.5f,center.y - _tileMeshHeight * 0.5f,z));
@@ -279,6 +281,7 @@ namespace ayy.pal
                 float ux = (float)ox / (float)kSpriteSheetTextureSize;
                 float uy = (float)oy / (float)kSpriteSheetTextureSize;
 
+                // uv 应该按照 32x15 每个tile 来计算
                 //private static int kTileW = 32;
                 //private static int kTileH = 15;
                 uvs.Add(new Vector2(ux,uy));

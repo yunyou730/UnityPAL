@@ -49,6 +49,8 @@
     <Compile Include="Assets/PAL/Scripts/Services/MapService.cs" />
     <Compile Include="Assets/PAL/Scripts/Core/Renderer/Renderer.cs" />
     <Compile Include="Assets/PAL/Scripts/Core/Renderer/Metrics.cs" />
+    <Compile Include="Assets/PAL/Scripts/Core/Renderer/PALViewport.cs" />
+    <Compile Include="Assets/PAL/Scripts/Services/ViewportService.cs" />
     <Compile Include="Assets/PAL/Scripts/Services/ServiceType.cs" />
     <Compile Include="Assets/PAL/Scripts/Core/BinDecoder/YJ1.cs" />
     <Compile Include="Assets/PAL/Scripts/Services/SpriteService.cs" />
@@ -68,6 +70,7 @@
     <Compile Include="Assets/PAL/Scripts/Presenter/SpritePresenter.cs" />
     <Compile Include="Assets/PAL/Scripts/Services/ConfigDataService.cs" />
     <Compile Include="Assets/PAL/Scripts/Core/Renderer/PALSprite.cs" />
+    <Compile Include="Assets/PAL/Scripts/Services/LoadGameService.cs" />
     <Compile Include="Assets/PAL/Scripts/Services/Service.cs" />
     <Compile Include="Assets/PAL/Scripts/Core/Renderer/PALMap.cs" />
     <None Include="Assets/TextMesh Pro/Shaders/TMPro.cginc" />

@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace ayy.pal
 {
     public class PalGame : MonoBehaviour
     {
+        [SerializeField] private GameObject _viewportPrefab = null;
+        
         private static PalGame sInstance = null;
         Dictionary<Type,Service> _services = new Dictionary<Type, Service>();
         
@@ -19,8 +22,10 @@ namespace ayy.pal
             AddService<PaletteService>(new PaletteService());
             AddService<MapService>(new MapService());
             AddService<SpriteService>(new SpriteService());
+            AddService<ViewportService>(new ViewportService(_viewportPrefab));
             AddService<GameStateDataService>(new GameStateDataService());
             AddService<TestStateDataService>(new TestStateDataService());
+            AddService<LoadGameService>(new LoadGameService());
             
             foreach (var service in _initializables)
             {

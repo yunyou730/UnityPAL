@@ -62,6 +62,13 @@ namespace ayy.pal
             }
         }
 
+        public void SetPixelPos(int pixelX, int pixelY)
+        {
+            Vector2 pos = Metrics.ConvertPixelPosToUnitPos(pixelX, pixelY);
+            float originZ = transform.localPosition.z;
+            transform.localPosition = new Vector3(pos.x, pos.y, originZ);
+        }
+
         private void SwitchFrame(int frameIndex)
         {
             _frameIndex = frameIndex;

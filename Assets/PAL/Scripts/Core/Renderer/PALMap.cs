@@ -60,12 +60,10 @@ namespace ayy.pal.core
 
         public bool IsTileBlocked(int x, int y, int h)
         {
-            // @miao @todo
             if(x >= 128 || y >= 64 || h > 1)
             {
                 return false;
             }
-
             int d = (int)Tiles[x, y, h];
             d = (d & 0x2000) >> 13;
             return d > 0;

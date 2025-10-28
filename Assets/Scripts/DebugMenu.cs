@@ -18,8 +18,6 @@ namespace ayy.debugging
         [SerializeField] private TMP_Dropdown _dropdownMap;
         [SerializeField] private Button _btnToggleMapTileInfo;
         [SerializeField] private GameObject _mapSpriteFramePrefab;
-        [SerializeField] private bool _showMapBottomLayer = true;
-        [SerializeField] private bool _showMapTopLayer = true;
         
         [Header("Sprite")]
         [SerializeField] private Button _btnLoadSprite;
@@ -40,25 +38,27 @@ namespace ayy.debugging
         [SerializeField,Range(1,20)] private float _cameraOrthoChangeSpeed = 10.0f;
         
         [Header("GamePlay")]
-        [SerializeField] private Button _btnStartGame;
+        [SerializeField] private Button _btnLoadDefaultGame;
         
         private Texture2D[] _spriteFrames;
         
         private MapService _mapService = null;
         private PaletteService _paletteService = null;
         private SpriteService _spriteService = null;
-        
+        private ViewportService _viewportService = null;
         
         void Start()
         {
             _mapService = PalGame.GetInstance().GetService<MapService>();
             _paletteService = PalGame.GetInstance().GetService<PaletteService>();
             _spriteService = PalGame.GetInstance().GetService<SpriteService>();
+            _viewportService = PalGame.GetInstance().GetService<ViewportService>();
             
             InitDebugPalette();
             InitDebugMap();
             InitDebugPlayerSprite();
             InitForSpawnSprite();
+            _btnLoadDefaultGame.onClick.AddListener(LoadDefaultGame);
         }
 
         private void Update()
@@ -166,9 +166,15 @@ namespace ayy.debugging
                 _spritePresenter.SwitchNextFrame();
             }
 
-            if (Input.GetKeyDown(KeyCode.L) && _spritePresenter != null)
+            //if (Input.GetKeyDown(KeyCode.L) && _spritePresenter != null)
+            if (Input.GetKeyDown(KeyCode.L))
             {
-                _spritePresenter.SetPixelPos(1152,832);
+                //_spritePresenter.SetPixelPos(1152 + 160,832 + 112);
+                //_spritePresenter.SetPixelPos(1152, 832);
+
+                _viewportService.GetViewport().RefreshCoord(1152, 832);
+                //_viewportService.GetViewport().RefreshCoord(1184, 176);
+                //_viewportService.GetViewport().RefreshCoord(1120, 1344);
             }
         }
 
@@ -327,6 +333,12 @@ namespace ayy.debugging
                 _spritePresenter = GameObject.Instantiate(_spritePresenterPrefab).GetComponent<SpritePresenter>();
             }
             _spritePresenter.SwitchSpriteFrame(spriteIndex,0);
+        }
+        
+        private void LoadDefaultGame()
+        {
+            Debug.Log("Load Default Game");
+            PalGame.GetInstance().GetService<LoadGameService>().LoadDefaultGame();
         }
     }
 }

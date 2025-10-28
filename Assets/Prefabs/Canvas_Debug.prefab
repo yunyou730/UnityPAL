@@ -3025,7 +3025,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Start Play
+  m_text: Load Default Game
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -3417,7 +3417,7 @@ GameObject:
   - component: {fileID: 778341640730084781}
   - component: {fileID: 2297178038697429838}
   m_Layer: 5
-  m_Name: Button_StartPlay
+  m_Name: Button_LoadDefaultGame
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3930,9 +3930,8 @@ MonoBehaviour:
   _paletteTextureHolder: {fileID: 0}
   _btnLoadMap: {fileID: 3972245950773325341}
   _dropdownMap: {fileID: 1420625442432964611}
+  _btnToggleMapTileInfo: {fileID: 146260905085093379}
   _mapSpriteFramePrefab: {fileID: 4225638059735335567, guid: aeac92c1c2af641f78348f00671176c0, type: 3}
-  _showMapBottomLayer: 1
-  _showMapTopLayer: 1
   _btnLoadSprite: {fileID: 1599409381097627504}
   _dropdownSprite: {fileID: 4817017491645224921}
   _spriteFramesHolder: {fileID: 0}
@@ -3943,7 +3942,7 @@ MonoBehaviour:
   _cameraMoveSpeed: 20
   _cameraOrthoSize: 5
   _cameraOrthoChangeSpeed: 10
-  _btnStartGame: {fileID: 2297178038697429838}
+  _btnLoadDefaultGame: {fileID: 2297178038697429838}
 --- !u!1 &6065751077345982048
 GameObject:
   m_ObjectHideFlags: 0
