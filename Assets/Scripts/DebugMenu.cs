@@ -169,12 +169,34 @@ namespace ayy.debugging
             //if (Input.GetKeyDown(KeyCode.L) && _spritePresenter != null)
             if (Input.GetKeyDown(KeyCode.L))
             {
+                int viewportPixelX = 1152;
+                int viewportPixelY = 832;
+                _viewportService.GetViewport().RefreshCoord(viewportPixelX, viewportPixelY);
+                
                 //_spritePresenter.SetPixelPos(1152 + 160,832 + 112);
                 //_spritePresenter.SetPixelPos(1152, 832);
 
-                _viewportService.GetViewport().RefreshCoord(1152, 832);
+                // map1 , sprite2
+                //_viewportService.GetViewport().RefreshCoord(1152, 832);
                 //_viewportService.GetViewport().RefreshCoord(1184, 176);
                 //_viewportService.GetViewport().RefreshCoord(1120, 1344);
+                
+                if(_spritePresenter != null)
+                {
+                    // @miao @todo,
+                    // 这里 sprite 的位置还是对不上!!
+                    int spriteOffsetPixelX = 160;
+                    int spriteOffsetPixelY = 112;
+                    int pixelX = viewportPixelX + spriteOffsetPixelX;
+                    int pixelY = viewportPixelY + spriteOffsetPixelY;
+
+                    //int frameWidth = _spritePresenter.GetCurrentSpriteFrame().W;
+                    //pixelX = pixelX - frameWidth / 2;
+                    int wLayer = 0;
+                    pixelY = pixelY + wLayer - 10;
+                        
+                    _spritePresenter.SetPixelPos(pixelX, pixelY);
+                }
             }
         }
 

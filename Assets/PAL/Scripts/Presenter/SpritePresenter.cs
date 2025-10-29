@@ -37,6 +37,12 @@ namespace ayy.pal
         
         }
 
+        public PALSpriteFrame GetCurrentSpriteFrame()
+        {
+            PALSpriteFrame frame = _sprite.GetFrame(_frameIndex);
+            return frame;
+        }
+
         public void SwitchSpriteFrame(int spriteIndex,int frameIndex)
         {
             if (_spriteIndex != spriteIndex)
