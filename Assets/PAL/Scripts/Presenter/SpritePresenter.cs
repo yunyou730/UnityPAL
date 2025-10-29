@@ -68,9 +68,20 @@ namespace ayy.pal
             }
         }
 
+        /*
+         * 传进来的 像素坐标 pixelX,pixelY
+         * 要想绘制和游戏逻辑一致, 需要偏移 w/2,h/2
+         * 游戏里的数据, 都是在描述 sprite pivot在 (0.5,0.5) 的像素坐标
+         */
         public void SetPixelPos(int pixelX, int pixelY)
         {
+            int pixelWidth = GetCurrentSpriteFrame().W;
+            int pixelHeight = GetCurrentSpriteFrame().H;
+            
+            pixelX = pixelX + pixelWidth / 2;
+            pixelY = pixelY + pixelHeight / 2;
             Vector2 pos = Metrics.ConvertPixelPosToUnitPos(pixelX, pixelY);
+            
             float originZ = transform.localPosition.z;
             transform.localPosition = new Vector3(pos.x, pos.y, originZ);
         }

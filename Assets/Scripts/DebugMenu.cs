@@ -1,3 +1,4 @@
+using System;
 using ayy.pal;
 using ayy.pal.core;
 using TMPro;
@@ -40,6 +41,10 @@ namespace ayy.debugging
         [Header("GamePlay")]
         [SerializeField] private Button _btnLoadDefaultGame;
         
+        [Header("Pos")]
+        [SerializeField] private TMP_InputField _inputFieldPos;
+        [SerializeField] private Button _btnSetPos;
+        
         private Texture2D[] _spriteFrames;
         
         private MapService _mapService = null;
@@ -59,6 +64,7 @@ namespace ayy.debugging
             InitDebugPlayerSprite();
             InitForSpawnSprite();
             _btnLoadDefaultGame.onClick.AddListener(LoadDefaultGame);
+            _btnSetPos.onClick.AddListener(SetTestPos);
         }
 
         private void Update()
@@ -165,36 +171,18 @@ namespace ayy.debugging
             {
                 _spritePresenter.SwitchNextFrame();
             }
-
-            //if (Input.GetKeyDown(KeyCode.L) && _spritePresenter != null)
+            
             if (Input.GetKeyDown(KeyCode.L))
             {
                 int viewportPixelX = 1152;
                 int viewportPixelY = 832;
                 _viewportService.GetViewport().RefreshCoord(viewportPixelX, viewportPixelY);
-                
-                //_spritePresenter.SetPixelPos(1152 + 160,832 + 112);
-                //_spritePresenter.SetPixelPos(1152, 832);
-
-                // map1 , sprite2
-                //_viewportService.GetViewport().RefreshCoord(1152, 832);
-                //_viewportService.GetViewport().RefreshCoord(1184, 176);
-                //_viewportService.GetViewport().RefreshCoord(1120, 1344);
-                
                 if(_spritePresenter != null)
                 {
-                    // @miao @todo,
-                    // 这里 sprite 的位置还是对不上!!
-                    int spriteOffsetPixelX = 160;
-                    int spriteOffsetPixelY = 112;
+                    int spriteOffsetPixelX = 149;
+                    int spriteOffsetPixelY = 66;
                     int pixelX = viewportPixelX + spriteOffsetPixelX;
                     int pixelY = viewportPixelY + spriteOffsetPixelY;
-
-                    //int frameWidth = _spritePresenter.GetCurrentSpriteFrame().W;
-                    //pixelX = pixelX - frameWidth / 2;
-                    int wLayer = 0;
-                    pixelY = pixelY + wLayer - 10;
-                        
                     _spritePresenter.SetPixelPos(pixelX, pixelY);
                 }
             }
@@ -361,6 +349,31 @@ namespace ayy.debugging
         {
             Debug.Log("Load Default Game");
             PalGame.GetInstance().GetService<LoadGameService>().LoadDefaultGame();
+        }
+
+        private void SetTestPos()
+        {
+            try
+            {
+                string str = _inputFieldPos.text;
+                string[] strs = str.Split(",");
+                int viewportX = int.Parse(strs[0]);
+                int viewportY = int.Parse(strs[1]);
+                int partyOffsetX = int.Parse(strs[2]);
+                int partyOffsetY = int.Parse(strs[3]);
+                
+                _viewportService.GetViewport().RefreshCoord(viewportX, viewportY);
+                if (_spritePresenter != null)
+                {
+                    int px = viewportX + partyOffsetX;
+                    int py = viewportY + partyOffsetY;
+                    _spritePresenter.SetPixelPos(px, py);
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning(e);
+            }
         }
     }
 }

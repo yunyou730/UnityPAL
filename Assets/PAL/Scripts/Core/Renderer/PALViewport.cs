@@ -34,15 +34,16 @@ namespace ayy.pal
          * 这个函数, 约等于就是, pixelX 和 pixelY ,
          * 转换为 unity 坐标.
          *
-         * 锚点在左上角,为 (0,0) ,pixelY越大,则越往下; pixelX越大, 则越往右
-         * 具体坐标转换再品一品
+         * 锚点在中心 pivot(0.5,0.5) ,pixelY越大,则越往下; pixelX越大, 则越往右;
+         * 游戏里存档 和运行时描述的坐标 gpGlobals->viewport.x or gpGlobals->viewport.y
+         * 实际上描述的,是 viewport 的中心坐标
          */
         public void RefreshCoord(int pixelX,int pixelY)
         {
+            pixelX = pixelX + Metrics.kViewportSize.x / 2;
+            pixelY = pixelY + Metrics.kViewportSize.y / 2;
             float x = Metrics.ConvertPixelsToUnit(pixelX);
             float y = -Metrics.ConvertPixelsToUnit(pixelY);
-            x += _width * 0.5f;
-            y -= _height * 0.5f;
             transform.localPosition = new Vector3(x, y, _z);
         }
     }
