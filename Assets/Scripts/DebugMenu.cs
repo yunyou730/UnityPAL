@@ -19,7 +19,6 @@ namespace ayy.debugging
         [SerializeField] private GameObject _mapSpriteFramePrefab;
         
         [Header("Sprite")]
-        [SerializeField] private Button _btnLoadSprite;
         [SerializeField] private TMP_Dropdown _dropdownSprite;
         [SerializeField] private GameObject _spriteFramesHolder;
         [SerializeField] private GameObject _spriteSheetHolder;
@@ -215,8 +214,14 @@ namespace ayy.debugging
 
         private void InitDebugPlayerSprite()
         {
-            _btnLoadSprite.onClick.AddListener(LoadAllSprites);
             _dropdownSprite.onValueChanged.AddListener(OnClickSwitchSprite);
+            
+            int cnt = _spriteService.GetSpriteCount();
+            _dropdownSprite.ClearOptions();
+            for (int i = 0;i < cnt;i++)
+            {
+                _dropdownSprite.options.Add(new TMP_Dropdown.OptionData($"sprite[{i}]"));
+            }
         }
 
         private void InitForSpawnSprite()
@@ -245,15 +250,6 @@ namespace ayy.debugging
 
         private void LoadMapWithSingleDrawCall(int mapIndex)
         {
-            // if (_mapPresenter == null)
-            // {
-            //     _mapPresenter = GameObject.Instantiate(_mapPresenterPrefab).GetComponent<MapPresenter>();
-            // }
-            // else
-            // {
-            //     _mapPresenter.Unload();
-            // }
-
             _mapPresenter = _gameplayService.GetMapPresenter();
             _mapPresenter.Unload();
             _mapPresenter.Load(mapIndex);
