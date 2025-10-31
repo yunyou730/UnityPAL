@@ -49,6 +49,7 @@
     <Compile Include="Assets/PAL/Scripts/Services/MapService.cs" />
     <Compile Include="Assets/PAL/Scripts/Core/Renderer/Renderer.cs" />
     <Compile Include="Assets/PAL/Scripts/Core/Renderer/Metrics.cs" />
+    <Compile Include="Assets/PAL/Scripts/Services/Gameplay/PALSpriteEntity.cs" />
     <Compile Include="Assets/PAL/Scripts/Core/Renderer/PALViewport.cs" />
     <Compile Include="Assets/PAL/Scripts/Services/ViewportService.cs" />
     <Compile Include="Assets/PAL/Scripts/Services/ServiceType.cs" />
@@ -65,6 +66,7 @@
     <Compile Include="Assets/PAL/Scripts/Presenter/MapPresenter.cs" />
     <Compile Include="Assets/Scripts/SpriteTextureHelper.cs" />
     <Compile Include="Assets/PAL/Scripts/Services/PaletteService.cs" />
+    <Compile Include="Assets/PAL/Scripts/Services/Gameplay/PALGameplayService.cs" />
     <Compile Include="Assets/PAL/Scripts/Entry/Test.cs" />
     <Compile Include="Assets/PAL/Scripts/Entry/PalGame.cs" />
     <Compile Include="Assets/PAL/Scripts/Presenter/SpritePresenter.cs" />

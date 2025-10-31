@@ -8,6 +8,8 @@ namespace ayy.pal
     public class PalGame : MonoBehaviour
     {
         [SerializeField] private GameObject _viewportPrefab = null;
+        [SerializeField] private GameObject _spritePresenterPrefab = null;
+        [SerializeField] private GameObject _mapPresenterPrefab = null;
         
         private static PalGame sInstance = null;
         Dictionary<Type,Service> _services = new Dictionary<Type, Service>();
@@ -26,6 +28,7 @@ namespace ayy.pal
             AddService<GameStateDataService>(new GameStateDataService());
             AddService<TestStateDataService>(new TestStateDataService());
             AddService<LoadGameService>(new LoadGameService());
+            AddService<PALGameplayService>(new PALGameplayService());
             
             foreach (var service in _initializables)
             {
@@ -88,7 +91,16 @@ namespace ayy.pal
                 _destroyables.Add((IDestroyable)service);
             }
         }
-    }
 
+        public GameObject GetSpritePrefab()
+        {
+            return _spritePresenterPrefab;
+        }
+
+        public GameObject GetMapPrefab()
+        {
+            return _mapPresenterPrefab;
+        }
+    }
 }
 

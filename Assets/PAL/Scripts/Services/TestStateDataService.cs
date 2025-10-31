@@ -9,14 +9,14 @@ namespace ayy.pal
         private List<Party> _parties = null;
         public void Init()
         {
-            _parties = new List<Party>();
+            //_parties = new List<Party>();
             
-            var party = new Party();
-            party.RoleId = 0;
-            party.CoordX = 160;
-            party.CoordY = 112;
-            party.FrameIndex = 6;
-            party.FrameOffset = 0;
+            // var party = new Party();
+            // party.RoleId = 0;
+            // party.CoordX = 160;
+            // party.CoordY = 112;
+            // party.FrameIndex = 6;
+            // party.FrameOffset = 0;
         }
 
         public void Destroy()

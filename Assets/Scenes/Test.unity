@@ -164,6 +164,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _viewportPrefab: {fileID: 9212746750595573026, guid: 8c82c7cfba2af4d1588b4c843ade6e5b, type: 3}
+  _spritePresenterPrefab: {fileID: 5436830784805705322, guid: 4d7ab906a0ecd4dd28c11cc9462c2c17, type: 3}
+  _mapPresenterPrefab: {fileID: 3685476695924142169, guid: 945cf864db191455c87e9ca2e84a5521, type: 3}
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0

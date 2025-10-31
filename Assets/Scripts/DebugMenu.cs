@@ -10,12 +10,10 @@ namespace ayy.debugging
     public class DebugMenu : MonoBehaviour
     {
         [Header("Palette")]
-        [SerializeField] private Button _btnLoadPalette;
         [SerializeField] private TMP_Dropdown _dropdownPalette;
         [SerializeField] private GameObject _paletteTextureHolder;
         
         [Header("Map")]
-        [SerializeField] private Button _btnLoadMap;
         [SerializeField] private TMP_Dropdown _dropdownMap;
         [SerializeField] private Button _btnToggleMapTileInfo;
         [SerializeField] private GameObject _mapSpriteFramePrefab;
@@ -51,6 +49,7 @@ namespace ayy.debugging
         private PaletteService _paletteService = null;
         private SpriteService _spriteService = null;
         private ViewportService _viewportService = null;
+        private PALGameplayService _gameplayService = null;
         
         void Start()
         {
@@ -58,6 +57,7 @@ namespace ayy.debugging
             _paletteService = PalGame.GetInstance().GetService<PaletteService>();
             _spriteService = PalGame.GetInstance().GetService<SpriteService>();
             _viewportService = PalGame.GetInstance().GetService<ViewportService>();
+            _gameplayService = PalGame.GetInstance().GetService<PALGameplayService>();
             
             InitDebugPalette();
             InitDebugMap();
@@ -190,20 +190,27 @@ namespace ayy.debugging
 
         private void InitDebugPalette()
         {
-            _btnLoadPalette.onClick.AddListener(OnClickLoadPalette);
             _dropdownPalette.onValueChanged.AddListener(OnClickPalette);
             _dropdownPalette.options.Clear();
-            
+            int cnt = _paletteService.GetPaletteCount();
+            for (int i = 0;i < cnt;i++)
+            {
+                _dropdownPalette.options.Add(new TMP_Dropdown.OptionData($"palette_[{i}]"));
+            }
             var mat = _paletteTextureHolder.GetComponent<MeshRenderer>().material;
             mat.SetTexture(Shader.PropertyToID("_Texture2D"), _paletteService.GetPaletteTexture());
         }
 
         private void InitDebugMap()
         {
-            _btnLoadMap.onClick.AddListener(OnClickLoadAllMaps);
             _btnToggleMapTileInfo.onClick.AddListener(OnClickToggleMapTileInfo);
             _dropdownMap.onValueChanged.AddListener(OnClickSwitchMap);
             _dropdownMap.options.Clear();
+            int mapCnt = _mapService.GetMapWrapper().GetMapCount();
+            for (int i = 0; i < mapCnt; i++)
+            {
+                _dropdownMap.options.Add(new TMP_Dropdown.OptionData($"map_{i}"));
+            }
         }
 
         private void InitDebugPlayerSprite()
@@ -217,36 +224,10 @@ namespace ayy.debugging
             
         }
 
-        private void OnClickLoadPalette()
-        {
-            Debug.Log("Load All Palettes");
-            _dropdownPalette.options.Clear();
-            int cnt = _paletteService.GetPaletteCount();
-            for (int i = 0;i < cnt;i++)
-            {
-                _dropdownPalette.options.Add(new TMP_Dropdown.OptionData($"palette_[{i}]"));
-            }
-            _dropdownPalette.value = 0;
-            _dropdownPalette.onValueChanged.Invoke(0);
-        }
-
         private void OnClickPalette(int index)
         {
             Debug.Log($"Load Palette {index}");
             _paletteService.LoadPalette(index,false);
-        }
-
-        private void OnClickLoadAllMaps()
-        {
-            Debug.Log("Load All Maps");
-            int mapCnt = _mapService.GetMapWrapper().GetMapCount();
-            _dropdownMap.options.Clear();
-            for (int i = 0; i < mapCnt; i++)
-            {
-                _dropdownMap.options.Add(new TMP_Dropdown.OptionData($"map_{i}"));
-            }
-            _dropdownMap.value = 0;
-            _dropdownMap.onValueChanged.Invoke(0);
         }
 
         private void OnClickToggleMapTileInfo()
@@ -264,19 +245,20 @@ namespace ayy.debugging
 
         private void LoadMapWithSingleDrawCall(int mapIndex)
         {
-            if (_mapPresenter == null)
-            {
-                _mapPresenter = GameObject.Instantiate(_mapPresenterPrefab).GetComponent<MapPresenter>();
-            }
-            else
-            {
-                _mapPresenter.Unload();
-            }
+            // if (_mapPresenter == null)
+            // {
+            //     _mapPresenter = GameObject.Instantiate(_mapPresenterPrefab).GetComponent<MapPresenter>();
+            // }
+            // else
+            // {
+            //     _mapPresenter.Unload();
+            // }
 
+            _mapPresenter = _gameplayService.GetMapPresenter();
+            _mapPresenter.Unload();
             _mapPresenter.Load(mapIndex);
         }
         
-
         private void LoadAllSprites()
         {
             int cnt = _spriteService.GetSpriteCount();
