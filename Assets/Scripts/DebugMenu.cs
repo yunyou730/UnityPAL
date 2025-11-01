@@ -11,7 +11,6 @@ namespace ayy.debugging
     {
         [Header("Palette")]
         [SerializeField] private TMP_Dropdown _dropdownPalette;
-        [SerializeField] private GameObject _paletteTextureHolder;
         
         [Header("Map")]
         [SerializeField] private TMP_Dropdown _dropdownMap;
@@ -195,8 +194,8 @@ namespace ayy.debugging
             {
                 _dropdownPalette.options.Add(new TMP_Dropdown.OptionData($"palette_[{i}]"));
             }
-            var mat = _paletteTextureHolder.GetComponent<MeshRenderer>().material;
-            mat.SetTexture(Shader.PropertyToID("_Texture2D"), _paletteService.GetPaletteTexture());
+            // var mat = _paletteTextureHolder.GetComponent<MeshRenderer>().material;
+            // mat.SetTexture(Shader.PropertyToID("_Texture2D"), _paletteService.GetPaletteTexture());
         }
 
         private void InitDebugMap()
@@ -230,7 +229,6 @@ namespace ayy.debugging
 
         private void OnClickPalette(int index)
         {
-            Debug.Log($"Load Palette {index}");
             _paletteService.LoadPalette(index,false);
         }
 

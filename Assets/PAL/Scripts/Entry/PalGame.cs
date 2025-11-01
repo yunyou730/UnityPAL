@@ -10,6 +10,7 @@ namespace ayy.pal
         [SerializeField] private GameObject _viewportPrefab = null;
         [SerializeField] private GameObject _spritePresenterPrefab = null;
         [SerializeField] private GameObject _mapPresenterPrefab = null;
+        [SerializeField] private GameObject _paletteDebugQuadPrefab = null;
         
         private static PalGame sInstance = null;
         Dictionary<Type,Service> _services = new Dictionary<Type, Service>();
@@ -21,7 +22,7 @@ namespace ayy.pal
         void Awake()
         {
             sInstance = this;
-            AddService<PaletteService>(new PaletteService());
+            AddService<PaletteService>(new PaletteService(_paletteDebugQuadPrefab));
             AddService<MapService>(new MapService());
             AddService<SpriteService>(new SpriteService());
             AddService<ViewportService>(new ViewportService(_viewportPrefab));

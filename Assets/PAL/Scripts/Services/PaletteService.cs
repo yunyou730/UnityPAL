@@ -8,20 +8,41 @@ namespace ayy.pal
         private Palette _palette = null;
         private Texture2D _texture = null;      // 16 x 16. 左下角[0], 右上角 [255]
         private PaletteColor[] _paletteColors = null;
+        private GameObject _debugQuad = null;
 
         private static int PALETTE_COLOR_COUNT = 256;
         private static int PALETTE_TEXTURE_SIDE_SIZE = 16;
         
+        public PaletteService(GameObject debugQuadPrefab)
+        {
+            if (debugQuadPrefab != null)
+            {
+                _debugQuad = GameObject.Instantiate(debugQuadPrefab);
+                _debugQuad.name = "[PAL] palette info quad";
+                var mat = _debugQuad.GetComponent<MeshRenderer>().material;
+                mat.SetTexture(Shader.PropertyToID("_Texture2D"), GetPaletteTexture());  
+            }
+        }
+
         public void Init()
         {
             _palette = new Palette();
             _palette.Load();
             _texture = CreatePaletteTexture();
+            if (_debugQuad != null)
+            {
+                var mat = _debugQuad.GetComponent<MeshRenderer>().material;
+                mat.SetTexture(Shader.PropertyToID("_Texture2D"), GetPaletteTexture());  
+            }
         }
 
         public void Destroy()
         {
-
+            if (_texture != null)
+            {
+                GameObject.Destroy(_texture);
+                _texture = null;
+            }
         }
 
         public void LoadPalette(int index,bool isNight)
@@ -66,6 +87,15 @@ namespace ayy.pal
             var tex = new Texture2D(PALETTE_TEXTURE_SIDE_SIZE, PALETTE_TEXTURE_SIDE_SIZE);
             tex.filterMode = FilterMode.Point;
             return tex;
+        }
+
+        private void RefreshDebugQuad()
+        {
+            if (_debugQuad != null)
+            {
+                              
+            }
+
         }
     }
 }
