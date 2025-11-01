@@ -15,15 +15,17 @@ namespace ayy.pal
      */
     public class SpriteEntity : IDisposable
     {
-        public int ID = 0;  // 作为 map的 key, 来管理 sprite
+        public int Key = 0;  // 作为 map的 key, 来管理 sprite
         public SpritePresenter _spritePresenter = null;    // 展示 sprite frame
         public int _pixelX = 0;
         public int _pixelY = 0;
         public int _logicalLayer = 0;
+        private int _spriteId = 0;
 
-        public SpriteEntity(int id,int spriteId)
+        public SpriteEntity(int key,int spriteId)
         {
-            ID = id;
+            Key = key;
+            _spriteId = spriteId;
             var prefab = PalGame.GetInstance().GetSpritePrefab();
             _spritePresenter = GameObject.Instantiate(prefab).GetComponent<SpritePresenter>();
             _spritePresenter.SwitchSpriteFrame(spriteId,0);
@@ -38,9 +40,10 @@ namespace ayy.pal
             }
         }
 
-        public void SwitchFrame(int frameIndex)
+        public PALSpriteFrame SwitchFrame(int frameIndex)
         {
-            
+            _spritePresenter.SwitchSpriteFrame(_spriteId,frameIndex);
+            return _spritePresenter.GetCurrentSpriteFrame();
         }
 
         public void SetPixelPosition(int pixelX, int pixelY)
@@ -54,6 +57,16 @@ namespace ayy.pal
             _logicalLayer = logicalLayer;
         }
 
+        public void ApplyPixelPos(int viewportPixelX, int viewportPixelY)
+        {
+            PALSpriteFrame frame = _spritePresenter.GetCurrentSpriteFrame();
+            int ox = _pixelX;
+            int oy = _pixelY - frame.H - _logicalLayer;
+
+            int x = viewportPixelX + ox;
+            int y = viewportPixelY + oy;
+            _spritePresenter.SetPixelPos(x,y);
+        }
     }
 }
 

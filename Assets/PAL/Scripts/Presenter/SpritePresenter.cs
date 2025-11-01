@@ -21,21 +21,7 @@ namespace ayy.pal
             _meshRenderer = GetComponent<MeshRenderer>();
             _material = _meshRenderer.material;
         }
-
-        void Start()
-        {
-            
-        }
-
-        void OnDestroy()
-        {
-            
-        }
-
-        void Update()
-        {
         
-        }
 
         public PALSpriteFrame GetCurrentSpriteFrame()
         {

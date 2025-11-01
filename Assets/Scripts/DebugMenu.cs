@@ -26,7 +26,6 @@ namespace ayy.debugging
         private SpritePresenter _spritePresenter = null;
         
         [Header("Map")]
-        [SerializeField] private GameObject _mapPresenterPrefab;
         private MapPresenter _mapPresenter = null;
         
         [Header("Camera")]
@@ -237,6 +236,10 @@ namespace ayy.debugging
 
         private void OnClickToggleMapTileInfo()
         {
+            if (_mapPresenter == null)
+            {
+                _mapPresenter = _gameplayService.GetMapPresenter();
+            }
             if (_mapPresenter != null)
             {
                 _mapPresenter.ToggleDebugTileInfo();

@@ -25,11 +25,6 @@ namespace ayy.pal
             
         }
 
-        // public void RefreshCoord(int pixelX, int pixelY)
-        // {
-        //     _palViewport.RefreshCoord(pixelX, pixelY);
-        // }
-
         public PALViewport GetViewport()
         {
             return _palViewport;

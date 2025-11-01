@@ -14,9 +14,9 @@ namespace ayy.pal
         public static int MAX_PLAYER_ROLE = 5;              // 最多有多少个主角
         
         // 坐标信息
-        public Vector2Int Viewport = Vector2Int.zero;       // 原游戏里,相机的坐标.应该是以像素为单位
-        public Vector2Int PartyOffset = Vector2Int.zero;    // 原游戏里,用于表示 主角和viewport 的坐标偏移?应该是以像素为单位
-        public int AtLayer = 0;                             // 原游戏里的 wLayer, 猜测和 主角所处的 map 哪个layer 有关. 每个 map 有 0,1 两层
+        public int ViewportX = 0;   // 原游戏里,相机的坐标.以像素为单位
+        public int ViewportY = 0;
+        public int AtLayer = 0;     // 原游戏里的 wLayer, 猜测和 主角所处的 map 哪个layer 有关. 每个 map 有 0,1 两层
         
         // 队伍信息
         public int MaxPartyMemberIndex = 0;   // 当前最大有效的 player index, 取值范围 [0,MAX_PLAYERS_IN_PARTY)
@@ -55,17 +55,15 @@ namespace ayy.pal
             parties[2] = new Party(0,192,96,0);
             parties[3] = new Party(0,208,88,0);
             parties[4] = new Party(0,224,80,0);
+            
+            // 逻辑相机视口像素坐标
+            ViewportX = 1152;
+            ViewportY = 832;
         }
 
         public void Destroy()
         {
             
-        }
-
-        public void SetDebugCoord(Vector2Int viewportCoord,Vector2Int partyOffset)
-        {
-            Viewport = viewportCoord;
-            PartyOffset = partyOffset;
         }
 
         public int GetSpriteIdByRoleId(int roleId)
@@ -91,16 +89,16 @@ namespace ayy.pal
     public class Party
     {
         public int RoleId = 0;  // player role
-        public int CoordX = 0;  // position
-        public int CoordY = 0;  
+        public int PixelX = 0;  // position
+        public int PixelY = 0;  
         public int FrameIndex = 6;  // current frame number
         public int FrameOffset = 0; // 原版注释: FIXME?? 所以猜测没用上
 
-        public Party(int roleId,int coordX,int coordY,int frameIndex)
+        public Party(int roleId,int pixelX,int pixelY,int frameIndex)
         {
             RoleId = roleId;
-            CoordX = coordX;
-            CoordY = coordY;
+            PixelX = pixelX;
+            PixelY = pixelY;
             FrameIndex = frameIndex;
         }
     }
