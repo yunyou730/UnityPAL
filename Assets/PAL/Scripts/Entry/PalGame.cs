@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 namespace ayy.pal
@@ -18,7 +17,8 @@ namespace ayy.pal
         List<IInitializable> _initializables = new List<IInitializable>();
         List<IUpdateable> _updateables = new List<IUpdateable>();
         List<IDestroyable> _destroyables = new List<IDestroyable>();
-
+        
+        
         void Awake()
         {
             sInstance = this;
@@ -29,7 +29,11 @@ namespace ayy.pal
             AddService<GameStateDataService>(new GameStateDataService());
             AddService<TestStateDataService>(new TestStateDataService());
             AddService<LoadGameService>(new LoadGameService());
+            
+            AddService<SpriteEntityManager>(new SpriteEntityManager());
+            AddService<MapEntityManager>(new MapEntityManager());
             AddService<PALGameplayService>(new PALGameplayService());
+            
             
             foreach (var service in _initializables)
             {
@@ -44,10 +48,6 @@ namespace ayy.pal
                 service.Destroy();
             }
             sInstance = null;
-        }
-
-        void Start()
-        {
         }
         
         void Update()
@@ -80,7 +80,8 @@ namespace ayy.pal
 
             if(service is IInitializable)
             {
-                _initializables.Add((IInitializable)service);
+                IInitializable tmp = service as IInitializable;
+                _initializables.Add(tmp);
             }
             if (service is IUpdateable)
             {
@@ -102,6 +103,7 @@ namespace ayy.pal
         {
             return _mapPresenterPrefab;
         }
+        
     }
 }
 

@@ -42,6 +42,11 @@ namespace ayy.pal
         
         }
 
+        public int GetMapIndex()
+        {
+            return _mapIndex;
+        }
+
         public void Load(int mapIndex)
         {
             _mapIndex = mapIndex;

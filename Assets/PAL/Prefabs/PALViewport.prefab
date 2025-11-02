@@ -122,3 +122,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e61bb48cf15442c2a19a765bc072eb9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _colorVisible: {r: 0, g: 0.4, b: 1, a: 0.3}
+  _colorInvisible: {r: 0, g: 0.4, b: 1, a: 0}

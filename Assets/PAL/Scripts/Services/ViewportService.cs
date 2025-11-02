@@ -17,19 +17,32 @@ namespace ayy.pal
         public void Init()
         {
             _palViewport = GameObject.Instantiate(_prefab).GetComponent<PALViewport>();
-            _palViewport.name = "[PAL-Viewport]";
+            _palViewport.name = "[PAL]Viewport";
         }
 
         public void Destroy()
         {
-            
+            if (_palViewport != null)
+            {
+                GameObject.Destroy(_palViewport.gameObject);
+                _palViewport = null;                
+            }
+        }
+        
+        public void ToggleVisible()
+        {
+            GetViewport().ToggleVisible();
         }
 
-        public PALViewport GetViewport()
+        public void SetPixelCoord(int viewportX, int viewportY)
+        {
+            GetViewport().RefreshCoord(viewportX, viewportY);
+        }
+
+        private PALViewport GetViewport()
         {
             return _palViewport;
         }
-
     }
 }
 

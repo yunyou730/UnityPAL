@@ -4,6 +4,7 @@ namespace ayy.pal
 {
     public class Service
     {
+        
     }    
 }
 

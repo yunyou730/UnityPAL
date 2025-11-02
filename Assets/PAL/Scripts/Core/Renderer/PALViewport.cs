@@ -10,7 +10,12 @@ namespace ayy.pal
         private float _width = 0f;
         private float _height = 0f;
         private float _z = -5.0f;
+        
+        private bool _visible = false;
 
+        [SerializeField] private Color _colorVisible = new Color(0.0f, 0.4f, 0.1f, 0.3f);
+        [SerializeField] private Color _colorInvisible = new Color(0.0f, 0.4f, 0.1f, 0.0f);
+        
         void Awake()
         {
             _mesh = GetComponent<MeshFilter>().mesh;
@@ -23,11 +28,7 @@ namespace ayy.pal
             _height = Metrics.ConvertPixelsToUnit(Metrics.kViewportSize.y);
             transform.localScale = new Vector3(_width, _height, 1.0f);
             RefreshCoord(0, 0);
-        }
-        
-        void Update()
-        {
-            
+            RefreshVisibility();
         }
         
         /*
@@ -45,6 +46,18 @@ namespace ayy.pal
             float x = Metrics.ConvertPixelsToUnit(pixelX);
             float y = -Metrics.ConvertPixelsToUnit(pixelY);
             transform.localPosition = new Vector3(x, y, _z);
+        }
+
+        public void ToggleVisible()
+        {
+            _visible = !_visible;
+            RefreshVisibility();
+        }
+
+        private void RefreshVisibility()
+        {
+            Color col = _visible ? _colorVisible : _colorInvisible;
+            _material.SetColor(Shader.PropertyToID("_Color"), col);
         }
     }
     

@@ -10,13 +10,6 @@ namespace ayy.pal
      */
     public class PALGameplayService : Service,IInitializable,IDestroyable,IUpdateable
     {
-        // 管理所有 加载过的 SpriteEntity
-        private int _nextSpriteEntityKey = 1;
-        private Dictionary<int,SpriteEntity> _spriteEntitiesMap = new Dictionary<int,SpriteEntity>();
-        
-        // 管理 地图 MapPresenter
-        private MapPresenter _mapPresenter = null;
-        
         // 主角所对应的 SpriteEntities
         private List<int> _partySpriteEntityKeys = new List<int>();
         
@@ -27,12 +20,17 @@ namespace ayy.pal
         private GameStateDataService _gameStateDataService = null;
         private PaletteService _paletteService = null;
         private ViewportService _viewportService = null;
+        
+        private SpriteEntityManager _spriteEntityManager = null;
+        private MapEntityManager _mapEntityManager = null;
 
         public void Init()
         {
             _gameStateDataService = PalGame.GetInstance().GetService<GameStateDataService>();
             _paletteService = PalGame.GetInstance().GetService<PaletteService>();
             _viewportService = PalGame.GetInstance().GetService<ViewportService>();
+            _spriteEntityManager = PalGame.GetInstance().GetService<SpriteEntityManager>();
+            _mapEntityManager = PalGame.GetInstance().GetService<MapEntityManager>();
             
             LoadPalette();
             CreateMapEntity();
@@ -41,33 +39,12 @@ namespace ayy.pal
 
         public void Destroy()
         {
-            // cleanup sprites
-            if (_spriteEntitiesMap != null)
-            {
-                foreach (var spriteEntity in _spriteEntitiesMap.Values)
-                {
-                    spriteEntity.Dispose();
-                }
-                _spriteEntitiesMap.Clear();
-            }
-            
-            // cleanup map
-            if (_mapPresenter != null)
-            {
-                GameObject.Destroy(_mapPresenter.gameObject);
-                _mapPresenter = null;
-            }
         }
 
         public void Update()
         {
             UpdateViewport();
             UpdateSpriteEntities();
-        }
-
-        public MapPresenter GetMapPresenter()
-        {
-            return _mapPresenter;
         }
         
         private void LoadPalette()
@@ -80,14 +57,7 @@ namespace ayy.pal
         private void CreateMapEntity()
         {
             int mapId = _gameStateDataService.SceneId;
-            if (_mapPresenter == null)
-            {
-                var mapPrefab = PalGame.GetInstance().GetMapPrefab();
-                var mapGameObject = GameObject.Instantiate(mapPrefab);
-                mapGameObject.name = $"[PAL]map:{mapId}";
-                _mapPresenter = mapGameObject.GetComponent<MapPresenter>();
-                _mapPresenter.Load(mapId);
-            }
+            _mapEntityManager.SwitchMapById(mapId);
         }
 
         private void CreatePartySpriteEntities()
@@ -99,26 +69,18 @@ namespace ayy.pal
                 Party party = _gameStateDataService.GetPlayerParty(i);
                 int roleId = party.RoleId;
                 int spriteId = _gameStateDataService.GetSpriteIdByRoleId(roleId);
-                var spriteEntity = CreateSpriteEntity(spriteId);
-                _spriteEntitiesMap.Add(spriteEntity.Key, spriteEntity);
+                var spriteEntityKey = _spriteEntityManager.CreateSpriteEntity(spriteId);
                 
                 // 记录 主角Party 和 SpriteEntity 对应关系 
-                _partySpriteEntityKeys.Add(spriteEntity.Key);
+                _partySpriteEntityKeys.Add(spriteEntityKey);
             }
         }
-
-        private SpriteEntity CreateSpriteEntity(int spriteId)
-        {
-            int spriteEntityKey = _nextSpriteEntityKey++;
-            var spriteEntity = new SpriteEntity(spriteEntityKey,spriteId);
-            return spriteEntity;
-        }
-
+        
         private void UpdateViewport()
         {
             int viewportX = _gameStateDataService.ViewportX;
             int viewportY = _gameStateDataService.ViewportY;
-            _viewportService.GetViewport().RefreshCoord(viewportX, viewportY);
+            _viewportService.SetPixelCoord(viewportX, viewportY);
         }
 
         private void UpdateSpriteEntities()
@@ -130,7 +92,7 @@ namespace ayy.pal
             {
                 Party party = _gameStateDataService.GetPlayerParty(i);
                 int spriteEntityKey = _partySpriteEntityKeys[i];
-                var spriteEntity = _spriteEntitiesMap[spriteEntityKey];
+                var spriteEntity = _spriteEntityManager.GetSpriteEntity(spriteEntityKey);
                 int layer = _gameStateDataService.AtLayer;
 
                 PALSpriteFrame spriteFrame = spriteEntity.SwitchFrame(party.FrameIndex);

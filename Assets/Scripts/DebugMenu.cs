@@ -47,6 +47,7 @@ namespace ayy.debugging
         private SpriteService _spriteService = null;
         private ViewportService _viewportService = null;
         private PALGameplayService _gameplayService = null;
+        private MapEntityManager _mapEntityManager = null;
         
         void Start()
         {
@@ -55,6 +56,7 @@ namespace ayy.debugging
             _spriteService = PalGame.GetInstance().GetService<SpriteService>();
             _viewportService = PalGame.GetInstance().GetService<ViewportService>();
             _gameplayService = PalGame.GetInstance().GetService<PALGameplayService>();
+            _mapEntityManager = PalGame.GetInstance().GetService<MapEntityManager>();
             
             InitDebugPalette();
             InitDebugMap();
@@ -173,7 +175,7 @@ namespace ayy.debugging
             {
                 int viewportPixelX = 1152;
                 int viewportPixelY = 832;
-                _viewportService.GetViewport().RefreshCoord(viewportPixelX, viewportPixelY);
+                _viewportService.SetPixelCoord(viewportPixelX, viewportPixelY);
                 if(_spritePresenter != null)
                 {
                     int spriteOffsetPixelX = 149;
@@ -234,27 +236,15 @@ namespace ayy.debugging
 
         private void OnClickToggleMapTileInfo()
         {
-            if (_mapPresenter == null)
-            {
-                _mapPresenter = _gameplayService.GetMapPresenter();
-            }
-            if (_mapPresenter != null)
-            {
-                _mapPresenter.ToggleDebugTileInfo();
-            }
+            _viewportService.ToggleVisible();
+            _mapEntityManager.ToggleDisplayTileInfo();
         }
 
         private void OnClickSwitchMap(int mapIndex)
         {
-            LoadMapWithSingleDrawCall(mapIndex);
+            _mapEntityManager.SwitchMapById(mapIndex);
         }
-
-        private void LoadMapWithSingleDrawCall(int mapIndex)
-        {
-            _mapPresenter = _gameplayService.GetMapPresenter();
-            _mapPresenter.Unload();
-            _mapPresenter.Load(mapIndex);
-        }
+        
         
         private void LoadAllSprites()
         {
@@ -341,7 +331,7 @@ namespace ayy.debugging
                 int partyOffsetX = int.Parse(strs[2]);
                 int partyOffsetY = int.Parse(strs[3]);
                 
-                _viewportService.GetViewport().RefreshCoord(viewportX, viewportY);
+                _viewportService.SetPixelCoord(viewportX, viewportY);
                 if (_spritePresenter != null)
                 {
                     int px = viewportX + partyOffsetX;
