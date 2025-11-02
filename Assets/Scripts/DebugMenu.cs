@@ -14,7 +14,6 @@ namespace ayy.debugging
         
         [Header("Map")]
         [SerializeField] private TMP_Dropdown _dropdownMap;
-        [SerializeField] private Button _btnToggleMapTileInfo;
         [SerializeField] private GameObject _mapSpriteFramePrefab;
         
         [Header("Sprite")]
@@ -23,9 +22,6 @@ namespace ayy.debugging
         [SerializeField] private GameObject _spriteSheetHolder;
         [SerializeField] private GameObject _spritePresenterPrefab = null;
         private SpritePresenter _spritePresenter = null;
-        
-        [Header("Map")]
-        private MapPresenter _mapPresenter = null;
         
         [Header("Camera")]
         [SerializeField] private GameObject _cameraGO;
@@ -39,6 +35,12 @@ namespace ayy.debugging
         [Header("Pos")]
         [SerializeField] private TMP_InputField _inputFieldPos;
         [SerializeField] private Button _btnSetPos;
+
+        [Header("Debug")] 
+        [SerializeField] private Button _btnToggleMapTileInfo;
+        [SerializeField] private Button _btnToggleCtrlDebug;
+        private bool _enableMapTileDebug = false;
+        private bool _enableInputDebug = false;
         
         private Texture2D[] _spriteFrames;
         
@@ -46,7 +48,6 @@ namespace ayy.debugging
         private PaletteService _paletteService = null;
         private SpriteService _spriteService = null;
         private ViewportService _viewportService = null;
-        private PALGameplayService _gameplayService = null;
         private MapEntityManager _mapEntityManager = null;
         
         void Start()
@@ -55,23 +56,29 @@ namespace ayy.debugging
             _paletteService = PalGame.GetInstance().GetService<PaletteService>();
             _spriteService = PalGame.GetInstance().GetService<SpriteService>();
             _viewportService = PalGame.GetInstance().GetService<ViewportService>();
-            _gameplayService = PalGame.GetInstance().GetService<PALGameplayService>();
             _mapEntityManager = PalGame.GetInstance().GetService<MapEntityManager>();
             
             InitDebugPalette();
             InitDebugMap();
             InitDebugPlayerSprite();
-            InitForSpawnSprite();
             _btnLoadDefaultGame.onClick.AddListener(LoadDefaultGame);
             _btnSetPos.onClick.AddListener(SetTestPos);
+            
+            _btnToggleMapTileInfo.onClick.AddListener(OnClickToggleMapTileInfo);
+            _btnToggleCtrlDebug.onClick.AddListener(OnClickToggleCtrlDebug);
+            
+            ApplyDebugFlag();
         }
 
         private void Update()
         {
+            if (_enableInputDebug)
+            {
+                UpdateForSwitchMap();
+                UpdateForSwitchSprite();
+                UpdateForSwitchSpriteFrame();
+            }
             UpdateForMoveCamera();
-            UpdateForSwitchMap();
-            UpdateForSwitchSprite();
-            UpdateForSwitchSpriteFrame();
         }
 
         private void UpdateForMoveCamera()
@@ -196,13 +203,10 @@ namespace ayy.debugging
             {
                 _dropdownPalette.options.Add(new TMP_Dropdown.OptionData($"palette_[{i}]"));
             }
-            // var mat = _paletteTextureHolder.GetComponent<MeshRenderer>().material;
-            // mat.SetTexture(Shader.PropertyToID("_Texture2D"), _paletteService.GetPaletteTexture());
         }
 
         private void InitDebugMap()
         {
-            _btnToggleMapTileInfo.onClick.AddListener(OnClickToggleMapTileInfo);
             _dropdownMap.onValueChanged.AddListener(OnClickSwitchMap);
             _dropdownMap.options.Clear();
             int mapCnt = _mapService.GetMapWrapper().GetMapCount();
@@ -215,18 +219,12 @@ namespace ayy.debugging
         private void InitDebugPlayerSprite()
         {
             _dropdownSprite.onValueChanged.AddListener(OnClickSwitchSprite);
-            
             int cnt = _spriteService.GetSpriteCount();
             _dropdownSprite.ClearOptions();
             for (int i = 0;i < cnt;i++)
             {
                 _dropdownSprite.options.Add(new TMP_Dropdown.OptionData($"sprite[{i}]"));
             }
-        }
-
-        private void InitForSpawnSprite()
-        {
-            
         }
 
         private void OnClickPalette(int index)
@@ -236,8 +234,19 @@ namespace ayy.debugging
 
         private void OnClickToggleMapTileInfo()
         {
-            _viewportService.ToggleVisible();
-            _mapEntityManager.ToggleDisplayTileInfo();
+            _enableMapTileDebug = !_enableMapTileDebug;
+            ApplyDebugFlag();
+        }
+
+        private void OnClickToggleCtrlDebug()
+        {
+            _enableInputDebug = !_enableInputDebug;
+        }
+
+        private void ApplyDebugFlag()
+        {
+            _viewportService.ToggleVisible(_enableMapTileDebug);
+            _mapEntityManager.ToggleDisplayTileInfo(_enableMapTileDebug);
         }
 
         private void OnClickSwitchMap(int mapIndex)

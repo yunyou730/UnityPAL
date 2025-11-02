@@ -48,9 +48,9 @@ namespace ayy.pal
             transform.localPosition = new Vector3(x, y, _z);
         }
 
-        public void ToggleVisible()
+        public void ToggleVisible(bool visible)
         {
-            _visible = !_visible;
+            _visible = visible;
             RefreshVisibility();
         }
 

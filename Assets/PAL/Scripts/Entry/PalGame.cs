@@ -30,10 +30,11 @@ namespace ayy.pal
             AddService<TestStateDataService>(new TestStateDataService());
             AddService<LoadGameService>(new LoadGameService());
             
+            // gameplay
+            AddService<InputManager>(new InputManager());
             AddService<SpriteEntityManager>(new SpriteEntityManager());
             AddService<MapEntityManager>(new MapEntityManager());
             AddService<PALGameplayService>(new PALGameplayService());
-            
             
             foreach (var service in _initializables)
             {

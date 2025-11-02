@@ -14,8 +14,11 @@ namespace ayy.pal
         public static int MAX_PLAYER_ROLE = 5;              // 最多有多少个主角
         
         // 坐标信息
-        public int ViewportX = 0;   // 原游戏里,相机的坐标.以像素为单位
-        public int ViewportY = 0;
+        private int _viewportX = 0;
+        private int _viewportY = 0;
+        
+        public int ViewportX { get { return _viewportX; }}
+        public int ViewportY { get { return _viewportY; }}
         public int AtLayer = 0;     // 原游戏里的 wLayer, 猜测和 主角所处的 map 哪个layer 有关. 每个 map 有 0,1 两层
         
         // 队伍信息
@@ -57,13 +60,18 @@ namespace ayy.pal
             parties[4] = new Party(0,224,80,0);
             
             // 逻辑相机视口像素坐标
-            ViewportX = 1152;
-            ViewportY = 832;
+            SetViewportXY(1152,832);
         }
 
         public void Destroy()
         {
             
+        }
+
+        public void SetViewportXY(int viewportX, int viewportY)
+        {
+            _viewportX = viewportX;
+            _viewportY = viewportY;
         }
 
         public int GetSpriteIdByRoleId(int roleId)

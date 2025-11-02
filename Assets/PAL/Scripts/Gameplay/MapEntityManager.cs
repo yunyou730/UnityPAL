@@ -36,11 +36,11 @@ namespace ayy.pal
             }
         }
 
-        public void ToggleDisplayTileInfo()
+        public void ToggleDisplayTileInfo(bool display)
         {
             if (_mapPresenter != null)
             {
-                _mapPresenter.ToggleDebugTileInfo();   
+                _mapPresenter.ToggleDebugTileInfo(display);
             }
         }
     }

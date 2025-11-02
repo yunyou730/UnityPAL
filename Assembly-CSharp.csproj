@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets/PAL/Scripts/Services/MapService.cs" />
+    <Compile Include="Assets/PAL/Scripts/Gameplay/InputManager.cs" />
     <Compile Include="Assets/PAL/Scripts/Core/Renderer/Renderer.cs" />
     <Compile Include="Assets/PAL/Scripts/Core/Renderer/Metrics.cs" />
     <Compile Include="Assets/PAL/Scripts/Gameplay/SpriteEntityManager.cs" />

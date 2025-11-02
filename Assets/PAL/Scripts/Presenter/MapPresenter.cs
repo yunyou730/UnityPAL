@@ -84,9 +84,9 @@ namespace ayy.pal
             _mapService.UnloadCurrentMap();
         }
 
-        public void ToggleDebugTileInfo()
+        public void ToggleDebugTileInfo(bool display)
         {
-            _enableDebugTileInfo = !_enableDebugTileInfo;
+            _enableDebugTileInfo = display;
             _bottomLayerMaterial.SetFloat(Shader.PropertyToID("_EnableTileInfo"),_enableDebugTileInfo ? 1.0f : 0.0f);
             _topLayerMaterial.SetFloat(Shader.PropertyToID("_EnableTileInfo"),_enableDebugTileInfo ? 1.0f : 0.0f);
         }

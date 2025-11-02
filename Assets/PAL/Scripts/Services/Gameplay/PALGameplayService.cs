@@ -10,6 +10,9 @@ namespace ayy.pal
      */
     public class PALGameplayService : Service,IInitializable,IDestroyable,IUpdateable
     {
+        static private int kLogicFPS = 10;
+        private float _deltaTimeCounter = 0.0f;
+        
         // 主角所对应的 SpriteEntities
         private List<int> _partySpriteEntityKeys = new List<int>();
         
@@ -23,6 +26,7 @@ namespace ayy.pal
         
         private SpriteEntityManager _spriteEntityManager = null;
         private MapEntityManager _mapEntityManager = null;
+        private InputManager _inputManager = null;
 
         public void Init()
         {
@@ -31,6 +35,7 @@ namespace ayy.pal
             _viewportService = PalGame.GetInstance().GetService<ViewportService>();
             _spriteEntityManager = PalGame.GetInstance().GetService<SpriteEntityManager>();
             _mapEntityManager = PalGame.GetInstance().GetService<MapEntityManager>();
+            _inputManager = PalGame.GetInstance().GetService<InputManager>();
             
             LoadPalette();
             CreateMapEntity();
@@ -43,10 +48,29 @@ namespace ayy.pal
 
         public void Update()
         {
+            _deltaTimeCounter += Time.deltaTime;
+            if (_deltaTimeCounter > 1f / kLogicFPS)
+            {
+                _deltaTimeCounter -= 1f / kLogicFPS;
+                OnTick();
+            }
+            FrameRefresh();
+        }
+
+
+        private void OnTick()
+        {
+            // @miao @todo
+            _inputManager.ApplyInput();
+        }
+
+
+        private void FrameRefresh()
+        {
             UpdateViewport();
             UpdateSpriteEntities();
         }
-        
+
         private void LoadPalette()
         {
             int paletteId = _gameStateDataService.CurrentPaletteId;

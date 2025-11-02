@@ -29,9 +29,9 @@ namespace ayy.pal
             }
         }
         
-        public void ToggleVisible()
+        public void ToggleVisible(bool visible)
         {
-            GetViewport().ToggleVisible();
+            GetViewport().ToggleVisible(visible);
         }
 
         public void SetPixelCoord(int viewportX, int viewportY)
