@@ -5,17 +5,7 @@ namespace ayy.pal
 {
     public class InputManager : Service,IInitializable,IUpdateable,IDestroyable
     {
-        public enum EInputDir
-        {
-            South = 0,
-            West,
-            North,
-            East,
-            Unknown
-        }
-        
-        private EInputDir _inputDir = EInputDir.Unknown;
-
+        private EPALDirection _inputDir = EPALDirection.Unknown;
         private GameStateDataService _gameStateDataService = null;
 
         public void Init()
@@ -30,50 +20,29 @@ namespace ayy.pal
 
         public void Update()
         {
-            _inputDir = EInputDir.Unknown;
+            _inputDir = EPALDirection.Unknown;
             if (Input.GetKey(KeyCode.DownArrow))
             {
-                _inputDir = EInputDir.South;
+                _inputDir = EPALDirection.South;
             }
             if (Input.GetKey(KeyCode.LeftArrow))
             {
-                _inputDir = EInputDir.West;
+                _inputDir = EPALDirection.West;
             }
             if (Input.GetKey(KeyCode.UpArrow))
             {
-                _inputDir = EInputDir.North;
+                _inputDir = EPALDirection.North;
             }
             if (Input.GetKey(KeyCode.RightArrow))
             {
-                _inputDir = EInputDir.East;
+                _inputDir = EPALDirection.East;
             }
         }
         
         
-
-        public void ApplyInput()
+        public EPALDirection GetInputDir()
         {
-            ApplyMoveByDirection();
-        }
-
-
-        private void ApplyMoveByDirection()
-        {
-            if (_inputDir == EInputDir.Unknown)
-            {
-                return;
-            }
-            int xOffset = (_inputDir == EInputDir.West || _inputDir == EInputDir.South) ? -16 : 16;
-            int yOffset = ((_inputDir == EInputDir.West || _inputDir == EInputDir.North) ? -8 : 8);
-            
-            //int xSource = _gameStateDataService.ViewportX + _gameStateDataService.
-
-
-            int prevX = _gameStateDataService.ViewportX;
-            int prevY = _gameStateDataService.ViewportY;
-            int nextX = prevX + xOffset;
-            int nextY = prevY + yOffset;
-            _gameStateDataService.SetViewportXY(nextX, nextY);
+            return _inputDir;
         }
     }
 }

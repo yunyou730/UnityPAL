@@ -78,7 +78,10 @@ namespace ayy.debugging
                 UpdateForSwitchSprite();
                 UpdateForSwitchSpriteFrame();
             }
-            UpdateForMoveCamera();
+            else
+            {
+                UpdateForMoveCamera();                
+            }
         }
 
         private void UpdateForMoveCamera()

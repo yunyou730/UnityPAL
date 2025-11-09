@@ -61,8 +61,10 @@
     <Compile Include="Assets/PAL/Scripts/Core/BinDecoder/MKFLoader.cs" />
     <Compile Include="Assets/PAL/Scripts/Services/TestStateDataService.cs" />
     <Compile Include="Assets/TutorialInfo/Scripts/Readme.cs" />
+    <Compile Include="Assets/PAL/Scripts/Services/Gameplay/PALGameData.cs" />
     <Compile Include="Assets/Scripts/DebugMenu.cs" />
     <Compile Include="Assets/PAL/Scripts/Entry/PalConst.cs" />
+    <Compile Include="Assets/PAL/Scripts/Services/Gameplay/PALGameConst.cs" />
     <Compile Include="Assets/PAL/Scripts/Core/Renderer/Palette.cs" />
     <Compile Include="Assets/PAL/Scripts/Presenter/MapPresenter.cs" />
     <Compile Include="Assets/Scripts/SpriteTextureHelper.cs" />

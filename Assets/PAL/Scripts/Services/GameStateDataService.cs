@@ -13,13 +13,24 @@ namespace ayy.pal
         public static int MAX_PLAYERS_IN_PARTY = 3;         // 队伍里最多有3个人
         public static int MAX_PLAYER_ROLE = 5;              // 最多有多少个主角
         
-        // 坐标信息
+        // 原版 320x200分辨率下, "视口" 坐标信息. struct tagGLOBALVARS.viewport 变量
         private int _viewportX = 0;
         private int _viewportY = 0;
         
+        // tagGLOBALVARS.partyoffset 变量, 默认值应该是 (160,112)
+        private int _partyOffsetX = 0;
+        private int _partyOffsetY = 0;
+        
         public int ViewportX { get { return _viewportX; }}
         public int ViewportY { get { return _viewportY; }}
-        public int AtLayer = 0;     // 原游戏里的 wLayer, 猜测和 主角所处的 map 哪个layer 有关. 每个 map 有 0,1 两层
+        public int PartyOffsetX { get { return _partyOffsetX; }}
+        public int PartyOffsetY { get { return _partyOffsetY; }}
+        
+        // 原游戏里的 wLayer, 猜测和 主角所处的 map 哪个layer 有关. 每个 map 有 0,1 两层
+        public int AtLayer = 0;
+
+        // party 的朝向. tagGLOBALVARS.wPartyDirection
+        public EPALDirection PartyDirection = EPALDirection.Unknown;
         
         // 队伍信息
         public int MaxPartyMemberIndex = 0;   // 当前最大有效的 player index, 取值范围 [0,MAX_PLAYERS_IN_PARTY)
@@ -33,6 +44,11 @@ namespace ayy.pal
         
         // 主角队伍信息
         Party[] parties = new Party[MAX_PLAYER_ROLE];
+        
+        
+        // GameData,参考 tagGLOBALVARS.GAMEDATA
+        public PALGameData GameData = new PALGameData();
+        
         
         // RoleID 和 Sprite资源ID 的映射关系
         // key: roleId, value: spriteId sprite的资源id
@@ -53,14 +69,27 @@ namespace ayy.pal
             MaxPartyMemberIndex = 0;
             
             // 主角队伍信息
-            parties[0] = new Party(0,160,112,6);
-            parties[1] = new Party(0,176,104,0);
-            parties[2] = new Party(0,192,96,0);
-            parties[3] = new Party(0,208,88,0);
-            parties[4] = new Party(0,224,80,0);
+            // parties[0] = new Party(0,160,112,6);
+            // parties[1] = new Party(0,176,104,0);
+            // parties[2] = new Party(0,192,96,0);
+            // parties[3] = new Party(0,208,88,0);
+            // parties[4] = new Party(0,224,80,0);
+            parties[0] = new Party(0);
+            parties[1] = new Party(0);
+            parties[2] = new Party(0);
+            parties[3] = new Party(0);
+            parties[4] = new Party(0);
+            
+            // 队伍朝向
+            PartyDirection = EPALDirection.East;
             
             // 逻辑相机视口像素坐标
             SetViewportXY(1152,832);
+            
+            // party offset
+            _partyOffsetX = 160;
+            _partyOffsetY = 112;
+
         }
 
         public void Destroy()
@@ -102,13 +131,18 @@ namespace ayy.pal
         public int FrameIndex = 6;  // current frame number
         public int FrameOffset = 0; // 原版注释: FIXME?? 所以猜测没用上
 
-        public Party(int roleId,int pixelX,int pixelY,int frameIndex)
+        public Party(int roleId)
         {
             RoleId = roleId;
-            PixelX = pixelX;
-            PixelY = pixelY;
-            FrameIndex = frameIndex;
         }
+
+        // public Party(int roleId,int pixelX,int pixelY,int frameIndex)
+        // {
+        //     RoleId = roleId;
+        //     PixelX = pixelX;
+        //     PixelY = pixelY;
+        //     FrameIndex = frameIndex;
+        // }
     }
 
     // 参考 Global.h struct tagTRAIL
@@ -118,5 +152,7 @@ namespace ayy.pal
         public int Y;
         public int Direction;       // 应该有4个枚举方向
     }
+
+    
 }
 
