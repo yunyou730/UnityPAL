@@ -167,6 +167,7 @@ MonoBehaviour:
   _spritePresenterPrefab: {fileID: 5436830784805705322, guid: 4d7ab906a0ecd4dd28c11cc9462c2c17, type: 3}
   _mapPresenterPrefab: {fileID: 3685476695924142169, guid: 945cf864db191455c87e9ca2e84a5521, type: 3}
   _paletteDebugQuadPrefab: {fileID: 6461691473483638056, guid: 0e8a09ba8c272446f8c7e9f3cc6b6bee, type: 3}
+  _mainCamera: {fileID: 330585545}
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0

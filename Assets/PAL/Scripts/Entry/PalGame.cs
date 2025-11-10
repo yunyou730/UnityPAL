@@ -6,6 +6,7 @@ namespace ayy.pal
 {
     public class PalGame : MonoBehaviour
     {
+        [SerializeField] private Camera _mainCamera = null;
         [SerializeField] private GameObject _viewportPrefab = null;
         [SerializeField] private GameObject _spritePresenterPrefab = null;
         [SerializeField] private GameObject _mapPresenterPrefab = null;
@@ -34,7 +35,7 @@ namespace ayy.pal
             AddService<InputManager>(new InputManager());
             AddService<SpriteEntityManager>(new SpriteEntityManager());
             AddService<MapEntityManager>(new MapEntityManager());
-            AddService<PALGameplayService>(new PALGameplayService());
+            AddService<PALGameplayService>(new PALGameplayService(_mainCamera));
             
             foreach (var service in _initializables)
             {

@@ -12,6 +12,8 @@ namespace ayy.pal
     {
         static private int kLogicFPS = 10;
         private float _deltaTimeCounter = 0.0f;
+
+        private Camera _mainCamera = null;
         
         // 主角所对应的 SpriteEntities
         private List<int> _partySpriteEntityKeys = new List<int>();
@@ -30,6 +32,12 @@ namespace ayy.pal
         private SpriteEntityManager _spriteEntityManager = null;
         private MapEntityManager _mapEntityManager = null;
         private InputManager _inputManager = null;
+
+
+        public PALGameplayService(Camera mainCamera)
+        {
+            _mainCamera = mainCamera;
+        }
 
         public void Init()
         {
@@ -73,6 +81,7 @@ namespace ayy.pal
         private void FrameRefresh()
         {
             UpdateViewport();
+            UpdateCameraFollowViewport();
             UpdateSpriteEntities();
         }
 
@@ -215,6 +224,13 @@ namespace ayy.pal
             int viewportX = _dataService.ViewportX;
             int viewportY = _dataService.ViewportY;
             _viewportService.SetPixelCoord(viewportX, viewportY);
+        }
+
+        private void UpdateCameraFollowViewport()
+        {
+            Vector3 viewportWorldPos = _viewportService.GetViewportWorldPosition();
+            Vector3 pos = new Vector3(viewportWorldPos.x, viewportWorldPos.y, -10);
+            _mainCamera.transform.position = pos;
         }
 
         private void UpdateSpriteEntities()

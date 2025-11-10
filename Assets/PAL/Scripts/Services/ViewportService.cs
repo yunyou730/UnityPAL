@@ -39,6 +39,13 @@ namespace ayy.pal
             GetViewport().RefreshCoord(viewportX, viewportY);
         }
 
+        public Vector3 GetViewportWorldPosition()
+        {
+            Vector3 ret = Vector3.zero;
+            ret = GetViewport().transform.position;
+            return ret;
+        }
+
         private PALViewport GetViewport()
         {
             return _palViewport;
