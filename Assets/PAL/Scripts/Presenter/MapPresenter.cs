@@ -27,21 +27,6 @@ namespace ayy.pal
             _topLayerMaterial = _topLayer.GetComponent<MeshRenderer>().material;
         }
 
-        void Start()
-        {
-            
-        }
-
-        void OnDestroy()
-        {
-            
-        }
-
-        void Update()
-        {
-        
-        }
-
         public int GetMapIndex()
         {
             return _mapIndex;
@@ -91,6 +76,5 @@ namespace ayy.pal
             _topLayerMaterial.SetFloat(Shader.PropertyToID("_EnableTileInfo"),_enableDebugTileInfo ? 1.0f : 0.0f);
         }
     }
-    
 }
 

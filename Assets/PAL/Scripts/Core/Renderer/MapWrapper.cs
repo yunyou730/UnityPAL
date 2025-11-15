@@ -269,12 +269,15 @@ namespace ayy.pal
                 float zTop = -0.01f;
                 float z = topOrBottom ? zTop : zBottom;
                 
-                // 顶点位置, 应该按照 32x16来计算, 而不是 32x15
+                // 顶点位置, 应该按照 32x16来计算, 而不是 32x15.
+                // 在 tile 的 mesh 上, 额外增加了 0.005f倍数的冗余, 用于修正 地图中间会有间隙的问题
                 Vector3 center = GetMapTilePos(y,x,h,ELayer.Bottom);
-                vertices.Add(new Vector3(center.x - _tileMeshWidth * 0.5f,center.y - _tileMeshHeight * 0.5f,z));
-                vertices.Add(new Vector3(center.x + _tileMeshWidth * 0.5f,center.y - _tileMeshHeight * 0.5f,z));
-                vertices.Add(new Vector3(center.x - _tileMeshWidth * 0.5f,center.y + _tileMeshHeight * 0.5f,z));
-                vertices.Add(new Vector3(center.x + _tileMeshWidth * 0.5f,center.y + _tileMeshHeight * 0.5f,z));
+                float halfWidthWithExpand = _tileMeshWidth * 0.5f + _tileMeshWidth * 0.005f; 
+                float halfHeightWithExpand = _tileMeshHeight * 0.5f + _tileMeshHeight * 0.005f;
+                vertices.Add(new Vector3(center.x - halfWidthWithExpand,center.y - halfHeightWithExpand,z));
+                vertices.Add(new Vector3(center.x + halfWidthWithExpand,center.y - halfHeightWithExpand,z));
+                vertices.Add(new Vector3(center.x - halfWidthWithExpand,center.y + halfHeightWithExpand,z));
+                vertices.Add(new Vector3(center.x + halfWidthWithExpand,center.y + halfHeightWithExpand,z));
                 
                 int ox, oy;
                 GetFrameIndexPixelCoord(frameIndex,out ox,out oy);
