@@ -234,11 +234,6 @@ namespace ayy.pal
                 {
                     for (int x = 0; x < kTileCountX; x++)
                     {
-                        
-                        // @miao @todo
-                        // 这里, 要把 游戏数据里, tile Height ,即"逻辑高度"考虑进来，转换为 unity 里的 z值.
-                        // 用于 和 sprite 做 GPU的 ZTest
-                        
                         AddMeshData(vertices, triangles, uvs, colors,x, y, h,topOrBottom);
                     }
                 }
@@ -273,6 +268,12 @@ namespace ayy.pal
                 float zBottom = 0.0f;
                 float zTop = -0.01f;
                 float z = topOrBottom ? zTop : zBottom;
+                
+                // 这里根据 tile 的 logic Height , 来修改 tile 顶点的 unity 里的 z值
+                ELayer tileLayer = topOrBottom ? ELayer.Top : ELayer.Bottom;
+                int tileLogicHeight = _palMap.GetMapTileLogicHeight(x, y, h, tileLayer);
+                z = z - tileLogicHeight;
+                
                 
                 // 顶点位置, 应该按照 32x16来计算, 而不是 32x15.
                 // 在 tile 的 mesh 上, 额外增加了 0.005f倍数的冗余, 用于修正 地图中间会有间隙的问题

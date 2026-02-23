@@ -68,6 +68,29 @@ namespace ayy.pal.core
             d = (d & 0x2000) >> 13;
             return d > 0;
         }
+        
+               
+        
+        /**
+         * 参考 map.c PAL_MapGetTileHeight()
+         * 获取 tile 的 "逻辑高度"
+         * 取值范围是 [0,15]
+         */
+        public int GetMapTileLogicHeight(int x,int y,int h,ELayer layer)
+        {
+            if (x >= 128 || y >= 64 || h > 1)
+            {
+                return 0;
+            }
+            
+            uint d = Tiles[x, y, h];
+            if (layer == ELayer.Top)
+            {
+                d = d >> 16;
+            }
+            d = d >> 8;
+            return ((int)d & 0xf);
+        }
     }
 
     public unsafe class PALMapWrapper
