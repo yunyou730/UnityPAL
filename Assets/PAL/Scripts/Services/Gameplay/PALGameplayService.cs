@@ -229,7 +229,7 @@ namespace ayy.pal
         private void UpdateCameraFollowViewport()
         {
             Vector3 viewportWorldPos = _viewportService.GetViewportWorldPosition();
-            Vector3 pos = new Vector3(viewportWorldPos.x, viewportWorldPos.y, -10);
+            Vector3 pos = new Vector3(viewportWorldPos.x, viewportWorldPos.y, PalConst.CAMERA_DEFAULt_Z);
             _mainCamera.transform.position = pos;
         }
 

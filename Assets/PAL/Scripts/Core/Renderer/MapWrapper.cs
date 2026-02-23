@@ -234,6 +234,11 @@ namespace ayy.pal
                 {
                     for (int x = 0; x < kTileCountX; x++)
                     {
+                        
+                        // @miao @todo
+                        // 这里, 要把 游戏数据里, tile Height ,即"逻辑高度"考虑进来，转换为 unity 里的 z值.
+                        // 用于 和 sprite 做 GPU的 ZTest
+                        
                         AddMeshData(vertices, triangles, uvs, colors,x, y, h,topOrBottom);
                     }
                 }
