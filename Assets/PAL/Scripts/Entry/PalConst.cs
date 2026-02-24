@@ -8,6 +8,10 @@ namespace ayy.pal
     class PalConst
     {
         // 相机 Default Z 
-        public static float CAMERA_DEFAULt_Z = -20.0f;
+        public static float CAMERA_DEFAULt_Z = -1000.0f;
+        
+        // 调试 z 值的缩放比例,
+        //public static float Z_SCALE_FACTOR = 0.01f;
+        public static float Z_SCALE_FACTOR = 1.0f;
     }
 }

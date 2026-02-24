@@ -240,8 +240,12 @@ namespace ayy.pal
             }
             mesh.SetVertices(vertices);
             mesh.SetUVs(0,uvs);
+            
+            // @miao @todo
+            
             mesh.SetColors(colors);
             mesh.SetIndices(triangles,MeshTopology.Triangles, 0,false);
+            mesh.RecalculateBounds();
             return mesh;
         }
         
@@ -270,9 +274,13 @@ namespace ayy.pal
                 float z = topOrBottom ? zTop : zBottom;
                 
                 // 这里根据 tile 的 logic Height , 来修改 tile 顶点的 unity 里的 z值
+                // @miao @todo
+                // 这里, 需要改成，如果 debug 地图, 则 直接使用 tileLogicHeight 来当作 z值；
+                // 否则，改成 真正的 (y + tileLogicHeight) * 16 + h * 8; z值计算公式；
                 ELayer tileLayer = topOrBottom ? ELayer.Top : ELayer.Bottom;
                 int tileLogicHeight = _palMap.GetMapTileLogicHeight(x, y, h, tileLayer);
-                z = z - tileLogicHeight;
+                float tileZ = (y + tileLogicHeight) * 16 + h * 8;
+                //float logicDepthZ = z - tileZ * PalConst.Z_SCALE_FACTOR;
                 
                 
                 // 顶点位置, 应该按照 32x16来计算, 而不是 32x15.
@@ -298,12 +306,18 @@ namespace ayy.pal
                 uvs.Add(new Vector2(ux,uy + (float)(kTileH)/512.0f));
                 uvs.Add(new Vector2(ux + (float)(kTileW)/512.0f,uy + (float)(kTileH)/512.0f));
                 
-                // 用顶点色,承载更多数据, 比如 tile 是否能走. 用顶点色形式存储在mesh里,给shader 用 
+                // 用顶点色,承载更多数据, 比如 tile 是否能走. 用顶点色形式存储在mesh里,给shader 用于调试
                 Color color = Color.white;
+                color.a = tileZ;
                 if (_palMap.IsTileBlocked(x, y, h))
                 {
                     color = Color.red;
+                    color.r = 1.0f;
+                    color.g = 0.0f;
+                    color.b = 0.0f;
                 }
+                
+                
                 colors.Add(color);
                 colors.Add(color);
                 colors.Add(color);

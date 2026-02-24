@@ -41,6 +41,7 @@ namespace ayy.pal
             if (_mapPresenter != null)
             {
                 _mapPresenter.ToggleDebugTileInfo(display);
+                _mapPresenter.ToggleDepthZ(display);
             }
         }
     }

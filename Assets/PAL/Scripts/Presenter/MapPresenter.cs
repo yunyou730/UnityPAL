@@ -15,6 +15,7 @@ namespace ayy.pal
         //private PaletteService _paletteService = null;
         
         private bool _enableDebugTileInfo = false;
+        private bool _enableDepthZ = true;
         private Material _bottomLayerMaterial = null;
         private Material _topLayerMaterial = null;
         
@@ -22,7 +23,6 @@ namespace ayy.pal
         {
             _mapService = PalGame.GetInstance().GetService<MapService>();
             //_paletteService = PalGame.GetInstance().GetService<PaletteService>();
-            
             _bottomLayerMaterial = _bottomLayer.GetComponent<MeshRenderer>().material;
             _topLayerMaterial = _topLayer.GetComponent<MeshRenderer>().material;
         }
@@ -74,6 +74,14 @@ namespace ayy.pal
             _enableDebugTileInfo = display;
             _bottomLayerMaterial.SetFloat(Shader.PropertyToID("_EnableTileInfo"),_enableDebugTileInfo ? 1.0f : 0.0f);
             _topLayerMaterial.SetFloat(Shader.PropertyToID("_EnableTileInfo"),_enableDebugTileInfo ? 1.0f : 0.0f);
+        }
+
+
+        public void ToggleDepthZ(bool enableDebug)
+        {
+            _enableDepthZ = !enableDebug;
+            _bottomLayerMaterial.SetFloat(Shader.PropertyToID("_EnableDepthZ"),_enableDepthZ ? 1.0f : 0.0f);
+            _topLayerMaterial.SetFloat(Shader.PropertyToID("_EnableDepthZ"),_enableDepthZ ? 1.0f : 0.0f);            
         }
     }
 }

@@ -69,8 +69,6 @@ namespace ayy.pal.core
             return d > 0;
         }
         
-               
-        
         /**
          * 参考 map.c PAL_MapGetTileHeight()
          * 获取 tile 的 "逻辑高度"
