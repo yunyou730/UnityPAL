@@ -25,7 +25,7 @@ namespace ayy.pal
         PaletteLUT,
     }
 
-    public enum ELayer
+    public enum ETileLayer
     {
         Bottom,
         Top,
@@ -73,6 +73,12 @@ namespace ayy.pal
         private int _spriteFrameCount = 0;
         
         private PaletteService _paletteService = null;
+
+
+        // 记录每个 tile , 它的顶点颜色属性, 开始的下标
+        // key: 字符串, x_y_h
+        // value: 下标索引
+        private Dictionary<string,int> _vertColorAttrBeginIndex = new Dictionary<string, int>();
         
         public MapWrapper(PALMapWrapper map,int mapIndex)
         {
@@ -110,8 +116,8 @@ namespace ayy.pal
         public void Load(EColorMode mode)
         {
             _tilemapTexture = CreateTileMapTexture(mode);
-            _meshBottom = CreateTileMapMesh(false);
-            _meshTop = CreateTileMapMesh(true);
+            _meshBottom = CreateTileMapMesh(ETileLayer.Bottom);
+            _meshTop = CreateTileMapMesh(ETileLayer.Top);
         }
 
         private Texture2D CreateTileMapTexture(EColorMode mode)
@@ -212,7 +218,7 @@ namespace ayy.pal
             return _tilemapTexture;
         }
         
-        private Mesh CreateTileMapMesh(bool topOrBottom)
+        private Mesh CreateTileMapMesh(ETileLayer tileType)
         {
             if (_palMap == null)
             {
@@ -220,6 +226,7 @@ namespace ayy.pal
             }
             
             Mesh mesh = new Mesh();
+            mesh.MarkDynamic();     // 经常有 属性变动的mesh, 调用这个可以有写性能上的优化
             List<Vector3> vertices = new List<Vector3>();
             List<int> triangles = new List<int>();
             List<Vector2> uvs = new List<Vector2>();
@@ -234,7 +241,7 @@ namespace ayy.pal
                 {
                     for (int x = 0; x < kTileCountX; x++)
                     {
-                        AddMeshData(vertices, triangles, uvs, colors,x, y, h,topOrBottom);
+                        AddMeshData(vertices, triangles, uvs, colors,x, y, h,tileType);
                     }
                 }
             }
@@ -255,37 +262,37 @@ namespace ayy.pal
             List<Vector2> uvs,
             List<Color> colors,
             int x,int y,int h,
-            bool topOrBottom)
+            ETileLayer tileLayerType)
         {
             int frameIndex = -1;
-            if (!topOrBottom)
+            switch (tileLayerType)
             {
-                frameIndex = _palMap.GetSpriteIndexBottomLayer(x,y,h);
-            }
-            else
-            {
-                frameIndex = _palMap.GetSpriteIndexTopLayer(x,y,h);
+                case ETileLayer.Bottom:
+                    frameIndex = _palMap.GetSpriteIndexBottomLayer(x,y,h);
+                    break;
+                case ETileLayer.Top:
+                    frameIndex = _palMap.GetSpriteIndexTopLayer(x,y,h);
+                    break;
             }
 
             if (frameIndex >= 0 && frameIndex < _spriteFrameCount)
             {
                 float zBottom = 0.0f;
                 float zTop = -0.01f;
-                float z = topOrBottom ? zTop : zBottom;
+                float z = tileLayerType == ETileLayer.Top ? zTop : zBottom;
                 
                 // 这里根据 tile 的 logic Height , 来修改 tile 顶点的 unity 里的 z值
                 // @miao @todo
                 // 这里, 需要改成，如果 debug 地图, 则 直接使用 tileLogicHeight 来当作 z值；
                 // 否则，改成 真正的 (y + tileLogicHeight) * 16 + h * 8; z值计算公式；
-                ELayer tileLayer = topOrBottom ? ELayer.Top : ELayer.Bottom;
-                int tileLogicHeight = _palMap.GetMapTileLogicHeight(x, y, h, tileLayer);
+                //ETileLayer tileLayer = topOrBottom ? ELayer.Top : ELayer.Bottom;
+                int tileLogicHeight = _palMap.GetMapTileLogicHeight(x, y, h, tileLayerType);
                 float tileZ = (y + tileLogicHeight) * 16 + h * 8;
                 //float logicDepthZ = z - tileZ * PalConst.Z_SCALE_FACTOR;
                 
-                
                 // 顶点位置, 应该按照 32x16来计算, 而不是 32x15.
                 // 在 tile 的 mesh 上, 额外增加了 0.005f倍数的冗余, 用于修正 地图中间会有间隙的问题
-                Vector3 center = GetMapTilePos(y,x,h,ELayer.Bottom);
+                Vector3 center = GetMapTilePos(y,x,h,ETileLayer.Bottom);
                 float halfWidthWithExpand = _tileMeshWidth * 0.5f + _tileMeshWidth * 0.005f; 
                 float halfHeightWithExpand = _tileMeshHeight * 0.5f + _tileMeshHeight * 0.005f;
                 vertices.Add(new Vector3(center.x - halfWidthWithExpand,center.y - halfHeightWithExpand,z));
@@ -317,7 +324,6 @@ namespace ayy.pal
                     color.b = 0.0f;
                 }
                 
-                
                 colors.Add(color);
                 colors.Add(color);
                 colors.Add(color);
@@ -343,7 +349,7 @@ namespace ayy.pal
             return _meshTop;
         }
 
-        private Vector3 GetMapTilePos(int x,int y,int h,ELayer layer)
+        private Vector3 GetMapTilePos(int x,int y,int h,ETileLayer layer)
         {
             float W = _tileMeshWidth;
             float H = _tileMeshHeight;
@@ -357,6 +363,11 @@ namespace ayy.pal
             float xCoord = baseX + ( x * W);
             float zCoord = 0.0f;
             return new Vector3(xCoord,yCoord,zCoord);
+        }
+        
+        private string GetTileKey(int x,int y,int h)
+        {
+            return $"{x}_{y}_{h}";
         }
     }    
 }

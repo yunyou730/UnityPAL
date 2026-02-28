@@ -74,7 +74,7 @@ namespace ayy.pal.core
          * 获取 tile 的 "逻辑高度"
          * 取值范围是 [0,15]
          */
-        public int GetMapTileLogicHeight(int x,int y,int h,ELayer layer)
+        public int GetMapTileLogicHeight(int x,int y,int h,ETileLayer layer)
         {
             if (x >= 128 || y >= 64 || h > 1)
             {
@@ -82,7 +82,7 @@ namespace ayy.pal.core
             }
             
             uint d = Tiles[x, y, h];
-            if (layer == ELayer.Top)
+            if (layer == ETileLayer.Top)
             {
                 d = d >> 16;
             }

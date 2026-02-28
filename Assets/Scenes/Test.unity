@@ -163,11 +163,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 22f4124b4d6b94a808c694c89a78e8b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _mainCamera: {fileID: 330585545}
   _viewportPrefab: {fileID: 9212746750595573026, guid: 8c82c7cfba2af4d1588b4c843ade6e5b, type: 3}
   _spritePresenterPrefab: {fileID: 5436830784805705322, guid: 4d7ab906a0ecd4dd28c11cc9462c2c17, type: 3}
   _mapPresenterPrefab: {fileID: 3685476695924142169, guid: 945cf864db191455c87e9ca2e84a5521, type: 3}
   _paletteDebugQuadPrefab: {fileID: 6461691473483638056, guid: 0e8a09ba8c272446f8c7e9f3cc6b6bee, type: 3}
-  _mainCamera: {fileID: 330585545}
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
@@ -426,17 +426,6 @@ MonoBehaviour:
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 1
---- !u!114 &604497557 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5768826377094018615, guid: f653a9ef6a76143799c6f9788db0839a, type: 3}
-  m_PrefabInstance: {fileID: 9002992422694372389}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
@@ -664,10 +653,6 @@ PrefabInstance:
       propertyPath: _spriteSheetHolder
       value: 
       objectReference: {fileID: 2069446167}
-    - target: {fileID: 4578419798808432466, guid: f653a9ef6a76143799c6f9788db0839a, type: 3}
-      propertyPath: _btnToggleCtrlDebug
-      value: 
-      objectReference: {fileID: 604497557}
     - target: {fileID: 4578419798808432466, guid: f653a9ef6a76143799c6f9788db0839a, type: 3}
       propertyPath: _spriteFramesHolder
       value: 

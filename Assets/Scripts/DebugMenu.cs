@@ -36,6 +36,10 @@ namespace ayy.debugging
         [SerializeField] private TMP_InputField _inputFieldPos;
         [SerializeField] private Button _btnSetPos;
 
+        [Header("Tile")]
+        [SerializeField] private TMP_InputField _inputTileZ;
+        [SerializeField] private Button _btnTileZ;
+
         [Header("Debug")] 
         [SerializeField] private Button _btnToggleMapTileInfo;
         [SerializeField] private Button _btnToggleCtrlDebug;
@@ -63,6 +67,7 @@ namespace ayy.debugging
             InitDebugPlayerSprite();
             _btnLoadDefaultGame.onClick.AddListener(LoadDefaultGame);
             _btnSetPos.onClick.AddListener(SetTestPos);
+            _btnTileZ.onClick.AddListener(SetTileZ);
             
             _btnToggleMapTileInfo.onClick.AddListener(OnClickToggleMapTileInfo);
             _btnToggleCtrlDebug.onClick.AddListener(OnClickToggleCtrlDebug);
@@ -356,6 +361,19 @@ namespace ayy.debugging
                 Debug.LogWarning(e);
             }
         }
+
+        private void SetTileZ()
+        {
+            string str = _inputTileZ.text;
+            string[] strs = str.Split(",");
+            int x = int.Parse(strs[0]);
+            int y = int.Parse(strs[1]);
+            int h = int.Parse(strs[2]);
+            Debug.Log($"x:{x},y:{y},h:{h}");
+
+            MapWrapper mapWrapper = _mapService.GetCurrentMap();
+            mapWrapper.SetTileVertexColor(ETileLayer.Top,x,y,h,Color.blue);
+            mapWrapper.SetTileVertexColor(ETileLayer.Bottom,x,y,h,Color.blue);
+        }
     }
 }
-
