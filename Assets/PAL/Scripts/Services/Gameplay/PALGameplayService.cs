@@ -28,11 +28,15 @@ namespace ayy.pal
         private GameStateDataService _dataService = null;
         private PaletteService _paletteService = null;
         private ViewportService _viewportService = null;
+        private MapService _mapService = null;
         
         private SpriteEntityManager _spriteEntityManager = null;
         private MapEntityManager _mapEntityManager = null;
         private InputManager _inputManager = null;
-
+        
+        
+        // 统计出来,所有 覆盖了 sprite 的 tiles
+        private List<MapTileCoord> _coverSpriteTileCoords = new List<MapTileCoord>();
 
         public PALGameplayService(Camera mainCamera)
         {
@@ -44,6 +48,8 @@ namespace ayy.pal
             _dataService = PalGame.GetInstance().GetService<GameStateDataService>();
             _paletteService = PalGame.GetInstance().GetService<PaletteService>();
             _viewportService = PalGame.GetInstance().GetService<ViewportService>();
+            _mapService = PalGame.GetInstance().GetService<MapService>();
+
             _spriteEntityManager = PalGame.GetInstance().GetService<SpriteEntityManager>();
             _mapEntityManager = PalGame.GetInstance().GetService<MapEntityManager>();
             _inputManager = PalGame.GetInstance().GetService<InputManager>();
@@ -64,10 +70,11 @@ namespace ayy.pal
             {
                 _deltaTimeCounter -= 1f / kLogicFPS;
                 OnTick();
+                
+                //FrameRefresh(); // 试试看, FPS10,能不能行?
             }
             FrameRefresh();
         }
-
 
         private void OnTick()
         {
@@ -80,9 +87,14 @@ namespace ayy.pal
 
         private void FrameRefresh()
         {
+            // @miao @todo
+            //. 注意！！这里一致频繁修改 mesh，从mesh 里获取colors 数组, 有大的性能问题!
+            // 可以先把 逻辑写对, 后面解决一下这个逻辑!!
+            ClearCoverFrameTiles();
             UpdateViewport();
             UpdateCameraFollowViewport();
             UpdateSpriteEntities();
+            ApplyCoverFrameTiles();
         }
 
         private void LoadPalette()
@@ -136,8 +148,6 @@ namespace ayy.pal
             
             // @miao @todo, 这里应该调用 PAL_CheckObstacle
 
-            
-            
             // Move the viewport
             int prevX = _dataService.ViewportX;
             int prevY = _dataService.ViewportY;
@@ -147,7 +157,6 @@ namespace ayy.pal
 
             return true;
         }
-
 
         // 参考 PAL_UpdatePartyGestures
         void TickUpdatePartyGestures(bool walking)
@@ -233,6 +242,30 @@ namespace ayy.pal
             _mainCamera.transform.position = pos;
         }
 
+        // 用于处理 tiles 和 sprite 的遮挡关系, 还原所有 tiles 的 z值
+        private void ClearCoverFrameTiles()
+        {
+            MapWrapper mapWrapper = _mapService.GetCurrentMap();
+            foreach (MapTileCoord tileCoord in _coverSpriteTileCoords)
+            {
+                mapWrapper.SetTileVertexColor(ETileLayer.Top,tileCoord.TileX,tileCoord.TileY,tileCoord.TileH,Color.black);
+                mapWrapper.SetTileVertexColor(ETileLayer.Bottom,tileCoord.TileX,tileCoord.TileY,tileCoord.TileH,Color.black);
+            }
+            _coverSpriteTileCoords.Clear();
+        }
+
+        // 用于处理 tiles 和 sprite 的遮挡关系, 拔高所有 tiles 的 z值
+        private void ApplyCoverFrameTiles()
+        {
+            MapWrapper mapWrapper = _mapService.GetCurrentMap();
+            foreach (MapTileCoord tileCoord in _coverSpriteTileCoords)
+            {
+                mapWrapper.SetTileVertexColor(ETileLayer.Top,tileCoord.TileX,tileCoord.TileY,tileCoord.TileH,Color.yellow);
+                mapWrapper.SetTileVertexColor(ETileLayer.Bottom,tileCoord.TileX,tileCoord.TileY,tileCoord.TileH,Color.yellow);
+            }
+            mapWrapper.ApplyTileVertexColorsChange();
+        }
+
         private void UpdateSpriteEntities()
         {
             int viewportX = _dataService.ViewportX;
@@ -242,7 +275,7 @@ namespace ayy.pal
             {
                 Party party = _dataService.GetPlayerParty(i);
                 int spriteEntityKey = _partySpriteEntityKeys[i];
-                var spriteEntity = _spriteEntityManager.GetSpriteEntity(spriteEntityKey);
+                SpriteEntity spriteEntity = _spriteEntityManager.GetSpriteEntity(spriteEntityKey);
                 int layer = _dataService.AtLayer;
 
                 PALSpriteFrame spriteFrame = spriteEntity.SwitchFrame(party.FrameIndex);
@@ -251,8 +284,48 @@ namespace ayy.pal
                 spriteEntity.SetPixelPosition(pixelX,pixelY);
                 spriteEntity.SetLayer(layer + 6);   // hard code + 6, 需要抽象为枚举
                 spriteEntity.ApplyPixelPos(viewportX,viewportY);
+
+                
+                // 计算所有,可能遮挡该 sprite 的 tiles
+                UpdateTilesSpriteOcclusion(viewportX,viewportY,pixelX,pixelY,layer,spriteFrame);
             }
         }
+
+        private void UpdateTilesSpriteOcclusion(int viewportX,int viewportY,int pixelX,int pixelY,int layer,PALSpriteFrame spriteFrame)
+        {
+            // 计算所有,可能遮挡该 sprite 的 tiles
+            // @miao @todo
+            // DOS 世界空间下, 像素坐标
+            int worldPixelX = viewportX + pixelX - layer / 2;
+            int worldPixelY = viewportY + pixelY - layer;
+            
+            // MapTileCoord testMapCoord;
+            // Metrics.ConvertWorldSpacePixelCoordToTileCoord(worldPixelX,worldPixelY,out testMapCoord);
+            // _coverSpriteTileCoords.Add(testMapCoord);
+            
+            MapTileCoord mapCoord1;
+            Metrics.ConvertWorldSpacePixelCoordToTileCoord(worldPixelX - spriteFrame.W / 2,worldPixelY - spriteFrame.H,out mapCoord1);
+
+            MapTileCoord mapCoord2;
+            Metrics.ConvertWorldSpacePixelCoordToTileCoord(worldPixelX + spriteFrame.W / 2,worldPixelY,out mapCoord2);
+            
+            for (int ty = mapCoord1.TileY; ty <= mapCoord2.TileY; ty++)
+            {
+                for (int tx = mapCoord1.TileX; tx <= mapCoord2.TileX; tx++)
+                {
+                    MapTileCoord mapCoordTmp = new MapTileCoord();
+                    mapCoordTmp.TileX = tx;
+                    mapCoordTmp.TileY = ty;
+                    //mapCoordTmp.TileH = mapCoord0.TileH;
+                    mapCoordTmp.TileH = 0;
+                    _coverSpriteTileCoords.Add(mapCoordTmp);
+                    
+                    mapCoordTmp.TileH = 1;
+                    _coverSpriteTileCoords.Add(mapCoordTmp);
+                }
+            }
+        }
+
     }
 }
 

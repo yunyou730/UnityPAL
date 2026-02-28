@@ -82,14 +82,13 @@ namespace ayy.pal
             
             // 队伍朝向
             PartyDirection = EPALDirection.East;
-            
+
             // 逻辑相机视口像素坐标
             SetViewportXY(1152,832);
             
             // party offset
             _partyOffsetX = 160;
             _partyOffsetY = 112;
-
         }
 
         public void Destroy()

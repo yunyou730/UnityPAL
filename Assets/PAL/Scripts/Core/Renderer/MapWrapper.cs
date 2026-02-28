@@ -76,9 +76,12 @@ namespace ayy.pal
 
 
         // 记录每个 tile , 它的顶点颜色属性, 开始的下标
-        // key: 字符串, x_y_h
+        // key: 字符串, tileLayer_x_y_h
         // value: 下标索引
         private Dictionary<string,int> _vertColorAttrBeginIndex = new Dictionary<string, int>();
+        private List<Color> _colorsCacheBottom = new List<Color>();
+        private List<Color> _colorsCacheTop = new List<Color>();
+        // private bool _colorDirtyFlag = false;
         
         public MapWrapper(PALMapWrapper map,int mapIndex)
         {
@@ -116,8 +119,14 @@ namespace ayy.pal
         public void Load(EColorMode mode)
         {
             _tilemapTexture = CreateTileMapTexture(mode);
-            _meshBottom = CreateTileMapMesh(ETileLayer.Bottom);
-            _meshTop = CreateTileMapMesh(ETileLayer.Top);
+            
+            // 清空数据
+            _vertColorAttrBeginIndex.Clear();
+            _colorsCacheBottom.Clear();
+            _colorsCacheTop.Clear();
+            
+            _meshBottom = CreateTileMapMesh(ETileLayer.Bottom,_colorsCacheBottom);
+            _meshTop = CreateTileMapMesh(ETileLayer.Top,_colorsCacheTop);
         }
 
         private Texture2D CreateTileMapTexture(EColorMode mode)
@@ -218,7 +227,7 @@ namespace ayy.pal
             return _tilemapTexture;
         }
         
-        private Mesh CreateTileMapMesh(ETileLayer tileType)
+        private Mesh CreateTileMapMesh(ETileLayer tileType,List<Color> colorsCache)
         {
             if (_palMap == null)
             {
@@ -230,7 +239,8 @@ namespace ayy.pal
             List<Vector3> vertices = new List<Vector3>();
             List<int> triangles = new List<int>();
             List<Vector2> uvs = new List<Vector2>();
-            List<Color> colors = new List<Color>();
+            //List<Color> colors = new List<Color>();
+            
             
             // private static int kTileCountX = 128;
             // private static int kTileCountY = 64;
@@ -241,7 +251,7 @@ namespace ayy.pal
                 {
                     for (int x = 0; x < kTileCountX; x++)
                     {
-                        AddMeshData(vertices, triangles, uvs, colors,x, y, h,tileType);
+                        AddMeshData(vertices, triangles, uvs, colorsCache,x, y, h,tileType);
                     }
                 }
             }
@@ -249,10 +259,10 @@ namespace ayy.pal
             mesh.SetUVs(0,uvs);
             
             // @miao @todo
-            
-            mesh.SetColors(colors);
+            mesh.SetColors(colorsCache);
             mesh.SetIndices(triangles,MeshTopology.Triangles, 0,false);
             mesh.RecalculateBounds();
+            
             return mesh;
         }
         
@@ -292,7 +302,9 @@ namespace ayy.pal
                 
                 // 顶点位置, 应该按照 32x16来计算, 而不是 32x15.
                 // 在 tile 的 mesh 上, 额外增加了 0.005f倍数的冗余, 用于修正 地图中间会有间隙的问题
-                Vector3 center = GetMapTilePos(y,x,h,ETileLayer.Bottom);
+                
+                Vector3 center = GetMapTilePos(y,x,h);// @miao, 这里，为什么要是反过来的 ?????? 看起来就是,不反过来,渲染结果就会不对            
+                
                 float halfWidthWithExpand = _tileMeshWidth * 0.5f + _tileMeshWidth * 0.005f; 
                 float halfHeightWithExpand = _tileMeshHeight * 0.5f + _tileMeshHeight * 0.005f;
                 vertices.Add(new Vector3(center.x - halfWidthWithExpand,center.y - halfHeightWithExpand,z));
@@ -314,7 +326,7 @@ namespace ayy.pal
                 uvs.Add(new Vector2(ux + (float)(kTileW)/512.0f,uy + (float)(kTileH)/512.0f));
                 
                 // 用顶点色,承载更多数据, 比如 tile 是否能走. 用顶点色形式存储在mesh里,给shader 用于调试
-                Color color = Color.white;
+                Color color = Color.black;
                 color.a = tileZ;
                 if (_palMap.IsTileBlocked(x, y, h))
                 {
@@ -323,6 +335,11 @@ namespace ayy.pal
                     color.g = 0.0f;
                     color.b = 0.0f;
                 }
+
+
+                // @miao @todo
+                string tileKey = GetTileKey(tileLayerType, x, y, h);    // 临时存储 当前tile 的 顶点的颜色值, 用于后面做修改
+                _vertColorAttrBeginIndex.Add(tileKey,colors.Count);
                 
                 colors.Add(color);
                 colors.Add(color);
@@ -349,27 +366,73 @@ namespace ayy.pal
             return _meshTop;
         }
 
-        private Vector3 GetMapTilePos(int x,int y,int h,ETileLayer layer)
+        private Vector3 GetMapTilePos(int tileX,int tileY,int tileH)
         {
             float W = _tileMeshWidth;
             float H = _tileMeshHeight;
-            float yCoord = -(y * H);
+            float yCoord = -(tileY * H);
             float baseX = 0;
-            if (h == 1)
+            if (tileH == 1)
             {
                 baseX = baseX + W / 2;
                 yCoord = yCoord - H / 2;
             }
-            float xCoord = baseX + ( x * W);
+            float xCoord = baseX + (tileX * W);
             float zCoord = 0.0f;
             return new Vector3(xCoord,yCoord,zCoord);
         }
-        
-        private string GetTileKey(int x,int y,int h)
+
+        private string GetTileKey(ETileLayer tileLayer,int x,int y,int h)
         {
-            return $"{x}_{y}_{h}";
+            return $"{tileLayer}_{x}_{y}_{h}";
         }
-    }    
+
+
+        private Mesh GetMeshAtTileLayer(ETileLayer tileLayer)
+        {
+            switch (tileLayer)
+            {
+                case ETileLayer.Bottom:
+                    return _meshBottom;
+                case ETileLayer.Top:
+                    return _meshTop;
+            }
+            return null;
+        }
+
+        public void SetTileVertexColor(ETileLayer tileLayer,int x,int y,int h,Color color)
+        {
+            string tileKey = GetTileKey(tileLayer, x, y, h);
+            if (!_vertColorAttrBeginIndex.ContainsKey(tileKey))
+            {
+                return;
+            }
+
+            List<Color> colorsCache = null;
+            switch (tileLayer)
+            {
+                case ETileLayer.Bottom:
+                    colorsCache = _colorsCacheBottom;
+                    break;
+                case ETileLayer.Top:
+                    colorsCache = _colorsCacheTop;
+                    break;
+            }
+            
+            int beginIndex = _vertColorAttrBeginIndex[tileKey];
+            int endIndex = beginIndex + 4;
+            for (int i = beginIndex; i < endIndex; i++)
+            {
+                colorsCache[i] = color;
+            }
+        }
+
+        public void ApplyTileVertexColorsChange()
+        {
+            _meshBottom.SetColors(_colorsCacheBottom);
+            _meshTop.SetColors(_colorsCacheTop);
+        }
+    }
 }
 
 

@@ -26,6 +26,36 @@ namespace ayy.pal
             posUnits.y = -oy;
             return posUnits;
         }
+        
+        public static void ConvertWorldSpacePixelCoordToTileCoord (
+            int worldPixelX,
+            int worldPixelY,
+            out MapTileCoord mapCoord)
+        {
+            // int worldPixelX = viewportX + pixelX - layer / 2;
+            // int worldPixelY = viewportY + pixelY - layer;
+
+            // int tileX = 0;
+            // int tileY = 0;
+            // int tileH = 0;
+            // 把 世界空间下的 pixel 坐标,转换为 tile x,y,h 坐标
+            // tileX = worldPixelX / 32;
+            // tileY = (worldPixelY - 15) / 16;
+            // tileH = (worldPixelX % 32 != 0) ? 1 : 0;
+
+            // 看起来好像计算对了,但是为什么总感觉,到了我这, tileX,tileY 是反过来的...
+            mapCoord.TileX = (worldPixelY - 15) / 16;
+            mapCoord.TileY = worldPixelX / 32;
+            mapCoord.TileH = (worldPixelY % 32 != 0) ? 1 : 0;
+        }
+    }
+
+
+    public struct MapTileCoord
+    {
+        public int TileX;
+        public int TileY;
+        public int TileH;
     }
 }
 
