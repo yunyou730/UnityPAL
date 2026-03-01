@@ -53,6 +53,7 @@ namespace ayy.debugging
         private SpriteService _spriteService = null;
         private ViewportService _viewportService = null;
         private MapEntityManager _mapEntityManager = null;
+        private GameStateDataService _dataService = null;
         
         void Start()
         {
@@ -61,6 +62,7 @@ namespace ayy.debugging
             _spriteService = PalGame.GetInstance().GetService<SpriteService>();
             _viewportService = PalGame.GetInstance().GetService<ViewportService>();
             _mapEntityManager = PalGame.GetInstance().GetService<MapEntityManager>();
+            _dataService = PalGame.GetInstance().GetService<GameStateDataService>();
             
             InitDebugPalette();
             InitDebugMap();
@@ -348,7 +350,7 @@ namespace ayy.debugging
                 int partyOffsetX = int.Parse(strs[2]);
                 int partyOffsetY = int.Parse(strs[3]);
                 
-                _viewportService.SetPixelCoord(viewportX, viewportY);
+                _dataService.SetViewportXY(viewportX, viewportY);
                 if (_spritePresenter != null)
                 {
                     int px = viewportX + partyOffsetX;

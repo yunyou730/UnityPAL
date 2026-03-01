@@ -26,7 +26,7 @@ namespace ayy.pal
         public int PartyOffsetX { get { return _partyOffsetX; }}
         public int PartyOffsetY { get { return _partyOffsetY; }}
         
-        // 原游戏里的 wLayer, 猜测和 主角所处的 map 哪个layer 有关. 每个 map 有 0,1 两层
+        // 原游戏里的 wLayer, 猜测和 主角所处的 map 哪个layer 有关. 每个 map 有 0,1 两层. 
         public int AtLayer = 0;
 
         // party 的朝向. tagGLOBALVARS.wPartyDirection

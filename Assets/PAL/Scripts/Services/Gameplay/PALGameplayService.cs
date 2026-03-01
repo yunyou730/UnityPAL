@@ -137,6 +137,31 @@ namespace ayy.pal
             // 让队伍转向
             _dataService.PartyDirection = inputDir;
             
+            
+            /*
+             * 这里这么理解:
+             * 1. 对于2D像素坐标 x:
+             *      如果按左（west) or 下(south) ,则 横向偏移 -16 (半个 tile width)
+             *      否则, 即按了 右 （east） or 上(north), 则 横向偏移 + 16 (半个 tile width)
+             *
+             * 2. 对于 2D像素坐标 y:
+             *      如果按了 左(west) or 上(north), 则 纵向偏移 -8  (半个 tile height)
+             *      否则, 即 按了 右(east) or 下 (south), 则 纵向偏移 8 (半个 tile height)
+             * 
+             *      注意，在像素坐标系里, viewport 的坐标, sprite 的坐标, 都是左上角;
+             *      并且, y坐标, 是向下递增的
+             *      具体参考 飞书文档 , 坐标系 的 解释
+             *      https://o2oh6846tj.feishu.cn/wiki/Dyn2wM929iSrVPkPLRdcoNXandd#share-SCaVdqYP7oeNARxkrqmcCh8Enjh
+             * 
+             * 
+             * 3. 移动偏移, 只作用于 viewport 的坐标
+             *      因为 整个队伍 party 里每个 sprite 的坐标定位
+             *      是依赖于 viewport.xy ,即 viewport 的像素坐标 , 加上 party Offset .xy ,也就是 sprite 的像素坐标偏移
+             *      这样最终定位 世界坐标系下的 像素坐标的
+             *
+             * 4. 
+             * 
+             */
             int xOffset = (inputDir == EPALDirection.West || inputDir == EPALDirection.South) ? -16 : 16;
             int yOffset = ((inputDir == EPALDirection.West || inputDir == EPALDirection.North) ? -8 : 8);
 
@@ -286,11 +311,11 @@ namespace ayy.pal
                 spriteEntity.ApplyPixelPos(viewportX,viewportY);
 
                 
-                // 计算所有,可能遮挡该 sprite 的 tiles
                 UpdateTilesSpriteOcclusion(viewportX,viewportY,pixelX,pixelY,layer,spriteFrame);
             }
         }
-
+        
+        // 计算所有,可能遮挡该 sprite 的 tiles
         private void UpdateTilesSpriteOcclusion(int viewportX,int viewportY,int pixelX,int pixelY,int layer,PALSpriteFrame spriteFrame)
         {
             // 计算所有,可能遮挡该 sprite 的 tiles
@@ -298,10 +323,6 @@ namespace ayy.pal
             // DOS 世界空间下, 像素坐标
             int worldPixelX = viewportX + pixelX - layer / 2;
             int worldPixelY = viewportY + pixelY - layer;
-            
-            // MapTileCoord testMapCoord;
-            // Metrics.ConvertWorldSpacePixelCoordToTileCoord(worldPixelX,worldPixelY,out testMapCoord);
-            // _coverSpriteTileCoords.Add(testMapCoord);
             
             MapTileCoord mapCoord1;
             Metrics.ConvertWorldSpacePixelCoordToTileCoord(worldPixelX - spriteFrame.W / 2,worldPixelY - spriteFrame.H,out mapCoord1);
@@ -316,7 +337,6 @@ namespace ayy.pal
                     MapTileCoord mapCoordTmp = new MapTileCoord();
                     mapCoordTmp.TileX = tx;
                     mapCoordTmp.TileY = ty;
-                    //mapCoordTmp.TileH = mapCoord0.TileH;
                     mapCoordTmp.TileH = 0;
                     _coverSpriteTileCoords.Add(mapCoordTmp);
                     
@@ -325,7 +345,8 @@ namespace ayy.pal
                 }
             }
         }
-
+        
+        
     }
 }
 
