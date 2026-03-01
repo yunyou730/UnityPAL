@@ -26,7 +26,14 @@ namespace ayy.pal
         public int PartyOffsetX { get { return _partyOffsetX; }}
         public int PartyOffsetY { get { return _partyOffsetY; }}
         
-        // 原游戏里的 wLayer, 猜测和 主角所处的 map 哪个layer 有关. 每个 map 有 0,1 两层. 
+        // 原游戏里的 wLayer, 猜测和 主角所处的 map 哪个layer 有关. 每个 map 有 0,1 两层.
+        // 这里理解应该有错误, 这个 layer 可能和地图的 bottom ,top 两个 layer 无关
+        // 有可能, 是 8 的倍数, 用于设置 sprite 的逻辑高度 
+        // 因为 SDLPAL script.c , 在处理  0x006E时, 做了  
+        //       gpGlobals->wLayer = pScript->rgwOperand[2] * 8; 这种操作
+        // 这个 layer 会同时影响
+        //      (1) 渲染时的 y像素坐标
+        //      (2) 对比 tile 和 sprite 遮挡时的 层级
         public int AtLayer = 0;
 
         // party 的朝向. tagGLOBALVARS.wPartyDirection
