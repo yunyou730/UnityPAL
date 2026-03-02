@@ -84,7 +84,6 @@ namespace ayy.pal
             TickUpdatePartyGestures(isInputThisFrame);
         }
 
-
         private void FrameRefresh()
         {
             // @miao @todo
@@ -290,7 +289,28 @@ namespace ayy.pal
             }
             mapWrapper.ApplyTileVertexColorsChange();
         }
+		
+		/*
+			代码里的 layer + 10, layer + 6
+			参考 SDLPal scene.c  PAL_SceneDrawSprites 方法.
 
+			里面在调用 PAL_AddSpriteToDraw 的时候,
+			在遍历绘制 party member, 即 玩家操作的队伍 时, 有 wLayer + 10, wLayer + 6 这种操作
+			wLayer 是用户存档, 或者说是当前玩家队伍, 正在进行的 gameplay 里的一个数值 
+
+      		PAL_AddSpriteToDraw(lpBitmap,
+         		gpGlobals->rgParty[i].x - PAL_RLEGetWidth(lpBitmap) / 2,
+         		gpGlobals->rgParty[i].y + gpGlobals->wLayer + 10,
+         		gpGlobals->wLayer + 6);
+
+
+			PAL_AddSpriteToDraw 做了几件事
+			1. 收集  party member 的 sprites ,以及对应的 cover tiles
+			2. 收集 Monsters/Npcs/others 的 sprites, 以及对应的 cover tiles
+			3. 给所有 sprites 排序 
+			4. 绘制所有 sprite 
+			
+		*/
         private void UpdateSpriteEntities()
         {
             int viewportX = _dataService.ViewportX;
@@ -310,19 +330,37 @@ namespace ayy.pal
                 spriteEntity.SetLayer(layer + 6);   // hard code + 6, 需要抽象为枚举
                 spriteEntity.ApplyPixelPos(viewportX,viewportY);
 
+
+                // @miao @todo
                 
-                UpdateTilesSpriteOcclusion(viewportX,viewportY,pixelX,pixelY,layer,spriteFrame);
+                UpdateTilesSpriteOcclusion(
+                    viewportX,
+                    viewportY,
+                    pixelX,
+                    pixelY,
+                    spriteEntity.GetLogicLayer(),
+                    spriteFrame);
             }
         }
         
         // 计算所有,可能遮挡该 sprite 的 tiles
-        private void UpdateTilesSpriteOcclusion(int viewportX,int viewportY,int pixelX,int pixelY,int layer,PALSpriteFrame spriteFrame)
+        private void UpdateTilesSpriteOcclusion(
+            int viewportX,
+            int viewportY,
+            int pixelX,
+            int pixelY,
+            int layer,
+            PALSpriteFrame spriteFrame)
         {
             // 计算所有,可能遮挡该 sprite 的 tiles
             // @miao @todo
             // DOS 世界空间下, 像素坐标
             int worldPixelX = viewportX + pixelX - layer / 2;
             int worldPixelY = viewportY + pixelY - layer;
+            
+            
+            
+            
             
             MapTileCoord mapCoord1;
             Metrics.ConvertWorldSpacePixelCoordToTileCoord(worldPixelX - spriteFrame.W / 2,worldPixelY - spriteFrame.H,out mapCoord1);
@@ -334,14 +372,52 @@ namespace ayy.pal
             {
                 for (int tx = mapCoord1.TileX; tx <= mapCoord2.TileX; tx++)
                 {
-                    MapTileCoord mapCoordTmp = new MapTileCoord();
-                    mapCoordTmp.TileX = tx;
-                    mapCoordTmp.TileY = ty;
-                    mapCoordTmp.TileH = 0;
-                    _coverSpriteTileCoords.Add(mapCoordTmp);
+                    // MapTileCoord mapCoordTmp = new MapTileCoord();
+                    // mapCoordTmp.TileX = tx;
+                    // mapCoordTmp.TileY = ty;
+                    // mapCoordTmp.TileH = 0;
+                    // _coverSpriteTileCoords.Add(mapCoordTmp);
+                    //
+                    // mapCoordTmp.TileH = 1;
+                    // _coverSpriteTileCoords.Add(mapCoordTmp);
                     
-                    mapCoordTmp.TileH = 1;
-                    _coverSpriteTileCoords.Add(mapCoordTmp);
+                    // @miao @todo
+                    
+                    // 这里要看, 是否真正 cover到 sprite 了
+                    
+                    
+                    PALMap palMap = _mapService.GetCurrentMap().GetPalMap();
+                    
+                    // 当前 x,y,h 的 logic height
+                    int th = 0;
+                    int tileHeight = palMap.GetMapTileLogicHeight(tx, ty, th,ETileLayer.Bottom);
+                    if(tileHeight > 0)
+                    // if (tileHeight > 0 &&
+                    //     (ty + tileHeight) * 16  + th * 8 >= worldPixelY )
+                    {
+                        MapTileCoord mapCoordTmp = new MapTileCoord();
+                        mapCoordTmp.TileX = tx;
+                        mapCoordTmp.TileY = ty;
+                        mapCoordTmp.TileH = th;
+                        _coverSpriteTileCoords.Add(mapCoordTmp);
+                    }
+                    
+                    
+
+                    th = 1;
+                    tileHeight = palMap.GetMapTileLogicHeight(tx, ty, th,ETileLayer.Top);
+                    // if (tileHeight > 0 &&
+                    //     (ty + tileHeight) * 16  + th * 8 >= worldPixelY )
+                    if(tileHeight > 0)
+                    {
+                        MapTileCoord mapCoordTmp = new MapTileCoord();
+                        mapCoordTmp.TileX = tx;
+                        mapCoordTmp.TileY = ty;
+                        mapCoordTmp.TileH = th;
+                        _coverSpriteTileCoords.Add(mapCoordTmp);
+                    }
+
+
                 }
             }
         }

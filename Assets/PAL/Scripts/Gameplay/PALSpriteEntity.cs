@@ -57,6 +57,11 @@ namespace ayy.pal
             _logicalLayer = logicalLayer;
         }
 
+        public int GetLogicLayer()
+        {
+            return _logicalLayer;
+        }
+
         public void ApplyPixelPos(int viewportPixelX, int viewportPixelY)
         {
             PALSpriteFrame frame = _spritePresenter.GetCurrentSpriteFrame();

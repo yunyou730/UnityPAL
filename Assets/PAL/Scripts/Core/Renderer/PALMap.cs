@@ -81,7 +81,9 @@ namespace ayy.pal.core
                 return 0;
             }
             
-            uint d = Tiles[x, y, h];
+            // @miao @todo
+            // 注意,这里是故意写成 x,y,h 的, 和 原版 SDLPal 的 PAL_MapGetTileHeight() 的实现有差异
+            uint d = Tiles[x, y, h];        
             if (layer == ETileLayer.Top)
             {
                 d = d >> 16;

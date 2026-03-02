@@ -432,6 +432,11 @@ namespace ayy.pal
             _meshBottom.SetColors(_colorsCacheBottom);
             _meshTop.SetColors(_colorsCacheTop);
         }
+
+        public PALMap GetPalMap()
+        {
+            return _palMap;
+        }
     }
 }
 
