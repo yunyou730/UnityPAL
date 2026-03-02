@@ -36,23 +36,38 @@ namespace ayy.pal.core
     //
     public class PALMap
     {
-        public static int kMaxX = 128;
-        public static int kMaxY = 64;
-        public static int kMaxH = 2;
-        
+        /*
+         *  Tiles [ 128行, 64列, 2个子列]
+         */   
         public uint[,,] Tiles = new uint[128, 64, 2];   // each element:unsigned int, 4 bytes,32 bits
         public int MapIndex;        // map index, 4 bytes,32 bits
         public byte[] TileSprite = null;     // 8 bits pointer
 
+        
+        /*
+         * 参考  map.c PAL_MapGetTileBitmap
+         */
         public int GetSpriteIndexBottomLayer(int x,int y,int h)
-        {
-            int d = (int)Tiles[x,y,h];
+        {   
+            if (x >= 64 || y >= 128 || h > 1)
+            {
+                return -1;
+            }
+            int d = (int)Tiles[y,x,h];
             return (d & 0xFF) | ((d >> 4) & 0x100);
         }
-
+        
+        /*
+         * 参考  map.c PAL_MapGetTileBitmap
+         */
         public int GetSpriteIndexTopLayer(int x, int y, int h)
         {
-            int d = (int)Tiles[x,y,h];
+            if (x >= 64 || y >= 128 || h > 1)
+            {
+                return -1;
+            }
+            
+            int d = (int)Tiles[y,x,h];
             d = d >> 16;
             d = ((d & 0xFF) | ((d >> 4) & 0x100)) - 1;
             return d;
@@ -60,11 +75,11 @@ namespace ayy.pal.core
 
         public bool IsTileBlocked(int x, int y, int h)
         {
-            if(x >= 128 || y >= 64 || h > 1)
+            if(y >= 128 || x >= 64 || h > 1)
             {
                 return false;
             }
-            int d = (int)Tiles[x, y, h];
+            int d = (int)Tiles[y, x, h];
             d = (d & 0x2000) >> 13;
             return d > 0;
         }
@@ -76,14 +91,11 @@ namespace ayy.pal.core
          */
         public int GetMapTileLogicHeight(int x,int y,int h,ETileLayer layer)
         {
-            if (x >= 128 || y >= 64 || h > 1)
+            if(y >= 128 || x >= 64 || h > 1 || y < 0 || x < 0)
             {
                 return 0;
             }
-            
-            // @miao @todo
-            // 注意,这里是故意写成 x,y,h 的, 和 原版 SDLPal 的 PAL_MapGetTileHeight() 的实现有差异
-            uint d = Tiles[x, y, h];        
+            uint d = Tiles[y,x, h];        
             if (layer == ETileLayer.Top)
             {
                 d = d >> 16;

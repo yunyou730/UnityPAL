@@ -35,12 +35,16 @@ namespace ayy.pal
     {
         /*
          * 横向、纵向,各有多少个 tile
-         * 这里的值是固定的, 即: x方向 128个tile, y方向64个tile, h方向2个,
+         * 这里的值是固定的, 即:
+         *      纵向,有 128个tile,
+         *      横向,有 64个列,
+         *      每一列, h 有两个子列 . h 为0 或者 1 
          * 即, 地图固定是由 128x128 个 tile 构成
          */
-        private static int kTileCountX = 128;
-        private static int kTileCountY = 64;
-        private static int kTileCountH = 2;
+        
+        private static int kTileCountY = 128;   // 有 128行
+        private static int kTileCountX = 64;    // 有 64列
+        private static int kTileCountH = 2;     // 每一列, 都有交错 2个小列
 
         // 每个 tile 的 texture size, 这里是固定的
         private static int kTileW = 32;
@@ -241,15 +245,11 @@ namespace ayy.pal
             List<Vector2> uvs = new List<Vector2>();
             //List<Color> colors = new List<Color>();
             
-            
-            // private static int kTileCountX = 128;
-            // private static int kTileCountY = 64;
-            // private static int kTileCountH = 2;
-            for (int y = 0; y < kTileCountY; y++)
+            for (int x = 0; x < kTileCountX; x++)       // 64列 
             {
-                for (int h = 0; h < kTileCountH; h++)
+                for (int h = 0; h < kTileCountH; h++)   // 每一列的 2个子列
                 {
-                    for (int x = 0; x < kTileCountX; x++)
+                    for (int y = 0; y < kTileCountY; y++)   // 每一行,共 128行
                     {
                         AddMeshData(vertices, triangles, uvs, colorsCache,x, y, h,tileType);
                     }
@@ -292,7 +292,6 @@ namespace ayy.pal
                 float z = tileLayerType == ETileLayer.Top ? zTop : zBottom;
                 
                 // 这里根据 tile 的 logic Height , 来修改 tile 顶点的 unity 里的 z值
-                // @miao @todo
                 // 这里, 需要改成，如果 debug 地图, 则 直接使用 tileLogicHeight 来当作 z值；
                 // 否则，改成 真正的 (y + tileLogicHeight) * 16 + h * 8; z值计算公式；
                 //ETileLayer tileLayer = topOrBottom ? ELayer.Top : ELayer.Bottom;
@@ -302,8 +301,7 @@ namespace ayy.pal
                 
                 // 顶点位置, 应该按照 32x16来计算, 而不是 32x15.
                 // 在 tile 的 mesh 上, 额外增加了 0.005f倍数的冗余, 用于修正 地图中间会有间隙的问题
-                
-                Vector3 center = GetMapTilePos(y,x,h);// @miao, 这里，为什么要是反过来的 ?????? 看起来就是,不反过来,渲染结果就会不对            
+                Vector3 center = GetMapTilePos(x,y,h);
                 
                 float halfWidthWithExpand = _tileMeshWidth * 0.5f + _tileMeshWidth * 0.005f; 
                 float halfHeightWithExpand = _tileMeshHeight * 0.5f + _tileMeshHeight * 0.005f;

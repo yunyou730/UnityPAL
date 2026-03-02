@@ -371,9 +371,13 @@ namespace ayy.debugging
             int x = int.Parse(strs[0]);
             int y = int.Parse(strs[1]);
             int h = int.Parse(strs[2]);
-            Debug.Log($"x:{x},y:{y},h:{h}");
-
+            
             MapWrapper mapWrapper = _mapService.GetCurrentMap();
+            // @miao @Test
+            int topHeight = mapWrapper.GetPalMap().GetMapTileLogicHeight(x,y,h,ETileLayer.Top);
+            int bottomHeight = mapWrapper.GetPalMap().GetMapTileLogicHeight(x,y,h,ETileLayer.Bottom);
+            Debug.Log($"x:{x},y:{y},h:{h},logicHeight,top:{topHeight},bottom:{bottomHeight}");
+            
             mapWrapper.SetTileVertexColor(ETileLayer.Top,x,y,h,Color.blue);
             mapWrapper.SetTileVertexColor(ETileLayer.Bottom,x,y,h,Color.blue);
         }
