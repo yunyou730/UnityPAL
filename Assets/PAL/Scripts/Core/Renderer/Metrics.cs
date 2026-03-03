@@ -27,25 +27,19 @@ namespace ayy.pal
             return posUnits;
         }
         
-        public static void ConvertWorldSpacePixelCoordToTileCoord (
+        public static void ConvertWorldSpacePixelCoordToTileCoord(
             int worldPixelX,
             int worldPixelY,
             out MapTileCoord mapCoord)
         {
-            // int worldPixelX = viewportX + pixelX - layer / 2;
-            // int worldPixelY = viewportY + pixelY - layer;
-
-            // int tileX = 0;
-            // int tileY = 0;
-            // int tileH = 0;
-            // 把 世界空间下的 pixel 坐标,转换为 tile x,y,h 坐标
-            // tileX = worldPixelX / 32;
-            // tileY = (worldPixelY - 15) / 16;
-            // tileH = (worldPixelX % 32 != 0) ? 1 : 0;
-
-            // 看起来好像计算对了,但是为什么总感觉,到了我这, tileX,tileY 是反过来的...
-            mapCoord.TileX = (worldPixelY - 15) / 16;
-            mapCoord.TileY = worldPixelX / 32;
+            // 32是一个 tile 的 宽度. worldPixelX / 32 相当于在计算, tile的 x坐标
+            mapCoord.TileX = worldPixelX / 32;
+            
+            // 16 是一个 tile 的高度, worldPixelY / 16 相当于是计算, tile的 y坐标
+            mapCoord.TileY = (worldPixelY - 15) / 16;
+            
+            // 要根据 worldPixelY % 32 是否能除尽, 如果能,则 h是 0; 否则 h是1 。
+            // h是 tile坐标体系里的 y坐标扩展  
             mapCoord.TileH = (worldPixelY % 32 != 0) ? 1 : 0;
         }
     }
