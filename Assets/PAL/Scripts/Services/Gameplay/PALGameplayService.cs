@@ -353,15 +353,15 @@ namespace ayy.pal
             PALSpriteFrame spriteFrame)
         {
             // 计算所有,可能遮挡该 sprite 的 tiles
-            // @miao @todo
             // DOS 世界空间下, 像素坐标
             int worldPixelX = viewportX + pixelX - layer / 2;
             int worldPixelY = viewportY + pixelY - layer;
             
             
-            
-            
-            
+            // @miao @todo
+            // 这里, 计算一个 sprite, 可能辉覆盖 哪些 tile , 
+            // 并以 MapTileCoord 的坐标形式, 存储在一个 List 里.
+            // 这里目前的计算有问题, 把这个计算对, 应该就差不多了
             MapTileCoord mapCoord1;
             Metrics.ConvertWorldSpacePixelCoordToTileCoord(worldPixelX - spriteFrame.W / 2,worldPixelY - spriteFrame.H,out mapCoord1);
 
@@ -372,28 +372,31 @@ namespace ayy.pal
             {
                 for (int tx = mapCoord1.TileX; tx <= mapCoord2.TileX; tx++)
                 {
-                    // MapTileCoord mapCoordTmp = new MapTileCoord();
-                    // mapCoordTmp.TileX = tx;
-                    // mapCoordTmp.TileY = ty;
-                    // mapCoordTmp.TileH = 0;
-                    // _coverSpriteTileCoords.Add(mapCoordTmp);
-                    //
-                    // mapCoordTmp.TileH = 1;
-                    // _coverSpriteTileCoords.Add(mapCoordTmp);
+                    // @miao @todo,
+                    // 用于可视化测试. 不管覆盖不覆盖, 先把 tile 标记了再说
+                    // MapTileCoord mapCoordTmp11 = new MapTileCoord();
+                    // mapCoordTmp11.TileX = tx;
+                    // mapCoordTmp11.TileY = ty;
+                    // mapCoordTmp11.TileH = 0;
+                    // _coverSpriteTileCoords.Add(mapCoordTmp11);
+                    // mapCoordTmp11.TileH = 1;
+                    // _coverSpriteTileCoords.Add(mapCoordTmp11);
                     
                     // @miao @todo
                     
                     // 这里要看, 是否真正 cover到 sprite 了
-                    
                     
                     PALMap palMap = _mapService.GetCurrentMap().GetPalMap();
                     
                     // 当前 x,y,h 的 logic height
                     int th = 0;
                     int tileHeight = palMap.GetMapTileLogicHeight(tx, ty, th,ETileLayer.Bottom);
-                    if(tileHeight > 0)
-                    // if (tileHeight > 0 &&
-                    //     (ty + tileHeight) * 16  + th * 8 >= worldPixelY )
+
+                    int tilePixelY = palMap.GetMapTilePixelYCoord(tx,ty,th,ETileLayer.Bottom);
+                    
+                    if (tileHeight > 0 
+                        //&& (ty + tileHeight) * 16  + th * 8 >= worldPixelY )
+                        && tilePixelY >= worldPixelY)
                     {
                         MapTileCoord mapCoordTmp = new MapTileCoord();
                         mapCoordTmp.TileX = tx;
@@ -402,13 +405,13 @@ namespace ayy.pal
                         _coverSpriteTileCoords.Add(mapCoordTmp);
                     }
                     
-                    
-
                     th = 1;
                     tileHeight = palMap.GetMapTileLogicHeight(tx, ty, th,ETileLayer.Top);
-                    // if (tileHeight > 0 &&
-                    //     (ty + tileHeight) * 16  + th * 8 >= worldPixelY )
-                    if(tileHeight > 0)
+                    tilePixelY = palMap.GetMapTilePixelYCoord(tx,ty,th,ETileLayer.Bottom);
+                    
+                    if (tileHeight > 0 
+                        //&& (ty + tileHeight) * 16  + th * 8 >= worldPixelY )
+                        && tilePixelY >= worldPixelY)
                     {
                         MapTileCoord mapCoordTmp = new MapTileCoord();
                         mapCoordTmp.TileX = tx;
@@ -416,8 +419,6 @@ namespace ayy.pal
                         mapCoordTmp.TileH = th;
                         _coverSpriteTileCoords.Add(mapCoordTmp);
                     }
-
-
                 }
             }
         }

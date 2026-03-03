@@ -103,6 +103,29 @@ namespace ayy.pal.core
             d = d >> 8;
             return ((int)d & 0xf);
         }
+
+
+        /*
+         * 参考 scene.c, 把 tile 的像素坐标 y值, 和 sprite 的底部像素坐标 y值,做比较的逻辑 
+         * (ty + tileHeight) * 16  + th * 8
+         */
+        public int GetMapTilePixelYCoord(int tx,int ty,int th,ETileLayer layer)
+        {
+            int tileLogicHeight = GetMapTileLogicHeight(tx,ty,th,layer);
+            if (tileLogicHeight == 0)
+            {
+                return 0;
+            }
+            // ty: tile 处于第几行.
+            // ty * 16, 这里的 16 是每个 tile 的 height
+            // (ty + tileLogicHeight) * 16, 这里的 tileLogicHeight,
+            //      是每个 tile 的逻辑高度. 在 像素坐标y的基础上拉高.
+            //      这个值应该是 8的倍数
+            // th * 8, 这里的 th , 是 tile 的 h坐标, 0或者1
+            //  这里的 8 , 是 tile坐标 x,y相同时, 相邻的 h = 0 和 h = 1, 所相差 的 半个tile.height (16) 的像素距离 8 
+            int ret = (ty + tileLogicHeight) * 16 + th * 8;
+            return ret;
+        }
     }
 
     public unsafe class PALMapWrapper
