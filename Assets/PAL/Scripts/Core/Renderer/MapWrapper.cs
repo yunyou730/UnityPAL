@@ -87,6 +87,15 @@ namespace ayy.pal
         private List<Color> _colorsCacheTop = new List<Color>();
         // private bool _colorDirtyFlag = false;
         
+        
+        // 记录每个 tile, 顶点position属性,开始的下标
+        // key: 字符串, tileLayer_x_y_h
+        // value: 下标索引
+        // 用于能方便的 更新顶点位置
+        private Dictionary<string,int> _vertPosAttrBeginIndex = new Dictionary<string, int>();
+        private List<Vector3> _vertPosCacheBottom = new List<Vector3>();
+        private List<Vector3> _vertPosCacheTop = new List<Vector3>();
+        
         public MapWrapper(PALMapWrapper map,int mapIndex)
         {
             _palMap = map.LoadMapWithIndex(mapIndex);
@@ -124,13 +133,19 @@ namespace ayy.pal
         {
             _tilemapTexture = CreateTileMapTexture(mode);
             
-            // 清空数据
+            // 清空数据. 顶点颜色数据
             _vertColorAttrBeginIndex.Clear();
             _colorsCacheBottom.Clear();
             _colorsCacheTop.Clear();
             
-            _meshBottom = CreateTileMapMesh(ETileLayer.Bottom,_colorsCacheBottom);
-            _meshTop = CreateTileMapMesh(ETileLayer.Top,_colorsCacheTop);
+            // 清空数据, 顶点位置数据
+            _vertPosAttrBeginIndex.Clear();
+            _vertPosCacheBottom.Clear();
+            _vertPosCacheTop.Clear();
+            
+            // 开始构建 mesh
+            _meshBottom = CreateTileMapMesh(ETileLayer.Bottom,_vertPosCacheBottom,_colorsCacheBottom);
+            _meshTop = CreateTileMapMesh(ETileLayer.Top,_vertPosCacheTop,_colorsCacheTop);
         }
 
         private Texture2D CreateTileMapTexture(EColorMode mode)
@@ -231,7 +246,7 @@ namespace ayy.pal
             return _tilemapTexture;
         }
         
-        private Mesh CreateTileMapMesh(ETileLayer tileType,List<Color> colorsCache)
+        private Mesh CreateTileMapMesh(ETileLayer tileType,List<Vector3> vertPosCache,List<Color> colorsCache)
         {
             if (_palMap == null)
             {
@@ -240,7 +255,7 @@ namespace ayy.pal
             
             Mesh mesh = new Mesh();
             mesh.MarkDynamic();     // 经常有 属性变动的mesh, 调用这个可以有写性能上的优化
-            List<Vector3> vertices = new List<Vector3>();
+            //List<Vector3> vertices = new List<Vector3>();
             List<int> triangles = new List<int>();
             List<Vector2> uvs = new List<Vector2>();
             //List<Color> colors = new List<Color>();
@@ -251,11 +266,11 @@ namespace ayy.pal
                 {
                     for (int y = 0; y < kTileCountY; y++)   // 每一行,共 128行
                     {
-                        AddMeshData(vertices, triangles, uvs, colorsCache,x, y, h,tileType);
+                        AddMeshData(vertPosCache, triangles, uvs, colorsCache,x, y, h,tileType);
                     }
                 }
             }
-            mesh.SetVertices(vertices);
+            mesh.SetVertices(vertPosCache);
             mesh.SetUVs(0,uvs);
             
             // @miao @todo
@@ -287,9 +302,10 @@ namespace ayy.pal
 
             if (frameIndex >= 0 && frameIndex < _spriteFrameCount)
             {
-                float zBottom = 0.0f;
-                float zTop = -0.01f;
-                float z = tileLayerType == ETileLayer.Top ? zTop : zBottom;
+                // 临时存储 当前tile 的 顶点属性, 用于后面做修改
+                string tileKey = GetTileKey(tileLayerType, x, y, h);
+                float z = GetZForTileLayerType(tileLayerType,false);
+                
                 
                 // 这里根据 tile 的 logic Height , 来修改 tile 顶点的 unity 里的 z值
                 // 这里, 需要改成，如果 debug 地图, 则 直接使用 tileLogicHeight 来当作 z值；
@@ -300,11 +316,15 @@ namespace ayy.pal
                 //float logicDepthZ = z - tileZ * PalConst.Z_SCALE_FACTOR;
                 
                 // 顶点位置, 应该按照 32x16来计算, 而不是 32x15.
-                // 在 tile 的 mesh 上, 额外增加了 0.005f倍数的冗余, 用于修正 地图中间会有间隙的问题
-                Vector3 center = GetMapTilePos(x,y,h);
+                Vector3 center = GetMapTileCenterPos(x,y,h);
                 
+                // 在 tile 的 mesh 上, 额外增加了 0.005f倍数的冗余, 用于修正 地图中间会有间隙的问题
                 float halfWidthWithExpand = _tileMeshWidth * 0.5f + _tileMeshWidth * 0.005f; 
                 float halfHeightWithExpand = _tileMeshHeight * 0.5f + _tileMeshHeight * 0.005f;
+                
+                // 把顶点数据, 缓存起来
+                _vertPosAttrBeginIndex.Add(tileKey,vertices.Count);   //  用于快速定位 某个tile 的 pos属性
+                
                 vertices.Add(new Vector3(center.x - halfWidthWithExpand,center.y - halfHeightWithExpand,z));
                 vertices.Add(new Vector3(center.x + halfWidthWithExpand,center.y - halfHeightWithExpand,z));
                 vertices.Add(new Vector3(center.x - halfWidthWithExpand,center.y + halfHeightWithExpand,z));
@@ -333,11 +353,8 @@ namespace ayy.pal
                     color.g = 0.0f;
                     color.b = 0.0f;
                 }
-
-
-                // @miao @todo
-                string tileKey = GetTileKey(tileLayerType, x, y, h);    // 临时存储 当前tile 的 顶点的颜色值, 用于后面做修改
-                _vertColorAttrBeginIndex.Add(tileKey,colors.Count);
+                
+                _vertColorAttrBeginIndex.Add(tileKey,colors.Count); //  用于快速定位 某个tile 的 color属性
                 
                 colors.Add(color);
                 colors.Add(color);
@@ -364,7 +381,21 @@ namespace ayy.pal
             return _meshTop;
         }
 
-        private Vector3 GetMapTilePos(int tileX,int tileY,int tileH)
+        public float GetZForTileLayerType(ETileLayer tileLayerType,bool coverSprite)
+        {
+            float zBottom = 0.0f;
+            float zTop = -0.01f;
+            float z = tileLayerType == ETileLayer.Top ? zTop : zBottom;
+            if (coverSprite)
+            {
+                // @miao @todo
+                z = z - 10.0f;
+            }
+            return z;
+        }
+
+
+        private Vector3 GetMapTileCenterPos(int tileX,int tileY,int tileH)
         {
             float W = _tileMeshWidth;
             float H = _tileMeshHeight;
@@ -429,6 +460,41 @@ namespace ayy.pal
         {
             _meshBottom.SetColors(_colorsCacheBottom);
             _meshTop.SetColors(_colorsCacheTop);
+        }
+
+        public void SetTileVertPosZ(ETileLayer tileLayer,int x,int y,int h,float z)
+        {
+            string tileKey = GetTileKey(tileLayer, x, y, h);
+            if (!_vertColorAttrBeginIndex.ContainsKey(tileKey))
+            {
+                return;
+            }
+
+            List<Vector3> posCache = null;
+            switch (tileLayer)
+            {
+                case ETileLayer.Bottom:
+                    posCache = _vertPosCacheBottom;
+                    break;
+                case ETileLayer.Top:
+                    posCache = _vertPosCacheTop;
+                    break;
+            }
+            
+            int beginIndex = _vertPosAttrBeginIndex[tileKey];
+            int endIndex = beginIndex + 4;
+            for (int i = beginIndex; i < endIndex; i++)
+            {
+                Vector3 pos = posCache[i];
+                pos.z = z;
+                posCache[i] = pos;
+            }
+        }
+
+        public void ApplyTileVertPosZChange()
+        {
+            _meshBottom.SetVertices(_vertPosCacheBottom);
+            _meshTop.SetVertices(_vertPosCacheTop);
         }
 
         public PALMap GetPalMap()

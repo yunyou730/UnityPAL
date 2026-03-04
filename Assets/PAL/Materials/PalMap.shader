@@ -16,9 +16,10 @@ Shader "ayy/PAL/PalMap"
             "RenderType" = "Transparent"
         }
         Blend SrcAlpha OneMinusSrcAlpha
-        Cull Off
-        ZTest Off
-        LOD 100
+        Cull Front
+        //Cull Off
+        ZTest On
+        ZWrite On
         
         Pass
         {
@@ -70,7 +71,11 @@ Shader "ayy/PAL/PalMap"
                     //col.rgb *= i.color.rgb;
                     col.rgb += i.color.rgb;
                 }
-
+                if (col.a < 0.5)
+                {
+                    discard;
+                }
+                //clip(col.a < 0.5);
                 //return float4(_EnableDepthZ,0.0,0.0,1.0);
                 return col;
             }

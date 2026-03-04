@@ -16,10 +16,10 @@ namespace ayy.pal
     public class SpriteEntity : IDisposable
     {
         public int Key = 0;  // 作为 map的 key, 来管理 sprite
-        public SpritePresenter _spritePresenter = null;    // 展示 sprite frame
-        public int _pixelX = 0;
-        public int _pixelY = 0;
-        public int _logicalLayer = 0;
+        private SpritePresenter _spritePresenter = null;    // 展示 sprite frame
+        private int _pixelX = 0;
+        private int _pixelY = 0;
+        private int _logicalLayer = 0;
         private int _spriteId = 0;
 
         public SpriteEntity(int key,int spriteId)
@@ -55,6 +55,17 @@ namespace ayy.pal
         public void SetLayer(int logicalLayer)
         {
             _logicalLayer = logicalLayer;
+        }
+
+        public void GetPixelPos(out int px,out int py)
+        {
+            px = _pixelX;
+            py = _pixelY;
+        }
+
+        public PALSpriteFrame GetCurrentSpriteFrame()
+        {
+            return _spritePresenter.GetCurrentSpriteFrame();
         }
 
         public int GetLogicLayer()

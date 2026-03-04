@@ -86,15 +86,16 @@ namespace ayy.pal
 
         private void FrameRefresh()
         {
-            // @miao @todo
-            //. 注意！！这里一致频繁修改 mesh，从mesh 里获取colors 数组, 有大的性能问题!
-            // 可以先把 逻辑写对, 后面解决一下这个逻辑!!
-            ClearCoverFrameTiles();
+            ClearCoverSpriteTiles();
             UpdateViewport();
             UpdateCameraFollowViewport();
             UpdateSpriteEntities();
-            ApplyCoverFrameTiles();
+            ApplyCoverSpriteTiles();
+            
+            
+            //SortSpritesAndlTiles();
         }
+        
 
         private void LoadPalette()
         {
@@ -267,27 +268,39 @@ namespace ayy.pal
         }
 
         // 用于处理 tiles 和 sprite 的遮挡关系, 还原所有 tiles 的 z值
-        private void ClearCoverFrameTiles()
+        private void ClearCoverSpriteTiles()
         {
             MapWrapper mapWrapper = _mapService.GetCurrentMap();
             foreach (MapTileCoord tileCoord in _coverSpriteTileCoords)
             {
                 mapWrapper.SetTileVertexColor(ETileLayer.Top,tileCoord.TileX,tileCoord.TileY,tileCoord.TileH,Color.black);
                 mapWrapper.SetTileVertexColor(ETileLayer.Bottom,tileCoord.TileX,tileCoord.TileY,tileCoord.TileH,Color.black);
+                
+                float z = mapWrapper.GetZForTileLayerType(tileCoord.TileLayer,false);
+                mapWrapper.SetTileVertPosZ(tileCoord.TileLayer,tileCoord.TileX,tileCoord.TileY,tileCoord.TileH,z);
             }
             _coverSpriteTileCoords.Clear();
         }
 
         // 用于处理 tiles 和 sprite 的遮挡关系, 拔高所有 tiles 的 z值
-        private void ApplyCoverFrameTiles()
+        private void ApplyCoverSpriteTiles()
         {
+            PALMap palMap = _mapService.GetCurrentMap().GetPalMap();
             MapWrapper mapWrapper = _mapService.GetCurrentMap();
             foreach (MapTileCoord tileCoord in _coverSpriteTileCoords)
             {
                 mapWrapper.SetTileVertexColor(ETileLayer.Top,tileCoord.TileX,tileCoord.TileY,tileCoord.TileH,Color.yellow);
                 mapWrapper.SetTileVertexColor(ETileLayer.Bottom,tileCoord.TileX,tileCoord.TileY,tileCoord.TileH,Color.yellow);
+                
+                // @miao @todo
+                float z = mapWrapper.GetZForTileLayerType(tileCoord.TileLayer, true);
+                //int logicHeight = palMap.GetMapTileLogicHeight(tileCoord.TileX,tileCoord.TileY,tileCoord.TileH,tileCoord.TileLayer);
+                //float z = logicHeight * 8 + (int)tileCoord.TileLayer;
+                //z = -z;
+                mapWrapper.SetTileVertPosZ(tileCoord.TileLayer, tileCoord.TileX, tileCoord.TileY, tileCoord.TileH, z);
             }
             mapWrapper.ApplyTileVertexColorsChange();
+            mapWrapper.ApplyTileVertPosZChange();
         }
 		
 		/*
@@ -302,7 +315,6 @@ namespace ayy.pal
          		gpGlobals->rgParty[i].x - PAL_RLEGetWidth(lpBitmap) / 2,
          		gpGlobals->rgParty[i].y + gpGlobals->wLayer + 10,
          		gpGlobals->wLayer + 6);
-
 
 			PAL_AddSpriteToDraw 做了几件事
 			1. 收集  party member 的 sprites ,以及对应的 cover tiles
@@ -329,17 +341,13 @@ namespace ayy.pal
                 spriteEntity.SetPixelPosition(pixelX,pixelY);
                 spriteEntity.SetLayer(layer + 6);   // hard code + 6, 需要抽象为枚举
                 spriteEntity.ApplyPixelPos(viewportX,viewportY);
-
-
-                // @miao @todo
                 
-                UpdateTilesSpriteOcclusion(
-                    viewportX,
-                    viewportY,
-                    pixelX,
-                    pixelY,
-                    spriteEntity.GetLogicLayer(),
-                    spriteFrame);
+                // @miao @todo
+                // 这里,直接设置 sprite Entity 的 z值
+                
+                
+                // 在下面的函数中, 也直接设置 ,可能遮挡 sprite 的tiles 的 z值
+                UpdateTilesSpriteOcclusion(viewportX, viewportY, spriteEntity);
             }
         }
         
@@ -347,11 +355,14 @@ namespace ayy.pal
         private void UpdateTilesSpriteOcclusion(
             int viewportX,
             int viewportY,
-            int pixelX,
-            int pixelY,
-            int layer,
-            PALSpriteFrame spriteFrame)
+            SpriteEntity spriteEntity)
         {
+            int pixelX,pixelY;
+            spriteEntity.GetPixelPos(out pixelX,out pixelY);
+            
+            int layer = spriteEntity.GetLogicLayer();
+            PALSpriteFrame spriteFrame = spriteEntity.GetCurrentSpriteFrame();
+            
             // 计算所有,可能遮挡该 sprite 的 tiles
             // DOS 世界空间下, 像素坐标
             int sx = viewportX + pixelX - layer / 2;
@@ -429,7 +440,7 @@ namespace ayy.pal
                                 coord.TileX = dx;
                                 coord.TileY = dy;
                                 coord.TileH = dh;
-                                
+                                coord.TileLayer = ETileLayer.Bottom;
                                 _coverSpriteTileCoords.Add(coord);
                             }
                         }
@@ -448,7 +459,7 @@ namespace ayy.pal
                                 coord.TileX = dx;
                                 coord.TileY = dy;
                                 coord.TileH = dh;
-                                
+                                coord.TileLayer = ETileLayer.Top;
                                 _coverSpriteTileCoords.Add(coord);
                             }
                         }
@@ -458,10 +469,21 @@ namespace ayy.pal
             }
             
             Debug.Log("ayy-end cover tiles");
-
         }
-        
-        
     }
+
+
+    // enum ESortItemType
+    // {
+    //     Sprite,
+    //     Tile,
+    // }
+    //
+    // struct SortItem
+    // {
+    //     ESortItemType itemType;
+    //     public int spriteEntityKey;
+    //     public MapTileCoord tileCoord;
+    // }
 }
 

@@ -41,6 +41,9 @@ namespace ayy.pal
             // 要根据 worldPixelY % 32 是否能除尽, 如果能,则 h是 0; 否则 h是1 。
             // h是 tile坐标体系里的 y坐标扩展  
             mapCoord.TileH = (worldPixelY % 32 != 0) ? 1 : 0;
+
+            // 临时随便写一个, 大部分时候用不上
+            mapCoord.TileLayer = ETileLayer.Bottom;
         }
     }
 
@@ -50,6 +53,7 @@ namespace ayy.pal
         public int TileX;
         public int TileY;
         public int TileH;
+        public ETileLayer TileLayer;
     }
 }
 
