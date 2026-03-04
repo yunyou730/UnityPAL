@@ -370,6 +370,8 @@ namespace ayy.pal
             
             PALMap palMap = _mapService.GetCurrentMap().GetPalMap();
             
+            // 这里, 具体覆盖哪些 tiles 这块, 说实话没看太懂. 
+            // 先照着抄吧！
             for (int y = (sy - height - 15) / 16; y <= sy / 16; y++)
             {
                 for (int x = (sx - width / 2) / 32; x <= (sx + width / 2) / 32; x++)
@@ -411,13 +413,46 @@ namespace ayy.pal
                                 dy = (sh == 1 ? (y + 1) : y);
                                 dh = 1 - sh;
                                 break;
-                        }                        
-                        
-                        int logicHeight = palMap.GetMapTileLogicHeight(dx, dy, dh, ETileLayer.Bottom);
-                        Debug.Log($"tile (x:{dx},y:{dy},h:{dh},l:{ETileLayer.Bottom}) height = {logicHeight}");
+                        }
 
-                        logicHeight = palMap.GetMapTileLogicHeight(dx, dy, dh, ETileLayer.Top);
-                        Debug.Log($"tile (x:{dx},y:{dy},h:{dh},l:{ETileLayer.Top}) height = {logicHeight}");                        
+                        // bottom
+                        {
+                            int logicHeight = palMap.GetMapTileLogicHeight(dx, dy, dh, ETileLayer.Bottom);
+                            int tilePixelY = palMap.GetMapTilePixelYCoord(dx, dy, dh, ETileLayer.Bottom);
+                            //Debug.Log($"tile (x:{dx},y:{dy},h:{dh},l:{ETileLayer.Bottom}) height = {logicHeight}");
+
+                            if (logicHeight > 0 && tilePixelY >= sy)
+                            {
+                                Debug.Log($"tile (x:{dx},y:{dy},h:{dh},l:{ETileLayer.Bottom}) height = {logicHeight}");
+                                
+                                MapTileCoord coord = new MapTileCoord();
+                                coord.TileX = dx;
+                                coord.TileY = dy;
+                                coord.TileH = dh;
+                                
+                                _coverSpriteTileCoords.Add(coord);
+                            }
+                        }
+
+                        // top
+                        {
+                            int logicHeight = palMap.GetMapTileLogicHeight(dx, dy, dh, ETileLayer.Top);
+                            int tilePixelY = palMap.GetMapTilePixelYCoord(dx, dy, dh, ETileLayer.Top);
+                            //Debug.Log($"tile (x:{dx},y:{dy},h:{dh},l:{ETileLayer.Top}) height = {logicHeight}");
+                            
+                            if (logicHeight > 0 && tilePixelY >= sy)
+                            {
+                                Debug.Log($"tile (x:{dx},y:{dy},h:{dh},l:{ETileLayer.Top}) height = {logicHeight}");
+                                
+                                MapTileCoord coord = new MapTileCoord();
+                                coord.TileX = dx;
+                                coord.TileY = dy;
+                                coord.TileH = dh;
+                                
+                                _coverSpriteTileCoords.Add(coord);
+                            }
+                        }
+                                          
                     }
                 }
             }
