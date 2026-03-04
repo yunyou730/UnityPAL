@@ -62,6 +62,12 @@ namespace ayy.pal
             return _logicalLayer;
         }
 
+        /*
+         * 参考 scene.c
+         * Draw all the sprites to the screen
+         * x = p->pos.x
+         * y = p->pos - SpriteFrame.H - p.layer
+         */
         public void ApplyPixelPos(int viewportPixelX, int viewportPixelY)
         {
             PALSpriteFrame frame = _spritePresenter.GetCurrentSpriteFrame();
