@@ -56,7 +56,6 @@ namespace ayy.pal
         // GameData,参考 tagGLOBALVARS.GAMEDATA
         public PALGameData GameData = new PALGameData();
         
-        
         // RoleID 和 Sprite资源ID 的映射关系
         // key: roleId, value: spriteId sprite的资源id
         // 看起来应该是读的配置,是固定的

@@ -199,7 +199,7 @@ namespace ayy.debugging
                     int spriteOffsetPixelY = 66;
                     int pixelX = viewportPixelX + spriteOffsetPixelX;
                     int pixelY = viewportPixelY + spriteOffsetPixelY;
-                    _spritePresenter.SetPixelPos(pixelX, pixelY);
+                    _spritePresenter.SetPixelPos(pixelX, pixelY,-10);
                 }
             }
         }
@@ -355,7 +355,7 @@ namespace ayy.debugging
                 {
                     int px = viewportX + partyOffsetX;
                     int py = viewportY + partyOffsetY;
-                    _spritePresenter.SetPixelPos(px, py);
+                    _spritePresenter.SetPixelPos(px, py,-10);
                 }
             }
             catch (Exception e)

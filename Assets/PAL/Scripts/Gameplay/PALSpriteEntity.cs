@@ -79,16 +79,25 @@ namespace ayy.pal
          * x = p->pos.x
          * y = p->pos - SpriteFrame.H - p.layer
          */
-        public void ApplyPixelPos(int viewportPixelX, int viewportPixelY)
+        public void ApplyPixelPos(int viewportPixelX, int viewportPixelY,
+                float z)
         {
             PALSpriteFrame frame = _spritePresenter.GetCurrentSpriteFrame();
             int ox = _pixelX;
             int oy = _pixelY - frame.H - _logicalLayer;
 
-            int x = viewportPixelX + ox;
-            int y = viewportPixelY + oy;
-            _spritePresenter.SetPixelPos(x,y);
+            int worldPixelX = viewportPixelX + ox;
+            int worldPixelY = viewportPixelY + oy;
+            _spritePresenter.SetPixelPos(worldPixelX,worldPixelY,z);
         }
+
+        // public void SetSpriteZ(float z)
+        // {
+        //     _spritePresenter.SetPositionZ(z);
+        // }
+
+        public int GetPixelX() => _pixelX;
+        public int GetPixelY() => _pixelY;
     }
 }
 

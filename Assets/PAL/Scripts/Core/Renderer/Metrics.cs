@@ -16,6 +16,9 @@ namespace ayy.pal
             return units;
         }
         
+        /*
+         * "像素坐标" 转换为 Unity 里面的 "单位坐标"
+         */
         public static Vector2 ConvertPixelPosToUnitPos(int pixelCoordX,int pixelCoordY)
         {
             // @miao @todo
@@ -27,24 +30,24 @@ namespace ayy.pal
             return posUnits;
         }
         
-        public static void ConvertWorldSpacePixelCoordToTileCoord(
-            int worldPixelX,
-            int worldPixelY,
-            out MapTileCoord mapCoord)
-        {
-            // 32是一个 tile 的 宽度. worldPixelX / 32 相当于在计算, tile的 x坐标
-            mapCoord.TileX = worldPixelX / 32;
-            
-            // 16 是一个 tile 的高度, worldPixelY / 16 相当于是计算, tile的 y坐标
-            mapCoord.TileY = (worldPixelY - 15) / 16;
-            
-            // 要根据 worldPixelY % 32 是否能除尽, 如果能,则 h是 0; 否则 h是1 。
-            // h是 tile坐标体系里的 y坐标扩展  
-            mapCoord.TileH = (worldPixelY % 32 != 0) ? 1 : 0;
-
-            // 临时随便写一个, 大部分时候用不上
-            mapCoord.TileLayer = ETileLayer.Bottom;
-        }
+        // public static void ConvertWorldSpacePixelCoordToTileCoord(
+        //     int worldPixelX,
+        //     int worldPixelY,
+        //     out MapTileCoord mapCoord)
+        // {
+        //     // 32是一个 tile 的 宽度. worldPixelX / 32 相当于在计算, tile的 x坐标
+        //     mapCoord.TileX = worldPixelX / 32;
+        //     
+        //     // 16 是一个 tile 的高度, worldPixelY / 16 相当于是计算, tile的 y坐标
+        //     mapCoord.TileY = (worldPixelY - 15) / 16;
+        //     
+        //     // 要根据 worldPixelY % 32 是否能除尽, 如果能,则 h是 0; 否则 h是1 。
+        //     // h是 tile坐标体系里的 y坐标扩展  
+        //     mapCoord.TileH = (worldPixelY % 32 != 0) ? 1 : 0;
+        //
+        //     // 临时随便写一个, 大部分时候用不上
+        //     mapCoord.TileLayer = ETileLayer.Bottom;
+        // }
     }
 
 

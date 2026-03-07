@@ -59,18 +59,27 @@ namespace ayy.pal
          * 要想绘制和游戏逻辑一致, 需要偏移 w/2,h/2
          * 游戏里的数据, 都是在描述 sprite pivot在 (0.5,0.5) 的像素坐标
          */
-        public void SetPixelPos(int pixelX, int pixelY)
+        public void SetPixelPos(int worldPixelX, int worldPixelY,float z)
         {
             int pixelWidth = GetCurrentSpriteFrame().W;
             int pixelHeight = GetCurrentSpriteFrame().H;
             
-            pixelX = pixelX + pixelWidth / 2;
-            pixelY = pixelY + pixelHeight / 2;
-            Vector2 pos = Metrics.ConvertPixelPosToUnitPos(pixelX, pixelY);
+            worldPixelX = worldPixelX + pixelWidth / 2;
+            worldPixelY = worldPixelY + pixelHeight / 2;
+            Vector2 pos = Metrics.ConvertPixelPosToUnitPos(worldPixelX, worldPixelY);
             
-            float originZ = transform.localPosition.z;
-            transform.localPosition = new Vector3(pos.x, pos.y, originZ);
+            //float originZ = transform.localPosition.z;
+            //transform.localPosition = new Vector3(pos.x, pos.y, originZ);
+            // @miao @todo
+            // 会不会这里,localPosition的问题????
+            transform.position = new Vector3(pos.x, pos.y, z);
         }
+
+        // public void SetPositionZ(float z)
+        // {
+        //     Vector3 curPos = transform.localPosition;
+        //     transform.localPosition = new Vector3(curPos.x,curPos.y,z);
+        // }
 
         private void SwitchFrame(int frameIndex)
         {

@@ -353,14 +353,14 @@ namespace ayy.pal
                     color.g = 0.0f;
                     color.b = 0.0f;
                 }
-                
+
                 _vertColorAttrBeginIndex.Add(tileKey,colors.Count); //  用于快速定位 某个tile 的 color属性
-                
+
                 colors.Add(color);
                 colors.Add(color);
                 colors.Add(color);
                 colors.Add(color);
-                        
+
                 int cnt = vertices.Count;
                 triangles.Add(cnt-4);
                 triangles.Add(cnt-3);
