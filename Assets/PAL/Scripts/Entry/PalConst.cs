@@ -8,11 +8,10 @@ namespace ayy.pal
     class PalConst
     {
         // 相机 Default Z 
-        public static float CAMERA_DEFAULt_Z = -1000.0f;
+        public static readonly float CAMERA_DEFAULt_Z = -1000.0f;
         
-        // 调试 z 值的缩放比例,
-        //public static float Z_SCALE_FACTOR = 0.01f;
-        public static float Z_SCALE_FACTOR = 1.0f;
+        // Sprite Tile Z Offset Scale Factor , 处理 tiles 和 sprite 遮挡时, 动态调整 z值的缩放比例,
+        public static readonly  float Z_SCALE_FACTOR = 0.01f;
         
     }
 }

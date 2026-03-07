@@ -42,14 +42,17 @@ namespace ayy.pal
          * 即, 地图固定是由 128x128 个 tile 构成
          */
         
-        private static int kTileCountY = 128;   // 有 128行
-        private static int kTileCountX = 64;    // 有 64列
-        private static int kTileCountH = 2;     // 每一列, 都有交错 2个小列
+        private static readonly int kTileCountY = 128;   // 有 128行
+        private static readonly int kTileCountX = 64;    // 有 64列
+        private static readonly int kTileCountH = 2;     // 每一列, 都有交错 2个小列
 
         // 每个 tile 的 texture size, 这里是固定的
-        private static int kTileW = 32;
-        private static int kTileH = 15;
+        public static readonly int kTilePixelsW = 32;
+        public static readonly int kTilePixelsH = 15;
+        
+        public static readonly int kTilePixelSizeH = 16;
         //private static int kTileH = 16;
+        
 
         // 每个tile 在 unity 里的 mesh tile 的 size
         // 在初始化的时候, 需要根据 Metrics 的 size转换功能, 做一次转换
@@ -104,8 +107,9 @@ namespace ayy.pal
             _paletteService = PalGame.GetInstance().GetService<PaletteService>();
             
             // 顶点位置, 应该按照 32x16来计算, 而不是 32x15. 因此,这里需要在 kTileH (15)的基础上 + 1
-            _tileMeshWidth = Metrics.ConvertPixelsToUnit(kTileW);
-            _tileMeshHeight = Metrics.ConvertPixelsToUnit(kTileH + 1);
+            _tileMeshWidth = Metrics.ConvertPixelsToUnit(kTilePixelsW);
+            _tileMeshHeight = Metrics.ConvertPixelsToUnit(kTilePixelSizeH);
+            //_tileMeshHeight = Metrics.ConvertPixelsToUnit(kTilePixelsH + 1);
         }
         
         public void Dispose()
@@ -200,7 +204,7 @@ namespace ayy.pal
                 
                 int w = tileColorData.GetLength(0);
                 int h = tileColorData.GetLength(1);
-                if (w != kTileW || h != kTileH)
+                if (w != kTilePixelsW || h != kTilePixelsH)
                 {
                     Debug.LogWarning($"invalid tile at frame index:{frameIndex}");
                     continue;
@@ -223,7 +227,7 @@ namespace ayy.pal
                         else if (mode == EColorMode.PaletteLUT)
                         {
                             //ret.SetPixel(x + ox, y + oy,data);
-                            ret.SetPixel(x + ox, y + ((kTileH - 1) - oy),data); // flip y here
+                            ret.SetPixel(x + ox, y + ((kTilePixelsH - 1) - oy),data); // flip y here
                         }
                     }
                 }
@@ -237,8 +241,8 @@ namespace ayy.pal
         {
             int row = frameIndex / 16;
             int col = frameIndex % 16;
-            x = col * kTileW;
-            y = row * (kTileH + 1);
+            x = col * kTilePixelsW;
+            y = row * (kTilePixelSizeH);
         }
 
         public Texture2D GetTileMapTexture()
@@ -339,9 +343,9 @@ namespace ayy.pal
                 //private static int kTileW = 32;
                 //private static int kTileH = 15;
                 uvs.Add(new Vector2(ux,uy));
-                uvs.Add(new Vector2(ux + (float)(kTileW)/512.0f,uy));
-                uvs.Add(new Vector2(ux,uy + (float)(kTileH)/512.0f));
-                uvs.Add(new Vector2(ux + (float)(kTileW)/512.0f,uy + (float)(kTileH)/512.0f));
+                uvs.Add(new Vector2(ux + (float)(kTilePixelsW)/512.0f,uy));
+                uvs.Add(new Vector2(ux,uy + (float)(kTilePixelsH)/512.0f));
+                uvs.Add(new Vector2(ux + (float)(kTilePixelsW)/512.0f,uy + (float)(kTilePixelsH)/512.0f));
                 
                 // 用顶点色,承载更多数据, 比如 tile 是否能走. 用顶点色形式存储在mesh里,给shader 用于调试
                 Color color = Color.black;

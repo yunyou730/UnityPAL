@@ -55,8 +55,30 @@ namespace ayy.pal
             // tile左上角的 世界像素坐标
             int mapLayer = (int)mapTileCoord.TileLayer;
             int atLayer = tileLogicHeight * 8 + mapLayer;
-            int worldPixelX = mapTileCoord.TileX * 32 + mapTileCoord.TileH * 16 - 16;
-            int worldPixelY = mapTileCoord.TileY * 16 + mapTileCoord.TileH * 8 + 7 + atLayer;
+            
+            
+            /*
+             * 这里,几个 magic number 做一下注释
+             *
+             * worldPixelX
+             * 先计算 TileX * 32, 是因为 每个 tile 的 width 是 32;
+             * 再用 TileH * 16,
+             *      是因为 如果 TileH 是1， 会在  "横坐标" 上贡献 半个Tile.width ,也就是 32/2 = 16 个 横坐标；
+             *      TileH坐标哦是 0, 则横坐标无贡献
+             *
+             * 最后减去 16, 是减去了 Tile.Width 的一半.
+             * 相当于, 原本计算的 是 tile coord 菱形中心的坐标. 减去 16之后, 就变成了 左侧的 pixel 坐标 
+             *
+             * worldPixelY
+             * 用 TileY * 16, 这里的 16 是  Tile.Height
+             * + TileH * 8,
+             *      是因为 TileH 坐标, 如果是0，则 y方向贡献为0;
+             *      TileH 坐标，如果是 1， 则 y方向贡献为  半个 tile.height, 也就是 16/2 = 8
+             * 最后 +7 , 这里 7 ,应该是为了  "向下" ,获取 tile 底部像素,的  pixelY. 相当于取的是 "Tile 左下角" 的 像素坐标
+             * 再 + atLayer, 应该是逻辑上, 还需要这个 layer 来修正 
+             */
+            int worldPixelX = mapTileCoord.TileX * MapWrapper.kTilePixelsW + mapTileCoord.TileH * MapWrapper.kTilePixelsW / 2 - MapWrapper.kTilePixelsW / 2;
+            int worldPixelY = mapTileCoord.TileY * MapWrapper.kTilePixelSizeH + mapTileCoord.TileH * MapWrapper.kTilePixelSizeH / 2 + MapWrapper.kTilePixelsH / 2 + atLayer;
             
             node.ViewPixelX = worldPixelX - viewportX;
             node.ViewPixelY = worldPixelY - viewportY;
@@ -82,11 +104,11 @@ namespace ayy.pal
             int viewportX,
             int viewportY )
         {
-            const float zScaleFactor = 0.02f;
+            //const float zScaleFactor = 0.02f;
             foreach (RenderNode renderNode in _renderNodes)
             {
                 
-                float z = -renderNode.ViewPixelY * zScaleFactor;
+                float z = -renderNode.ViewPixelY * PalConst.Z_SCALE_FACTOR;
                 switch (renderNode.NodeType)
                 {
                     case ERenderNodeType.Sprite:
