@@ -47,7 +47,7 @@ namespace ayy.pal
         public bool UseNightPalette = false;    // 是否使用 夜晚 调色板
         
         // 当前场景地图Id
-        public int SceneId = 1;      // // 当前场景地图Id wNumScene
+        public int SceneId = 1;     // 当前场景地图Id wNumScene
         
         // 主角队伍信息
         Party[] parties = new Party[MAX_PLAYER_ROLE];

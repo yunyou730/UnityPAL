@@ -1,27 +1,5 @@
-using System.Collections.Generic;
-using ayy.pal.core;
-using UnityEngine;
-
 namespace ayy.pal
 {
-    /*
-     * 参考 SDLPal global.h 代码
-     * 作为 tagGLOBALVARS 的 g 成员
-     * 具体实现, 参考 glboal.h 的 tagGAMEDATA
-     */
-    public class PALGameData
-    {
-        public PALPlayerRole[] PlayerRoles = new PALPlayerRole[PALGameConst.MAX_PLAYER_ROLES];
-
-        public PALGameData()
-        {
-            for (int i = 0; i < PlayerRoles.Length; i++)
-            {
-                PlayerRoles[i] = new PALPlayerRole();
-            }
-        }
-    }
-
     /* 参考 global.h tagPLAYERROLES
      * 但差异是，SDLPal 这里,是一个 class ,里面所有成员都是数组
      * 这里， 是一个 class只保存1个成员的数据, 整体作为一个数组

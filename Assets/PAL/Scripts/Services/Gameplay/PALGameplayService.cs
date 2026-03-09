@@ -291,9 +291,15 @@ namespace ayy.pal
 			2. 收集 Monsters/Npcs/others 的 sprites, 以及对应的 cover tiles
 			3. 给所有 sprites 排序 
 			4. 绘制所有 sprite 
-			
 		*/
         private void UpdateSpriteEntities()
+        {
+            UpdatePlayerPartySprites();
+            UpdateEventObjectsSprites();
+        }
+
+
+        private void UpdatePlayerPartySprites()
         {
             int viewportX = _dataService.ViewportX;
             int viewportY = _dataService.ViewportY;
@@ -311,7 +317,6 @@ namespace ayy.pal
                 spriteEntity.SetPixelPosition(pixelX,pixelY);
                 spriteEntity.SetLayer(layer + 6);   // hard code + 6, 需要抽象为枚举
                 
-                
                 // @miao @todo
                 // 这里,直接设置 sprite Entity 的 z值
                 _renderOrderManager.CollectSpriteNode(spriteEntity);
@@ -319,15 +324,22 @@ namespace ayy.pal
                 // // 这里,直接设置 sprite Entity 的 z值
                 // spriteEntity.ApplyPixelPos(viewportX,viewportY);
                 
-                
-                
                 // 在下面的函数中, 也直接设置 ,可能遮挡 sprite 的tiles 的 z值
                 UpdateSpriteCoverTiles(viewportX, viewportY, spriteEntity);
             }
         }
-        
+
         /*
-         * 参考 SDLPAL scene.c PAL_CalcCoverTiles() 方法 
+         * Event Objects (Monsters/NPCs/others)
+         */
+        private void UpdateEventObjectsSprites()
+        {
+            // @miao @todo
+            
+        }
+
+        /*
+         * 参考 SDLPAL scene.c PAL_CalcCoverTiles() 方法
          * 计算所有,可能遮挡该 sprite 的 tiles
          */
         private void UpdateSpriteCoverTiles(

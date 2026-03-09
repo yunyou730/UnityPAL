@@ -52,16 +52,17 @@
     <Compile Include="Assets\PAL\Scripts\Core\Renderer\Metrics.cs" />
     <Compile Include="Assets\PAL\Scripts\Gameplay\SpriteEntityManager.cs" />
     <Compile Include="Assets\PAL\Scripts\Core\Renderer\PALViewport.cs" />
+    <Compile Include="Assets\PAL\Scripts\Services\Gameplay\PALGameData\PALGameData.cs" />
     <Compile Include="Assets\PAL\Scripts\Services\ViewportService.cs" />
     <Compile Include="Assets\PAL\Scripts\Services\ServiceType.cs" />
     <Compile Include="Assets\PAL\Scripts\Core\BinDecoder\YJ1.cs" />
+    <Compile Include="Assets\PAL\Scripts\Services\Gameplay\PALGameData\PALPlayerRole.cs" />
     <Compile Include="Assets\PAL\Scripts\Services\SpriteService.cs" />
     <Compile Include="Assets\PAL\Scripts\Core\Renderer\MapWrapper.cs" />
     <Compile Include="Assets\PAL\Scripts\Services\GameStateDataService.cs" />
     <Compile Include="Assets\PAL\Scripts\Core\BinDecoder\MKFLoader.cs" />
     <Compile Include="Assets\PAL\Scripts\Services\TestStateDataService.cs" />
     <Compile Include="Assets\TutorialInfo\Scripts\Readme.cs" />
-    <Compile Include="Assets\PAL\Scripts\Services\Gameplay\PALGameData.cs" />
     <Compile Include="Assets\Scripts\DebugMenu.cs" />
     <Compile Include="Assets\PAL\Scripts\Entry\PalConst.cs" />
     <Compile Include="Assets\PAL\Scripts\Services\Gameplay\PALGameConst.cs" />
@@ -75,6 +76,7 @@
     <Compile Include="Assets\PAL\Scripts\Entry\PalGame.cs" />
     <Compile Include="Assets\PAL\Scripts\Gameplay\MapEntityManager.cs" />
     <Compile Include="Assets\PAL\Scripts\Presenter\SpritePresenter.cs" />
+    <Compile Include="Assets\PAL\Scripts\Services\Gameplay\PALGameData\PALSceneRecord.cs" />
     <Compile Include="Assets\PAL\Scripts\Services\ConfigDataService.cs" />
     <Compile Include="Assets\PAL\Scripts\Core\Renderer\PALSprite.cs" />
     <Compile Include="Assets\PAL\Scripts\Services\LoadGameService.cs" />
